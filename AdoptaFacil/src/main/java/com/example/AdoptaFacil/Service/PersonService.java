@@ -1,7 +1,6 @@
 package com.example.AdoptaFacil.Service;
 
 import com.example.AdoptaFacil.DTO.PersonDTO;
-import com.example.AdoptaFacil.Entity.Person;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.example.AdoptaFacil.Implement;
 
 import com.example.AdoptaFacil.DTO.PersonDTO;
-import com.example.AdoptaFacil.Entity.Person;
+import com.example.AdoptaFacil.entity.Person;
 import com.example.AdoptaFacil.Repository.PersonRepository;
 import com.example.AdoptaFacil.Service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
