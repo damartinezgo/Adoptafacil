@@ -1,4 +1,4 @@
-package com.example.AdoptaFacil.Entity;
+package com.example.AdoptaFacil.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
