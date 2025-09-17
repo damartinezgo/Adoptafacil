@@ -1,6 +1,6 @@
 package com.example.AdoptaFacil.Service;
 
-import com.example.AdoptaFacil.entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Mascotas;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

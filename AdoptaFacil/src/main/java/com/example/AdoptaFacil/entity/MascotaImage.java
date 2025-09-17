@@ -15,7 +15,7 @@ public class MascotaImage {
     @Column(name = "imagen_path", nullable = false)
     private String imagenPath; // ruta de la imagen en "uploads/"
 
-    private Integer orden = 1; // orden de visualización (1, 2, 3)
+    private Integer orden = 1;
 
     // Relación con mascota
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,7 +1,7 @@
 package com.example.AdoptaFacil.Implement;
 
 import com.example.AdoptaFacil.DTO.RoleDTO;
-import com.example.AdoptaFacil.entity.Role;
+import com.example.AdoptaFacil.Entity.Role;
 import com.example.AdoptaFacil.Repository.RoleRepository;
 import com.example.AdoptaFacil.Service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;

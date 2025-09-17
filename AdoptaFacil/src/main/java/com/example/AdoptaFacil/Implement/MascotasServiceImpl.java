@@ -1,7 +1,7 @@
 package com.example.AdoptaFacil.Implement;
 
-import com.example.AdoptaFacil.entity.MascotaImage;
-import com.example.AdoptaFacil.entity.Mascotas;
+import com.example.AdoptaFacil.Entity.MascotaImage;
+import com.example.AdoptaFacil.Entity.Mascotas;
 import com.example.AdoptaFacil.Repository.MascotasRepository;
 import com.example.AdoptaFacil.Service.MascotasService;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +71,7 @@ public class MascotasServiceImpl implements MascotasService {
     public void eliminarMascota(Long id) {
         mascotasRepository.deleteById(id);
     }
+
 }
 
 

@@ -1,6 +1,6 @@
 package com.example.AdoptaFacil.DTO;
 
-import com.example.AdoptaFacil.entity.Role;
+import com.example.AdoptaFacil.Entity.Role;
 import lombok.Data;
 
 @Data

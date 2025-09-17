@@ -1,7 +1,7 @@
 package com.example.AdoptaFacil.Controller;
 
 
-import com.example.AdoptaFacil.entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Mascotas;
 import com.example.AdoptaFacil.Service.MascotasService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

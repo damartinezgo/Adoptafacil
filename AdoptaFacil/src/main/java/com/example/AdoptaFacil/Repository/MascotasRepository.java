@@ -1,7 +1,7 @@
 package com.example.AdoptaFacil.Repository;
 
-import com.example.AdoptaFacil.entity.Mascotas;
-import com.example.AdoptaFacil.entity.Person;
+import com.example.AdoptaFacil.Entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
