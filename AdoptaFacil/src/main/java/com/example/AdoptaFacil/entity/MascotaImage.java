@@ -1,4 +1,4 @@
-package com.example.AdoptaFacil.entity;
+package com.example.AdoptaFacil.Entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

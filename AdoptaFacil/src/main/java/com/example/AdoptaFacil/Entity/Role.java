@@ -1,4 +1,4 @@
-package com.example.AdoptaFacil.entity;
+package com.example.AdoptaFacil.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
