@@ -21,7 +21,7 @@ public class RoleServiceImpl implements RoleService {
     private RoleDTO convertToDTO(Role role) {
         RoleDTO dto = new RoleDTO();
         dto.setIdRole(role.getIdRole());
-        dto.setRoleName(role.getRoleName());
+        dto.setRoleType(role.getRoleType());
         return dto;
     }
 
@@ -29,7 +29,7 @@ public class RoleServiceImpl implements RoleService {
     private Role convertToEntity(RoleDTO dto) {
         Role role = new Role();
         role.setIdRole(dto.getIdRole());
-        role.setRoleName(dto.getRoleName());
+        role.setRoleType(dto.getRoleType());
         return role;
     }
 
@@ -57,11 +57,9 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDTO updateRole(Long idRole, RoleDTO roleDTO) {
         Optional<Role> existingRole = roleRepository.findById(idRole);
-
         if (existingRole.isPresent()) {
             Role role = existingRole.get();
-            role.setRoleName(roleDTO.getRoleName());
-
+            role.setRoleType(roleDTO.getRoleType());
             Role updated = roleRepository.save(role);
             return convertToDTO(updated);
         }
@@ -69,8 +67,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDTO getRoleByName(String roleName) {
-        return roleRepository.findByRoleNameIgnoreCase(roleName)
+    public RoleDTO getRoleByType(Role.RoleType roleType) {
+        return roleRepository.findByRoleType(roleType)
                 .map(this::convertToDTO)
                 .orElse(null);
     }

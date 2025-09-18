@@ -1,6 +1,7 @@
 package com.example.AdoptaFacil.Controller;
 
 import com.example.AdoptaFacil.DTO.RoleDTO;
+import com.example.AdoptaFacil.Entity.Role;
 import com.example.AdoptaFacil.Service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,10 @@ public class RoleController {
         return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
-    // 🔹 Buscar por nombre
-    @GetMapping("/name/{roleName}")
-    public ResponseEntity<RoleDTO> getRoleByName(@PathVariable String roleName) {
-        RoleDTO dto = roleService.getRoleByName(roleName);
+    // 🔹 Buscar por tipo
+    @GetMapping("/type/{roleType}")
+    public ResponseEntity<RoleDTO> getRoleByType(@PathVariable Role.RoleType roleType) {
+        RoleDTO dto = roleService.getRoleByType(roleType);
         return (dto != null) ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 

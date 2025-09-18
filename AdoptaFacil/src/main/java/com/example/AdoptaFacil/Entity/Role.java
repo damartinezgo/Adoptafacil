@@ -2,8 +2,6 @@ package com.example.AdoptaFacil.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.Set;
@@ -17,10 +15,14 @@ public class Role {
     @Column(name = "id_role")
     private Long idRole;
 
-    @NotBlank(message = "El nombre del rol es obligatorio")
-    @Size(min = 3, max = 30, message = "El nombre del rol debe tener entre 3 y 30 caracteres")
-    @Column(name = "name_role", unique = true, nullable = false)
-    private String roleName;
+    public enum RoleType {
+        ADMIN,
+        CLIENTE,
+        ALIADO
+    }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role_type", unique = true, nullable = false)
+    private RoleType roleType;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
