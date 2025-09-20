@@ -5,10 +5,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-
+@Data
 @Entity
 @Table(name = "donaciones")
-@Data
 public class Donaciones {
 
     @Id
@@ -17,19 +16,31 @@ public class Donaciones {
 
     // Relación con la persona que dona
     @ManyToOne
-    @JoinColumn(name = "id_person")
-    private Person CLIENTE;
+    @JoinColumn(name = "person_id", nullable = false)
+    private Person donante;
 
-    @Column(name="monto",nullable = false)
+    @Column(nullable = false)
     private Double monto;
 
-    @Column(name="metodoPago",length = 50, nullable = false)
-    private String metodoPago;
+    @Column(length = 255)
+    private String metodoPago; // Ej: Tarjeta, Nequi, PSE, etc.
 
-    @Column(name="fechaDonacion",nullable = false)
+    @Column(nullable = false)
     private LocalDateTime fechaDonacion;
 
-    @Column(name ="comentario", length = 1000)
-    private String comentario; // comentario opcional
+    @Column(length = 500)
+    private String comentario; // Opcional: mensaje del donante
+
+    // Constructor vacío (requerido por JPA)
+    public Donaciones() {}
+
+    // Constructor con parámetros
+    public Donaciones(Person donante, Double monto, String metodoPago, LocalDateTime fechaDonacion, String comentario) {
+        this.donante = donante;
+        this.monto = monto;
+        this.metodoPago = metodoPago;
+        this.fechaDonacion = fechaDonacion;
+        this.comentario = comentario;
+    }
 }
 
