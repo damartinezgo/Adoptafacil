@@ -4,6 +4,7 @@ import com.example.AdoptaFacil.DTO.PersonDTO;
 import com.example.AdoptaFacil.Service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,4 +61,13 @@ public class PersonController {
         personService.deletePerson(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/personas")
+    public String verPersonas(Model model) {
+        List<PersonDTO> personas;
+        personas = personService.listPersons();
+        model.addAttribute("personas", personas);
+        return "personas/listar-personas";
+    }
+
 }
