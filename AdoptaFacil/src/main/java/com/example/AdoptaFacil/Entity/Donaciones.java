@@ -1,8 +1,11 @@
 package com.example.AdoptaFacil.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "donaciones")
 public class Donaciones {
@@ -37,51 +40,6 @@ public class Donaciones {
         this.monto = monto;
         this.metodoPago = metodoPago;
         this.fechaDonacion = fechaDonacion;
-        this.comentario = comentario;
-    }
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public Person getDonante() {
-        return donante;
-    }
-
-    public void setDonante(Person donante) {
-        this.donante = donante;
-    }
-
-    public Double getMonto() {
-        return monto;
-    }
-
-    public void setMonto(Double monto) {
-        this.monto = monto;
-    }
-
-    public String getMetodoPago() {
-        return metodoPago;
-    }
-
-    public void setMetodoPago(String metodoPago) {
-        this.metodoPago = metodoPago;
-    }
-
-    public LocalDateTime getFechaDonacion() {
-        return fechaDonacion;
-    }
-
-    public void setFechaDonacion(LocalDateTime fechaDonacion) {
-        this.fechaDonacion = fechaDonacion;
-    }
-
-    public String getComentario() {
-        return comentario;
-    }
-
-    public void setComentario(String comentario) {
         this.comentario = comentario;
     }
 }

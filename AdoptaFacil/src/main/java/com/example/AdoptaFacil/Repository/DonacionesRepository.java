@@ -14,8 +14,9 @@ public interface DonacionesRepository extends JpaRepository<Donaciones, Long> {
     List<Donaciones> findByDonante(Person donante);
 
     // Buscar donaciones mayores a un monto específico
+
     List<Donaciones> findByMontoGreaterThan(Double monto);
 
-    // Buscar donaciones por método de pago
+    // Buscar donaciones por metodo de pago
     List<Donaciones> findByMetodoPago(String metodoPago);
 }
