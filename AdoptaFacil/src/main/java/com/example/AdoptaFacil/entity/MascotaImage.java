@@ -10,6 +10,7 @@ public class MascotaImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_mascota_image")
     private Long id;
 
     @Column(name = "imagen_path", nullable = false)
