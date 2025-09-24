@@ -7,20 +7,79 @@ import { ThemedView } from "@/components/themed-view";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import { Alert, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { createContext, useContext } from "react";
 
-export default function ConfiguracionScreen() {
-  const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [mascotas, setMascotas] = useState([
+// se define la estructura de una mascota
+export interface Mascota {
+  id: number;
+  nombre: string;
+  especie: string;
+  raza: string;
+  edad: string;
+  imagenes: string[]; 
+}
+
+// Creamos un contexto para compartir el estado de mascotas en toda la app
+const MascotasContext = createContext<{
+  mascotas: Mascota[];
+  setMascotas: React.Dispatch<React.SetStateAction<Mascota[]>>;
+} | null>(null);
+
+// Hook personalizado para acceder fácilmente al contexto de mascotas
+export function useMascotas() {
+  const ctx = useContext(MascotasContext);
+  if (!ctx) throw new Error("useMascotas debe usarse dentro de MascotasProvider");
+  return ctx;
+}
+
+export function MascotasProvider({ children }: { children: React.ReactNode }) {
+  const [mascotas, setMascotas] = useState<Mascota[]>([
     {
       id: 1,
       nombre: "Firulais",
       especie: "Perro",
       raza: "Labrador",
       edad: "2 años",
+      imagenes: ["https://placedog.net/500/500?id=1"],
     },
-    { id: 2, nombre: "Michi", especie: "Gato", raza: "Siamés", edad: "1 año" },
+    {
+      id: 2,
+      nombre: "Michi",
+      especie: "Gato",
+      raza: "Siamés",
+      edad: "1 año",
+      imagenes: ["https://cdn2.thecatapi.com/images/9j5.jpg"],
+    },
+    {
+      id: 3,
+      nombre: "Max",
+      especie: "Perro",
+      raza: "Bulldog",
+      edad: "3 años",
+      imagenes: ["https://placedog.net/500/500?id=2"],
+    },
+    {
+      id: 4,
+      nombre: "Luna",
+      especie: "Gato",
+      raza: "Persa",
+      edad: "4 años",
+      imagenes: ["https://cdn2.thecatapi.com/images/MTY3ODIyMQ.jpg"],
+    },
   ]);
+
+  // El Provider permite que cualquier componente hijo acceda a "mascotas" y "setMascotas"
+  return (
+    <MascotasContext.Provider value={{ mascotas, setMascotas }}>
+      {children}
+    </MascotasContext.Provider>
+  );
+}
+
+export default function ConfiguracionScreen() {
+  const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const { mascotas, setMascotas } = useMascotas();
 
   const [form, setForm] = useState({
     nombre: "",
@@ -93,19 +152,25 @@ export default function ConfiguracionScreen() {
       !form.raza ||
       !form.fechaNacimiento ||
       !form.sexo ||
-      !form.ciudad
+      !form.ciudad ||
+      form.imagenes.length === 0
     ) {
       Alert.alert("Error", "Por favor completa todos los campos obligatorios");
       return;
     }
-    const newMascota = {
+
+    // aquí tipamos explícitamente como Mascota
+    const newMascota: Mascota = {
       id: mascotas.length + 1,
       nombre: form.nombre,
       especie: form.especie,
       raza: form.raza,
       edad: form.edad,
+      imagenes: form.imagenes,
     };
-    setMascotas([...mascotas, newMascota]);
+
+    setMascotas(prev => [...prev, newMascota]);
+
     setForm({
       nombre: "",
       especie: "",
@@ -130,7 +195,6 @@ export default function ConfiguracionScreen() {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
       onPress: () => {
-        // TODO: Navigate to account settings
         console.log("Navigate to Configuración de Cuenta");
       },
     },
@@ -138,7 +202,6 @@ export default function ConfiguracionScreen() {
       title: "Notificaciones",
       description: "Configurar preferencias de notificaciones",
       onPress: () => {
-        // TODO: Navigate to notifications settings
         console.log("Navigate to Notificaciones");
       },
     },
@@ -146,7 +209,6 @@ export default function ConfiguracionScreen() {
       title: "Ayuda y Soporte",
       description: "Centro de ayuda y contacto",
       onPress: () => {
-        // TODO: Navigate to help screen
         console.log("Navigate to Ayuda y Soporte");
       },
     },
