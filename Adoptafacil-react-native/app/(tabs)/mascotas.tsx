@@ -8,7 +8,6 @@ export default function MascotasScreen() {
   const {mascotas} = useMascotas();
   return (
     <ScrollView style={styles.container}>
-          {/* Sección de bienvenida */}
           <LinearGradient
             colors={["#00c161ff", "#0000c5ff"]}
             start={{ x: 0, y: 0 }}
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 28, // un poco más grande
+    fontSize: 28,
     fontWeight: "bold",
     marginTop: 20,
     marginBottom: 10,
@@ -71,7 +70,7 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 20,
     textAlign: "center",
-    lineHeight: 22, // más legible
+    lineHeight: 22,
   },
 
   cardsContainer: {
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
     width: "45%",
     maxWidth: 220,
     backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 24, // esquinas más suaves
+    borderRadius: 24,
     paddingVertical: 25,
     paddingHorizontal: 15,
     borderWidth: 1,
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
-    alignItems: "center", // centrar todo
+    alignItems: "center",
   },
 
   foto: {
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
   },
 
   info: {
-    alignItems: "center", // centrar textos
+    alignItems: "center",
   },
 
   nombre: {
