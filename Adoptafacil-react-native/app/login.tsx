@@ -61,7 +61,7 @@ export default function LoginScreen() {
 
               <TouchableOpacity
                 style={styles.registerButton}
-                onPress={() => router.push("/register")}
+                onPress={() => router.push("/register-options")}
               >
                 <ThemedText style={styles.registerButtonText}>
                   ¿No tienes cuenta? Regístrate
