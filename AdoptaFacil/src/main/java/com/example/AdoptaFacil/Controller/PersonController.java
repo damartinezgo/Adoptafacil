@@ -37,9 +37,9 @@ public class PersonController {
     }
 
     // 🔹 Buscar por rol
-    @GetMapping("/role/{roleName}")
-    public ResponseEntity<List<PersonDTO>> listPersonByRole(@PathVariable String roleName) {
-        return ResponseEntity.ok(personService.listPersonByRole(roleName));
+    @GetMapping("/role/{roleType}")
+    public ResponseEntity<List<PersonDTO>> listPersonByRole(@PathVariable String roleType) {
+        return ResponseEntity.ok(personService.listPersonByRole(roleType));
     }
 
     // 🔹 Crear

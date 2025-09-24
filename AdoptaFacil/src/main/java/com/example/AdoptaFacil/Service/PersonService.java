@@ -8,7 +8,7 @@ public interface PersonService {
 
     List<PersonDTO> listPersons();
 
-    List<PersonDTO> listPersonByRole(String roleName);
+    List<PersonDTO> listPersonByRole(String roleType);
 
     PersonDTO getPersonByEmail(String email);
 
