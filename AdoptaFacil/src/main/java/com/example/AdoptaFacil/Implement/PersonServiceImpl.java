@@ -50,8 +50,8 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<PersonDTO> listPersonByRole(String roleName) {
-        return personRepository.findByRole_RoleNameIgnoreCase(roleName)
+    public List<PersonDTO> listPersonByRole(String roleType) {
+        return personRepository.findByRole_RoleTypeIgnoreCase(roleType)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -16,12 +16,15 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 
 export default function RegisterScreen() {
+  const { userType } = useLocalSearchParams();
+
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
     correo: "",
     contrasena: "",
     confirmarContrasena: "",
+    tipoUsuario: userType || "amigo",
   });
 
   const [errors, setErrors] = useState({
@@ -89,9 +92,13 @@ export default function RegisterScreen() {
   const handleRegister = () => {
     if (validateForm()) {
       // Aquí iría la lógica de registro (API call, etc.)
+      const tipoTexto =
+        formData.tipoUsuario === "amigo"
+          ? "Amigo AdoptaFácil"
+          : "Aliado AdoptaFácil";
       Alert.alert(
         "Registro Exitoso",
-        "¡Tu cuenta ha sido creada exitosamente!",
+        `¡Tu cuenta como ${tipoTexto} ha sido creada exitosamente!`,
         [
           {
             text: "OK",
@@ -125,9 +132,15 @@ export default function RegisterScreen() {
                 source={require("@/assets/images/Logo.png")}
                 style={styles.logo}
               />
-              <ThemedText style={styles.title}>Crear Cuenta</ThemedText>
+              <ThemedText style={styles.title}>
+                {formData.tipoUsuario === "amigo"
+                  ? "Registro Amigo AdoptaFácil"
+                  : "Registro Aliado AdoptaFácil"}
+              </ThemedText>
               <ThemedText style={styles.subtitle}>
-                Únete a AdoptaFácil y encuentra tu compañero perfecto
+                {formData.tipoUsuario === "amigo"
+                  ? "Únete a AdoptaFácil y encuentra tu compañero perfecto"
+                  : "Únete a nuestra red de refugios y ayuda a más mascotas"}
               </ThemedText>
 
               <View style={styles.formContainer}>
@@ -232,6 +245,15 @@ export default function RegisterScreen() {
                 >
                   <ThemedText style={styles.loginButtonText}>
                     ¿Ya tienes cuenta? Inicia Sesión
+                  </ThemedText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => router.push("/register-options")}
+                >
+                  <ThemedText style={styles.backButtonText}>
+                    ← Cambiar tipo de registro
                   </ThemedText>
                 </TouchableOpacity>
               </View>
@@ -352,5 +374,14 @@ const styles = StyleSheet.create({
     color: "#01e157ff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  backButton: {
+    alignSelf: "center",
+    marginTop: 15,
+  },
+  backButtonText: {
+    color: "#63b3ed",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

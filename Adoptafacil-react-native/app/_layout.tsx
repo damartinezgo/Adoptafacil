@@ -11,7 +11,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { MascotasProvider } from "./(tabs)/settings";
 
 export const unstable_settings = {
-  anchor: "(tabs)",
+  anchor: "login",
 };
 
 export default function RootLayout() {
@@ -21,6 +21,12 @@ export default function RootLayout() {
     <MascotasProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="register-options"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="modal"
