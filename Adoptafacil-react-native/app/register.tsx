@@ -14,6 +14,7 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { authAPI } from "@/api";
 
 export default function RegisterScreen() {
   const { userType } = useLocalSearchParams();
@@ -34,6 +35,8 @@ export default function RegisterScreen() {
     contrasena: "",
     confirmarContrasena: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -89,23 +92,52 @@ export default function RegisterScreen() {
     return isValid;
   };
 
-  const handleRegister = () => {
-    if (validateForm()) {
-      // Aquí iría la lógica de registro (API call, etc.)
+  const handleRegister = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Mapear el tipo de usuario del frontend al enum del backend
+      const role = formData.tipoUsuario === "amigo" ? "CLIENTE" : "ALIADO";
+
+      const userData = {
+        name: formData.nombre,
+        lastName: formData.apellido,
+        email: formData.correo,
+        password: formData.contrasena,
+        role: role as "CLIENTE" | "ALIADO",
+      };
+
+      await authAPI.register(userData);
+
       const tipoTexto =
         formData.tipoUsuario === "amigo"
           ? "Amigo AdoptaFácil"
           : "Aliado AdoptaFácil";
+
       Alert.alert(
         "Registro Exitoso",
-        `¡Tu cuenta como ${tipoTexto} ha sido creada exitosamente!`,
+        `¡Tu cuenta como ${tipoTexto} ha sido creada exitosamente! Ya puedes iniciar sesión.`,
         [
           {
-            text: "OK",
-            onPress: () => router.push("/login"),
+            text: "Ir a Login",
+            onPress: () => router.replace("/login"),
           },
         ]
       );
+    } catch (error) {
+      console.error("Error en registro:", error);
+      Alert.alert(
+        "Error",
+        error instanceof Error
+          ? error.message
+          : "Error al registrar usuario. Inténtalo de nuevo."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,11 +263,15 @@ export default function RegisterScreen() {
                 ) : null}
 
                 <TouchableOpacity
-                  style={styles.registerButton}
+                  style={[
+                    styles.registerButton,
+                    loading ? styles.buttonDisabled : null,
+                  ]}
                   onPress={handleRegister}
+                  disabled={loading}
                 >
                   <ThemedText style={styles.registerButtonText}>
-                    Crear Cuenta
+                    {loading ? "Creando cuenta..." : "Crear Cuenta"}
                   </ThemedText>
                 </TouchableOpacity>
 
@@ -383,5 +419,9 @@ const styles = StyleSheet.create({
     color: "#63b3ed",
     fontSize: 13,
     fontWeight: "500",
+  },
+  buttonDisabled: {
+    backgroundColor: "#a0aec0",
+    opacity: 0.6,
   },
 });

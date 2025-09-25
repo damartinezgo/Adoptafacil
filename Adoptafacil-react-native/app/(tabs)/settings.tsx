@@ -5,9 +5,8 @@ import {
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useState, createContext, useContext } from "react";
 import { Alert, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { createContext, useContext } from "react";
 
 // se define la estructura de una mascota
 export interface Mascota {
@@ -16,7 +15,7 @@ export interface Mascota {
   especie: string;
   raza: string;
   edad: string;
-  imagenes: string[]; 
+  imagenes: string[];
 }
 
 // Creamos un contexto para compartir el estado de mascotas en toda la app
@@ -28,7 +27,8 @@ const MascotasContext = createContext<{
 // Hook personalizado para acceder fácilmente al contexto de mascotas
 export function useMascotas() {
   const ctx = useContext(MascotasContext);
-  if (!ctx) throw new Error("useMascotas debe usarse dentro de MascotasProvider");
+  if (!ctx)
+    throw new Error("useMascotas debe usarse dentro de MascotasProvider");
   return ctx;
 }
 
@@ -169,7 +169,7 @@ export default function ConfiguracionScreen() {
       imagenes: form.imagenes,
     };
 
-    setMascotas(prev => [...prev, newMascota]);
+    setMascotas((prev) => [...prev, newMascota]);
 
     setForm({
       nombre: "",

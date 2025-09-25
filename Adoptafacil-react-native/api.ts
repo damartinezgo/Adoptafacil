@@ -1,10 +1,11 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Base URL for the API - adjust for your environment
-// For Android emulator: http://10.0.2.2:8081
-// For iOS simulator: http://localhost:8081
+// For Android emulator: http://10.0.2.2:8080
+// For iOS simulator: http://localhost:8080
 // For physical device: use your computer's IP address
-const BASE_URL = "http://10.0.2.2:8081/api";
+const BASE_URL = "http://10.0.2.2:8080/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -13,6 +14,91 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Token storage utilities
+export const tokenStorage = {
+  setToken: async (token: string) => {
+    try {
+      await AsyncStorage.setItem("@adoptafacil_token", token);
+    } catch (error) {
+      console.error("Error storing token:", error);
+    }
+  },
+
+  getToken: async (): Promise<string | null> => {
+    try {
+      return await AsyncStorage.getItem("@adoptafacil_token");
+    } catch (error) {
+      console.error("Error retrieving token:", error);
+      return null;
+    }
+  },
+
+  removeToken: async () => {
+    try {
+      await AsyncStorage.removeItem("@adoptafacil_token");
+    } catch (error) {
+      console.error("Error removing token:", error);
+    }
+  },
+};
+
+// User data storage utilities
+export const userStorage = {
+  setUser: async (user: any) => {
+    try {
+      await AsyncStorage.setItem("@adoptafacil_user", JSON.stringify(user));
+    } catch (error) {
+      console.error("Error storing user:", error);
+    }
+  },
+
+  getUser: async (): Promise<any | null> => {
+    try {
+      const userData = await AsyncStorage.getItem("@adoptafacil_user");
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error("Error retrieving user:", error);
+      return null;
+    }
+  },
+
+  removeUser: async () => {
+    try {
+      await AsyncStorage.removeItem("@adoptafacil_user");
+    } catch (error) {
+      console.error("Error removing user:", error);
+    }
+  },
+};
+
+// Request interceptor to add token to requests
+api.interceptors.request.use(
+  async (config) => {
+    const token = await tokenStorage.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle token expiration
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid, clear storage
+      await tokenStorage.removeToken();
+      await userStorage.removeUser();
+      // You might want to redirect to login here
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Mascotas API
 export const mascotasAPI = {
@@ -253,6 +339,82 @@ export const solicitudesAPI = {
       console.error("Error updating solicitud estado:", error);
       throw error;
     }
+  },
+};
+
+// Authentication API
+export const authAPI = {
+  // Login user
+  login: async (email: string, password: string) => {
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      if (response.data.token) {
+        // Store token and user data
+        await tokenStorage.setToken(response.data.token);
+        await userStorage.setUser(response.data.user);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Error logging in:", error);
+      if (isAxiosError(error)) {
+        throw new Error(error.response?.data || "Error al iniciar sesión");
+      }
+      throw error;
+    }
+  },
+
+  // Register user
+  register: async (userData: {
+    name: string;
+    lastName: string;
+    email: string;
+    password: string;
+    role: "CLIENTE" | "ALIADO";
+  }) => {
+    try {
+      const response = await api.post("/auth/register", userData);
+
+      if (response.data.token) {
+        // Store token and user data
+        await tokenStorage.setToken(response.data.token);
+        await userStorage.setUser(response.data.user);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error("Error registering user:", error);
+      if (isAxiosError(error)) {
+        throw new Error(error.response?.data || "Error al registrar usuario");
+      }
+      throw error;
+    }
+  },
+
+  // Logout user
+  logout: async () => {
+    try {
+      await tokenStorage.removeToken();
+      await userStorage.removeUser();
+    } catch (error) {
+      console.error("Error logging out:", error);
+      throw error;
+    }
+  },
+
+  // Check if user is authenticated
+  isAuthenticated: async (): Promise<boolean> => {
+    const token = await tokenStorage.getToken();
+    return !!token;
+  },
+
+  // Get current user data
+  getCurrentUser: async () => {
+    return await userStorage.getUser();
   },
 };
 

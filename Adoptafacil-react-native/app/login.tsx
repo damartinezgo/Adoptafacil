@@ -1,6 +1,9 @@
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
   Image,
   StyleSheet,
   TextInput,
@@ -10,9 +13,71 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { router } from "expo-router";
+import { authAPI } from "@/api";
 
 export default function LoginScreen() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      email: "",
+      password: "",
+    };
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "El correo es requerido";
+      isValid = false;
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Ingresa un correo válido";
+      isValid = false;
+    }
+
+    // Validar contraseña
+    if (!formData.password) {
+      newErrors.password = "La contraseña es requerida";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleLogin = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await authAPI.login(formData.email, formData.password);
+
+      Alert.alert("Login Exitoso", `Bienvenido ${response.user.name}!`, [
+        {
+          text: "OK",
+          onPress: () => router.replace("/(tabs)"),
+        },
+      ]);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error instanceof Error ? error.message : "Error al iniciar sesión"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -34,22 +99,55 @@ export default function LoginScreen() {
 
             <View style={styles.formContainer}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 placeholder="Correo electrónico"
                 placeholderTextColor="#718096"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                value={formData.email}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, email: text });
+                  if (errors.email) {
+                    setErrors({ ...errors, email: "" });
+                  }
+                }}
               />
+              {errors.email ? (
+                <ThemedText style={styles.errorText}>{errors.email}</ThemedText>
+              ) : null}
+
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  errors.password ? styles.inputError : null,
+                ]}
                 placeholder="Contraseña"
                 placeholderTextColor="#718096"
                 secureTextEntry
+                value={formData.password}
+                onChangeText={(text) => {
+                  setFormData({ ...formData, password: text });
+                  if (errors.password) {
+                    setErrors({ ...errors, password: "" });
+                  }
+                }}
               />
+              {errors.password ? (
+                <ThemedText style={styles.errorText}>
+                  {errors.password}
+                </ThemedText>
+              ) : null}
 
-              <TouchableOpacity style={styles.loginButton}>
+              <TouchableOpacity
+                style={[
+                  styles.loginButton,
+                  loading ? styles.buttonDisabled : null,
+                ]}
+                onPress={handleLogin}
+                disabled={loading}
+              >
                 <ThemedText style={styles.loginButtonText}>
-                  Iniciar Sesión
+                  {loading ? "Iniciando..." : "Iniciar Sesión"}
                 </ThemedText>
               </TouchableOpacity>
 
@@ -177,5 +275,20 @@ const styles = StyleSheet.create({
     color: "#01e157ff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  inputError: {
+    borderColor: "#e53e3e",
+    borderWidth: 2,
+  },
+  errorText: {
+    color: "#e53e3e",
+    fontSize: 12,
+    marginTop: -10,
+    marginBottom: 10,
+    marginLeft: 20,
+  },
+  buttonDisabled: {
+    backgroundColor: "#a0aec0",
+    opacity: 0.6,
   },
 });

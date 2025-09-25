@@ -51,10 +51,16 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<PersonDTO> listPersonByRole(String roleType) {
-        return personRepository.findByRole_RoleTypeIgnoreCase(roleType)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        try {
+            com.example.AdoptaFacil.Entity.Role.RoleType typeEnum = com.example.AdoptaFacil.Entity.Role.RoleType.valueOf(roleType.toUpperCase());
+            return personRepository.findByRole_RoleType(typeEnum)
+                    .stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (IllegalArgumentException e) {
+            // Si el rol no existe, retorna lista vacía
+            return List.of();
+        }
     }
 
     @Override

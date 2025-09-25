@@ -9,5 +9,5 @@ import java.util.List;
 public interface MascotasRepository extends JpaRepository<Mascotas, Long> {
     List<Mascotas> findByNombreContainingIgnoreCase(String nombre);
     List<Mascotas> findByEspecie(String especie);
-    List<Mascotas> findByUsuario(Person usuario);
+    List<Mascotas> findByALIADO(Person aliado);
 }
