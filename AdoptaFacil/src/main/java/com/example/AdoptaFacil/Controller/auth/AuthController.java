@@ -132,4 +132,10 @@ public class AuthController {
                 .body("Error interno del servidor");
         }
     }
+    
+    // Endpoint de prueba para verificar conectividad
+    @GetMapping("/test")
+    public ResponseEntity<?> testConnection() {
+        return ResponseEntity.ok("API funcionando correctamente - " + java.time.LocalDateTime.now());
+    }
 }

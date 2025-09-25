@@ -1,25 +1,27 @@
 import axios, { isAxiosError } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Base URL for the API - adjust for your environment
-// For Android emulator: http://10.0.2.2:8080
-// For iOS simulator: http://localhost:8080
-// For physical device: use your computer's IP address
-const BASE_URL = "http://10.0.2.2:8080/api";
+import { BASE_URL, API_TIMEOUT, APP_CONFIG } from "./config";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
+  timeout: API_TIMEOUT,
   headers: {
     "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
+
+// Log de la configuración inicial
+console.log("=== API CONFIGURATION ===");
+console.log("BASE_URL:", BASE_URL);
+console.log("API_TIMEOUT:", API_TIMEOUT);
+console.log("========================");
 
 // Token storage utilities
 export const tokenStorage = {
   setToken: async (token: string) => {
     try {
-      await AsyncStorage.setItem("@adoptafacil_token", token);
+      await AsyncStorage.setItem(APP_CONFIG.JWT_TOKEN_KEY, token);
     } catch (error) {
       console.error("Error storing token:", error);
     }
@@ -27,7 +29,7 @@ export const tokenStorage = {
 
   getToken: async (): Promise<string | null> => {
     try {
-      return await AsyncStorage.getItem("@adoptafacil_token");
+      return await AsyncStorage.getItem(APP_CONFIG.JWT_TOKEN_KEY);
     } catch (error) {
       console.error("Error retrieving token:", error);
       return null;
@@ -36,7 +38,7 @@ export const tokenStorage = {
 
   removeToken: async () => {
     try {
-      await AsyncStorage.removeItem("@adoptafacil_token");
+      await AsyncStorage.removeItem(APP_CONFIG.JWT_TOKEN_KEY);
     } catch (error) {
       console.error("Error removing token:", error);
     }
@@ -47,7 +49,10 @@ export const tokenStorage = {
 export const userStorage = {
   setUser: async (user: any) => {
     try {
-      await AsyncStorage.setItem("@adoptafacil_user", JSON.stringify(user));
+      await AsyncStorage.setItem(
+        APP_CONFIG.USER_DATA_KEY,
+        JSON.stringify(user)
+      );
     } catch (error) {
       console.error("Error storing user:", error);
     }
@@ -55,7 +60,7 @@ export const userStorage = {
 
   getUser: async (): Promise<any | null> => {
     try {
-      const userData = await AsyncStorage.getItem("@adoptafacil_user");
+      const userData = await AsyncStorage.getItem(APP_CONFIG.USER_DATA_KEY);
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
       console.error("Error retrieving user:", error);
@@ -65,7 +70,7 @@ export const userStorage = {
 
   removeUser: async () => {
     try {
-      await AsyncStorage.removeItem("@adoptafacil_user");
+      await AsyncStorage.removeItem(APP_CONFIG.USER_DATA_KEY);
     } catch (error) {
       console.error("Error removing user:", error);
     }
@@ -75,6 +80,10 @@ export const userStorage = {
 // Request interceptor to add token to requests
 api.interceptors.request.use(
   async (config) => {
+    console.log(
+      "Making request to:",
+      `${config.baseURL || ""}${config.url || ""}`
+    );
     const token = await tokenStorage.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -82,14 +91,26 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error("Request interceptor error:", error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor to handle token expiration
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("Response received:", response.status, response.config.url);
+    return response;
+  },
   async (error) => {
+    console.error("API Error:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method,
+    });
+
     if (error.response?.status === 401) {
       // Token expired or invalid, clear storage
       await tokenStorage.removeToken();
@@ -344,6 +365,26 @@ export const solicitudesAPI = {
 
 // Authentication API
 export const authAPI = {
+  // Test connectivity
+  testConnection: async () => {
+    try {
+      console.log("Testing connection to:", BASE_URL + "/auth/test");
+      const response = await api.get("/auth/test");
+      console.log("Connection test successful:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Connection test failed:", error);
+      if (isAxiosError(error)) {
+        console.error("Error details:", {
+          message: error.message,
+          code: error.code,
+          response: error.response?.data,
+        });
+      }
+      throw error;
+    }
+  },
+
   // Login user
   login: async (email: string, password: string) => {
     try {

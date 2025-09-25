@@ -113,21 +113,16 @@ export default function RegisterScreen() {
 
       await authAPI.register(userData);
 
-      const tipoTexto =
-        formData.tipoUsuario === "amigo"
-          ? "Amigo AdoptaFácil"
-          : "Aliado AdoptaFácil";
+      // Redirección automática al home después del registro exitoso
+      router.replace("/(tabs)");
 
-      Alert.alert(
-        "Registro Exitoso",
-        `¡Tu cuenta como ${tipoTexto} ha sido creada exitosamente! Ya puedes iniciar sesión.`,
-        [
-          {
-            text: "Ir a Login",
-            onPress: () => router.replace("/login"),
-          },
-        ]
-      );
+      // Opcional: Mostrar un mensaje de bienvenida más sutil
+      setTimeout(() => {
+        Alert.alert(
+          "¡Bienvenido a AdoptaFácil!",
+          `Tu cuenta ha sido creada exitosamente. ¡Comencemos a encontrar tu compañero perfecto!`
+        );
+      }, 500);
     } catch (error) {
       console.error("Error en registro:", error);
       Alert.alert(
