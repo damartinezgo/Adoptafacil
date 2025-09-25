@@ -1,10 +1,18 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { View, TextInput, TouchableOpacity, ScrollView, Image } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
 
 export default function ComunidadScreen() {
   return (
-    <View style={{ flex: 1, flexDirection: "column", backgroundColor: "#f3f4f6" }}>
+    <View
+      style={{ flex: 1, flexDirection: "column", backgroundColor: "#f3f4f6" }}
+    >
       {/* BARRA SUPERIOR */}
       <View
         style={{
@@ -77,7 +85,8 @@ export default function ComunidadScreen() {
         >
           <ThemedText type="title">¡Únete a nuestra comunidad!</ThemedText>
           <ThemedText>
-            Comparte experiencias, consejos y ayuda a otros amantes de los animales.
+            Comparte experiencias, consejos y ayuda a otros amantes de los
+            animales.
           </ThemedText>
           <View style={{ flexDirection: "row", marginTop: 12 }}>
             <TouchableOpacity
@@ -88,7 +97,9 @@ export default function ComunidadScreen() {
                 marginRight: 8,
               }}
             >
-              <ThemedText style={{ color: "white" }}>Crear Cuenta Gratis</ThemedText>
+              <ThemedText style={{ color: "white" }}>
+                Crear Cuenta Gratis
+              </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -98,7 +109,9 @@ export default function ComunidadScreen() {
                 borderRadius: 8,
               }}
             >
-              <ThemedText style={{ color: "#10b981" }}>Ya tengo cuenta</ThemedText>
+              <ThemedText style={{ color: "#10b981" }}>
+                Ya tengo cuenta
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </ThemedView>
@@ -112,7 +125,7 @@ export default function ComunidadScreen() {
             marginBottom: 16,
           }}
         >
-          <ThemedText type="subtitle">Danna <Martinez></Martinez></ThemedText>
+          <ThemedText type="subtitle">Danna</ThemedText>
           <ThemedText style={{ color: "#6b7280" }}>Hace 1 mes</ThemedText>
           <ThemedText>📢 Mañana jornada de esterilización.</ThemedText>
           <Image
