@@ -22,7 +22,7 @@ export default function HomeScreen() {
         style={styles.welcomeSection}
       >
         <ThemedText style={styles.mainTitle}>
-          Encuentra a tu nuevo mejor amigo
+          Bienvenidx a AdoptaFácil: Encuentra a tu nuevo mejor amigo
         </ThemedText>
         <ThemedText style={styles.subtitle}>
           Conectamos a mascotas necesitadas con hogares amorosos desde 2025

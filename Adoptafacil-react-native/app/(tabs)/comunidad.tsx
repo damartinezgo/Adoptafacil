@@ -155,7 +155,7 @@ const CreatePost = ({ onPublish }: { onPublish: (text: string) => void }) => {
         placeholder="¿Qué quieres compartir hoy?"
         value={text}
         onChangeText={setText}
-        placeholderTextColor="#6b7280"
+        placeholderTextColor="#ffffffff"
       />
       <TouchableOpacity
         style={styles.publishBtn}
