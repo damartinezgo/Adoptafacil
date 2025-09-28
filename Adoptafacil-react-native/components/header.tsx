@@ -1,16 +1,34 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-// import { useRouter } from "expo-router";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
+import { authAPI } from "@/api";
 
 export default function Header() {
-  // Función de logout simple
-  const handleLogout = () => {
-    // Aquí va la lógica de cierre de sesión, por ejemplo limpiar tokens y redirigir
-    alert("Sesión cerrada");
-    // Puedes agregar navegación si lo necesitas
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await authAPI.getCurrentUser();
+      setUser(currentUser);
+    };
+    loadUser();
+  }, []);
+
+  // Función para cerrar sesión
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout();
+      router.replace("/login");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+      // En caso de error, aún redirigir al login
+      router.replace("/login");
+    }
   };
 
   return (
@@ -24,6 +42,13 @@ export default function Header() {
         source={require("@/assets/images/LogoWhite.png")}
         style={styles.logo}
       />
+      <View style={styles.userInfo}>
+        {user && (
+          <ThemedText style={styles.userText}>
+            {user.name} {user.lastName}
+          </ThemedText>
+        )}
+      </View>
       <TouchableOpacity style={styles.loginButton} onPress={handleLogout}>
         <ThemedText style={styles.loginText}>Cerrar sesión</ThemedText>
       </TouchableOpacity>
@@ -42,6 +67,15 @@ const styles = StyleSheet.create({
   logo: {
     width: 60,
     height: 60,
+  },
+  userInfo: {
+    flex: 1,
+    alignItems: "center",
+  },
+  userText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   loginButton: {
     backgroundColor: "rgba(156, 0, 0, 1)",

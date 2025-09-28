@@ -8,9 +8,8 @@ const API_CONFIG = {
   // Para simulador de iOS
   IOS_SIMULATOR: "http://localhost:8080/api",
 
-  // Para dispositivo físico - cambiar por tu IP local
-  // Puedes obtener tu IP con: ipconfig (Windows) o ifconfig (Mac/Linux)
-  PHYSICAL_DEVICE: "http://192.168.0.12:8080/api", // Cambiar por tu IP
+  // Para dispositivo físico
+  PHYSICAL_DEVICE: "http://192.168.0.12:8080/api",
 
   // Para producción
   PRODUCTION: "https://tu-api-produccion.com/api",

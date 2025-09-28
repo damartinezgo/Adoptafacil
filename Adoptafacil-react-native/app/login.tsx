@@ -1,7 +1,7 @@
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Alert,
   Image,
@@ -26,6 +26,18 @@ export default function LoginScreen() {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    // Verificar si el usuario ya está autenticado al cargar la pantalla
+    const checkAuth = async () => {
+      const isAuth = await authAPI.isAuthenticated();
+      if (isAuth) {
+        // Si está autenticado, redirigir directamente al home (tabs)
+        router.replace("/(tabs)");
+      }
+    };
+    checkAuth();
+  }, []);
 
   const validateForm = () => {
     let isValid = true;
@@ -61,14 +73,9 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await authAPI.login(formData.email, formData.password);
-
-      Alert.alert("Login Exitoso", `Bienvenido ${response.user.name}!`, [
-        {
-          text: "OK",
-          onPress: () => router.replace("/(tabs)"),
-        },
-      ]);
+      await authAPI.login(formData.email, formData.password);
+      // Redirigir inmediatamente al home (tabs) después de login exitoso
+      router.replace("/(tabs)");
     } catch (error) {
       Alert.alert(
         "Error",
