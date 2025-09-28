@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context"; //Area segura
 
 import { ThemedText } from "@/components/themed-text";
 import { authAPI } from "@/api";
@@ -10,6 +11,7 @@ import { authAPI } from "@/api";
 export default function Header() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -36,22 +38,28 @@ export default function Header() {
       colors={["#02d36bff", "#0000c5ff"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.header}
+      style={[styles.header, { paddingTop: insets.top }]}
     >
-      <Image
-        source={require("@/assets/images/LogoWhite.png")}
-        style={styles.logo}
-      />
-      <View style={styles.userInfo}>
+      <View style={styles.leftSection}>
+        <Image
+          source={require("@/assets/images/LogoWhite.png")}
+          style={styles.logo}
+        />
+      </View>
+
+      <View style={styles.centerSection}>
         {user && (
-          <ThemedText style={styles.userText}>
+          <ThemedText style={styles.userText} numberOfLines={1}>
             {user.name} {user.lastName}
           </ThemedText>
         )}
       </View>
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogout}>
-        <ThemedText style={styles.loginText}>Cerrar sesión</ThemedText>
-      </TouchableOpacity>
+
+      <View style={styles.rightSection}>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogout}>
+          <ThemedText style={styles.loginText}>Salir</ThemedText>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 }
@@ -61,31 +69,47 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     paddingVertical: 15,
+    minHeight: 80,
+  },
+  leftSection: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
+  centerSection: {
+    flex: 0.6,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 10,
+  },
+  rightSection: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
   logo: {
-    width: 60,
-    height: 60,
-  },
-  userInfo: {
-    flex: 1,
-    alignItems: "center",
+    width: 50,
+    height: 50,
   },
   userText: {
     color: "#ffffff",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   loginButton: {
     backgroundColor: "rgba(156, 0, 0, 1)",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 25,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    minWidth: 60,
   },
   loginText: {
-    color: "#000",
+    color: "#ffffff",
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 12,
+    textAlign: "center",
   },
 });
