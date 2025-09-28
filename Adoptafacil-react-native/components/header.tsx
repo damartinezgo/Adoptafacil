@@ -49,9 +49,16 @@ export default function Header() {
 
       <View style={styles.centerSection}>
         {user && (
-          <ThemedText style={styles.userText} numberOfLines={1}>
-            {user.name} {user.lastName}
-          </ThemedText>
+          <View style={styles.userInfo}>
+            <ThemedText style={styles.userText} numberOfLines={1}>
+              {user.name} {user.lastName}
+            </ThemedText>
+            {user.role && (
+              <ThemedText style={styles.roleText} numberOfLines={1}>
+                {user.role.roleType || user.role.name || "Usuario"}
+              </ThemedText>
+            )}
+          </View>
         )}
       </View>
 
@@ -93,10 +100,20 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
+  userInfo: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   userText: {
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+  roleText: {
+    color: "#b0b0b0",
+    fontSize: 11,
+    fontWeight: "400",
     textAlign: "center",
   },
   loginButton: {
