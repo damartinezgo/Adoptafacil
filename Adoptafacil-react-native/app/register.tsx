@@ -1,4 +1,3 @@
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -13,7 +12,6 @@ import {
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { authAPI } from "@/api";
 
 export default function RegisterScreen() {
@@ -145,278 +143,268 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#02d36bff", "#0000c5ff"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
-        <BlurView intensity={50} style={styles.blurContainer}>
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-            <ThemedView style={styles.registerContainer}>
-              <Image
-                source={require("@/assets/images/Logo.png")}
-                style={styles.logo}
-              />
-              <ThemedText style={styles.title}>
-                {formData.tipoUsuario === "amigo"
-                  ? "Registro Amigo AdoptaFácil"
-                  : "Registro Aliado AdoptaFácil"}
+    <LinearGradient
+      colors={["#02d36bff", "#0000c5ff"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.contentContainer}>
+          <Image
+            source={require("@/assets/images/Logo.png")}
+            style={styles.logo}
+          />
+          <ThemedText style={styles.title}>
+            {formData.tipoUsuario === "amigo"
+              ? "Registro Amigo AdoptaFácil"
+              : "Registro Aliado AdoptaFácil"}
+          </ThemedText>
+          <ThemedText style={styles.subtitle}>
+            {formData.tipoUsuario === "amigo"
+              ? "Únete a AdoptaFácil y encuentra tu compañero perfecto"
+              : "Únete a nuestra red de refugios y ayuda a más mascotas"}
+          </ThemedText>
+
+          <View style={styles.formContainer}>
+            <TextInput
+              style={[styles.input, errors.nombre ? styles.inputError : null]}
+              placeholder="Nombre"
+              placeholderTextColor="#718096"
+              value={formData.nombre}
+              onChangeText={(value) => updateField("nombre", value)}
+            />
+            {errors.nombre ? (
+              <ThemedText style={styles.errorText}>{errors.nombre}</ThemedText>
+            ) : null}
+
+            <TextInput
+              style={[styles.input, errors.apellido ? styles.inputError : null]}
+              placeholder="Apellido"
+              placeholderTextColor="#718096"
+              value={formData.apellido}
+              onChangeText={(value) => updateField("apellido", value)}
+            />
+            {errors.apellido ? (
+              <ThemedText style={styles.errorText}>
+                {errors.apellido}
               </ThemedText>
-              <ThemedText style={styles.subtitle}>
-                {formData.tipoUsuario === "amigo"
-                  ? "Únete a AdoptaFácil y encuentra tu compañero perfecto"
-                  : "Únete a nuestra red de refugios y ayuda a más mascotas"}
+            ) : null}
+
+            <TextInput
+              style={[styles.input, errors.correo ? styles.inputError : null]}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#718096"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={formData.correo}
+              onChangeText={(value) => updateField("correo", value)}
+            />
+            {errors.correo ? (
+              <ThemedText style={styles.errorText}>{errors.correo}</ThemedText>
+            ) : null}
+
+            <TextInput
+              style={[
+                styles.input,
+                errors.contrasena ? styles.inputError : null,
+              ]}
+              placeholder="Contraseña"
+              placeholderTextColor="#718096"
+              secureTextEntry
+              value={formData.contrasena}
+              onChangeText={(value) => updateField("contrasena", value)}
+            />
+            {errors.contrasena ? (
+              <ThemedText style={styles.errorText}>
+                {errors.contrasena}
               </ThemedText>
+            ) : null}
 
-              <View style={styles.formContainer}>
-                <TextInput
-                  style={[
-                    styles.input,
-                    errors.nombre ? styles.inputError : null,
-                  ]}
-                  placeholder="Nombre"
-                  placeholderTextColor="#718096"
-                  value={formData.nombre}
-                  onChangeText={(value) => updateField("nombre", value)}
-                />
-                {errors.nombre ? (
-                  <ThemedText style={styles.errorText}>
-                    {errors.nombre}
-                  </ThemedText>
-                ) : null}
+            <TextInput
+              style={[
+                styles.input,
+                errors.confirmarContrasena ? styles.inputError : null,
+              ]}
+              placeholder="Confirmar contraseña"
+              placeholderTextColor="#718096"
+              secureTextEntry
+              value={formData.confirmarContrasena}
+              onChangeText={(value) =>
+                updateField("confirmarContrasena", value)
+              }
+            />
+            {errors.confirmarContrasena ? (
+              <ThemedText style={styles.errorText}>
+                {errors.confirmarContrasena}
+              </ThemedText>
+            ) : null}
 
-                <TextInput
-                  style={[
-                    styles.input,
-                    errors.apellido ? styles.inputError : null,
-                  ]}
-                  placeholder="Apellido"
-                  placeholderTextColor="#718096"
-                  value={formData.apellido}
-                  onChangeText={(value) => updateField("apellido", value)}
-                />
-                {errors.apellido ? (
-                  <ThemedText style={styles.errorText}>
-                    {errors.apellido}
-                  </ThemedText>
-                ) : null}
+            <TouchableOpacity
+              style={[
+                styles.registerButton,
+                loading ? styles.buttonDisabled : null,
+              ]}
+              onPress={handleRegister}
+              disabled={loading}
+            >
+              <ThemedText style={styles.registerButtonText}>
+                {loading ? "Creando cuenta..." : "Crear Cuenta"}
+              </ThemedText>
+            </TouchableOpacity>
 
-                <TextInput
-                  style={[
-                    styles.input,
-                    errors.correo ? styles.inputError : null,
-                  ]}
-                  placeholder="Correo electrónico"
-                  placeholderTextColor="#718096"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  value={formData.correo}
-                  onChangeText={(value) => updateField("correo", value)}
-                />
-                {errors.correo ? (
-                  <ThemedText style={styles.errorText}>
-                    {errors.correo}
-                  </ThemedText>
-                ) : null}
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => router.push("/login")}
+            >
+              <ThemedText style={styles.loginButtonText}>
+                ¿Ya tienes cuenta? Inicia Sesión
+              </ThemedText>
+            </TouchableOpacity>
 
-                <TextInput
-                  style={[
-                    styles.input,
-                    errors.contrasena ? styles.inputError : null,
-                  ]}
-                  placeholder="Contraseña"
-                  placeholderTextColor="#718096"
-                  secureTextEntry
-                  value={formData.contrasena}
-                  onChangeText={(value) => updateField("contrasena", value)}
-                />
-                {errors.contrasena ? (
-                  <ThemedText style={styles.errorText}>
-                    {errors.contrasena}
-                  </ThemedText>
-                ) : null}
-
-                <TextInput
-                  style={[
-                    styles.input,
-                    errors.confirmarContrasena ? styles.inputError : null,
-                  ]}
-                  placeholder="Confirmar contraseña"
-                  placeholderTextColor="#718096"
-                  secureTextEntry
-                  value={formData.confirmarContrasena}
-                  onChangeText={(value) =>
-                    updateField("confirmarContrasena", value)
-                  }
-                />
-                {errors.confirmarContrasena ? (
-                  <ThemedText style={styles.errorText}>
-                    {errors.confirmarContrasena}
-                  </ThemedText>
-                ) : null}
-
-                <TouchableOpacity
-                  style={[
-                    styles.registerButton,
-                    loading ? styles.buttonDisabled : null,
-                  ]}
-                  onPress={handleRegister}
-                  disabled={loading}
-                >
-                  <ThemedText style={styles.registerButtonText}>
-                    {loading ? "Creando cuenta..." : "Crear Cuenta"}
-                  </ThemedText>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.loginButton}
-                  onPress={() => router.push("/login")}
-                >
-                  <ThemedText style={styles.loginButtonText}>
-                    ¿Ya tienes cuenta? Inicia Sesión
-                  </ThemedText>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.backButton}
-                  onPress={() => router.push("/register-options")}
-                >
-                  <ThemedText style={styles.backButtonText}>
-                    ← Cambiar tipo de registro
-                  </ThemedText>
-                </TouchableOpacity>
-              </View>
-            </ThemedView>
-          </ScrollView>
-        </BlurView>
-      </LinearGradient>
-    </View>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.push("/register-options")}
+            >
+              <ThemedText style={styles.backButtonText}>
+                ← Cambiar tipo de registro
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   gradient: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  blurContainer: {
-    borderRadius: 20,
-    overflow: "hidden",
-    width: "100%",
-    maxWidth: 400,
-    maxHeight: "90%",
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "center",
+    paddingVertical: 30,
+    paddingHorizontal: 20,
   },
-  registerContainer: {
-    backgroundColor: "transparent",
-    borderRadius: 20,
-    padding: 30,
+  contentContainer: {
+    alignItems: "center",
     width: "100%",
-    maxWidth: 400,
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 0,
+    resizeMode: "contain",
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 8,
+    paddingHorizontal: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+    lineHeight: 32,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#f0f0f0",
+    textAlign: "center",
+    marginBottom: 30,
+    paddingHorizontal: 15,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+    lineHeight: 22,
+  },
+  formContainer: {
+    width: "100%",
+    maxWidth: 350,
+  },
+  input: {
+    width: "100%",
+    height: 55,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 27,
+    paddingHorizontal: 22,
+    marginBottom: 8,
+    color: "#2d3748",
+    fontSize: 16,
+    shadowColor: "rgba(0, 0, 0, 0.1)",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  inputError: {
+    borderColor: "#ff6b6b",
+    borderWidth: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+  },
+  errorText: {
+    color: "#ff4757",
+    fontSize: 13,
+    marginBottom: 12,
+    marginLeft: 22,
+    fontWeight: "600",
+    textShadowColor: "rgba(255, 255, 255, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
+  },
+  registerButton: {
+    width: "100%",
+    height: 55,
+    backgroundColor: "#65c063ff",
+    borderRadius: 27,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
-    alignItems: "center",
-  },
-  logo: {
-    width: 80,
-    height: 80,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#0e0f11ff",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#2a3038ff",
-    textAlign: "center",
-    marginBottom: 25,
-  },
-  formContainer: {
-    width: "100%",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    marginBottom: 5,
-    backgroundColor: "#f8f9fa",
-    color: "#2d3748",
-    fontSize: 16,
-  },
-  inputError: {
-    borderColor: "#e53e3e",
-  },
-  errorText: {
-    color: "#e53e3e",
-    fontSize: 12,
-    marginBottom: 10,
-    alignSelf: "flex-start",
-  },
-  registerButton: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#039a00ff",
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 15,
-    shadowColor: "#a8e6cf",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 6,
   },
   registerButtonText: {
-    color: "#ffffffff",
+    color: "#ffffff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
   loginButton: {
     alignSelf: "center",
-    marginTop: 20,
+    marginTop: 25,
+    paddingVertical: 12,
   },
   loginButtonText: {
-    color: "#01e157ff",
-    fontSize: 14,
-    fontWeight: "bold",
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   backButton: {
     alignSelf: "center",
     marginTop: 15,
+    paddingVertical: 10,
   },
   backButtonText: {
-    color: "#63b3ed",
-    fontSize: 13,
-    fontWeight: "500",
+    color: "#a7eeeaff",
+    fontSize: 15,
+    fontWeight: "600",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   buttonDisabled: {
     backgroundColor: "#a0aec0",
-    opacity: 0.6,
+    opacity: 0.7,
   },
 });

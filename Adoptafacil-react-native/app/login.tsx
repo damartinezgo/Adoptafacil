@@ -1,4 +1,3 @@
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
@@ -12,7 +11,6 @@ import {
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { authAPI } from "@/api";
 
 export default function LoginScreen() {
@@ -86,216 +84,213 @@ export default function LoginScreen() {
     }
   };
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={["#02d36bff", "#0000c5ff"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradient}
-      >
-        <BlurView intensity={50} style={styles.blurContainer}>
-          <ThemedView style={styles.loginContainer}>
-            <Image
-              source={require("@/assets/images/Logo.png")}
-              style={styles.logo}
-            />
-            <ThemedText style={styles.title}>Iniciar Sesión</ThemedText>
-            <ThemedText style={styles.subtitle}>
-              Bienvenido de vuelta a AdoptaFácil
+    <LinearGradient
+      colors={["#02d36bff", "#0000c5ff"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
+    >
+      <View style={styles.contentContainer}>
+        <Image
+          source={require("@/assets/images/Logo.png")}
+          style={styles.logo}
+        />
+        <ThemedText style={styles.title}>Iniciar Sesión</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Bienvenido de vuelta a AdoptaFácil
+        </ThemedText>
+
+        <View style={styles.formContainer}>
+          <TextInput
+            style={[styles.input, errors.email ? styles.inputError : null]}
+            placeholder="Correo electrónico"
+            placeholderTextColor="#718096"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={formData.email}
+            onChangeText={(text) => {
+              setFormData({ ...formData, email: text });
+              if (errors.email) {
+                setErrors({ ...errors, email: "" });
+              }
+            }}
+          />
+          {errors.email ? (
+            <ThemedText style={styles.errorText}>{errors.email}</ThemedText>
+          ) : null}
+
+          <TextInput
+            style={[styles.input, errors.password ? styles.inputError : null]}
+            placeholder="Contraseña"
+            placeholderTextColor="#718096"
+            secureTextEntry
+            value={formData.password}
+            onChangeText={(text) => {
+              setFormData({ ...formData, password: text });
+              if (errors.password) {
+                setErrors({ ...errors, password: "" });
+              }
+            }}
+          />
+          {errors.password ? (
+            <ThemedText style={styles.errorText}>{errors.password}</ThemedText>
+          ) : null}
+
+          <TouchableOpacity
+            style={[styles.loginButton, loading ? styles.buttonDisabled : null]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <ThemedText style={styles.loginButtonText}>
+              {loading ? "Iniciando..." : "Iniciar Sesión"}
             </ThemedText>
+          </TouchableOpacity>
 
-            <View style={styles.formContainer}>
-              <TextInput
-                style={[styles.input, errors.email ? styles.inputError : null]}
-                placeholder="Correo electrónico"
-                placeholderTextColor="#718096"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={formData.email}
-                onChangeText={(text) => {
-                  setFormData({ ...formData, email: text });
-                  if (errors.email) {
-                    setErrors({ ...errors, email: "" });
-                  }
-                }}
-              />
-              {errors.email ? (
-                <ThemedText style={styles.errorText}>{errors.email}</ThemedText>
-              ) : null}
+          <TouchableOpacity style={styles.forgotPassword}>
+            <ThemedText style={styles.forgotPasswordText}>
+              ¿Olvidaste tu contraseña?
+            </ThemedText>
+          </TouchableOpacity>
 
-              <TextInput
-                style={[
-                  styles.input,
-                  errors.password ? styles.inputError : null,
-                ]}
-                placeholder="Contraseña"
-                placeholderTextColor="#718096"
-                secureTextEntry
-                value={formData.password}
-                onChangeText={(text) => {
-                  setFormData({ ...formData, password: text });
-                  if (errors.password) {
-                    setErrors({ ...errors, password: "" });
-                  }
-                }}
-              />
-              {errors.password ? (
-                <ThemedText style={styles.errorText}>
-                  {errors.password}
-                </ThemedText>
-              ) : null}
-
-              <TouchableOpacity
-                style={[
-                  styles.loginButton,
-                  loading ? styles.buttonDisabled : null,
-                ]}
-                onPress={handleLogin}
-                disabled={loading}
-              >
-                <ThemedText style={styles.loginButtonText}>
-                  {loading ? "Iniciando..." : "Iniciar Sesión"}
-                </ThemedText>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.forgotPassword}>
-                <ThemedText style={styles.forgotPasswordText}>
-                  ¿Olvidaste tu contraseña?
-                </ThemedText>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.registerButton}
-                onPress={() => router.push("/register-options")}
-              >
-                <ThemedText style={styles.registerButtonText}>
-                  ¿No tienes cuenta? Regístrate
-                </ThemedText>
-              </TouchableOpacity>
-            </View>
-          </ThemedView>
-        </BlurView>
-      </LinearGradient>
-    </View>
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={() => router.push("/register-options")}
+          >
+            <ThemedText style={styles.registerButtonText}>
+              ¿No tienes cuenta? Regístrate
+            </ThemedText>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   gradient: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
   },
-  blurContainer: {
-    borderRadius: 20,
-    overflow: "hidden",
+  contentContainer: {
     width: "100%",
-    maxWidth: 400,
+    paddingHorizontal: 30,
+    paddingVertical: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 200,
+    height: 200,
+    marginBottom: 15,
+    resizeMode: "contain",
   },
-  loginContainer: {
-    backgroundColor: "transparent",
-    borderRadius: 20,
-    padding: 30,
+  title: {
+    fontSize: 33,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 12,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: "#f0f0f0",
+    textAlign: "center",
+    marginBottom: 50,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  formContainer: {
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 350,
+  },
+  input: {
+    width: "100%",
+    height: 60,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 30,
+    paddingHorizontal: 25,
+    marginBottom: 20,
+    color: "#2d3748",
+    fontSize: 16,
+    shadowColor: "rgba(0, 0, 0, 0.1)",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  loginButton: {
+    width: "100%",
+    height: 60,
+    backgroundColor: "#65c063ff",
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#0e0f11ff",
-    textAlign: "center",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#2a3038ff",
-    textAlign: "center",
-    marginBottom: 30,
-  },
-  formContainer: {
-    width: "100%",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    marginBottom: 15,
-    backgroundColor: "#f8f9fa",
-    color: "#2d3748",
-    fontSize: 16,
-  },
-  loginButton: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#65c063ff",
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-    shadowColor: "#a8e6cf",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 6,
   },
   loginButtonText: {
-    color: "#ffffffff",
+    color: "#ffffff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
   },
   forgotPassword: {
     alignSelf: "center",
-    marginTop: 15,
+    marginTop: 25,
+    paddingVertical: 12,
   },
   forgotPasswordText: {
-    color: "#0013bfff",
-    fontSize: 14,
+    color: "#ffffff",
+    fontSize: 16,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   registerButton: {
     alignSelf: "center",
     marginTop: 20,
+    paddingVertical: 12,
   },
   registerButtonText: {
     color: "#a7eeeaff",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   inputError: {
-    borderColor: "#e53e3e",
-    borderWidth: 2,
+    borderColor: "#ff6b6b",
+    borderWidth: 3,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
   },
   errorText: {
-    color: "#e53e3e",
-    fontSize: 12,
-    marginTop: -10,
-    marginBottom: 10,
-    marginLeft: 20,
+    color: "#ff4757",
+    fontSize: 14,
+    marginTop: -15,
+    marginBottom: 15,
+    marginLeft: 25,
+    fontWeight: "600",
+    textShadowColor: "rgba(255, 255, 255, 0.8)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
   buttonDisabled: {
     backgroundColor: "#a0aec0",
-    opacity: 0.6,
+    opacity: 0.7,
   },
 });
