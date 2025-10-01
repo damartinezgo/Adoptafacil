@@ -36,7 +36,7 @@ public class Person {
     @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_role")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Role role;
