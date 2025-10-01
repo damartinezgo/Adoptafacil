@@ -1,12 +1,7 @@
-import {
-  AgregarMascotaModal,
-  GestionarMascotasModal,
-} from "@/components/gestionar-mascotas";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import * as ImagePicker from "expo-image-picker";
 import { useState, createContext, useContext } from "react";
-import { Alert, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 // se define la estructura de una mascota
 export interface Mascota {
@@ -77,120 +72,7 @@ export function MascotasProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default function ConfiguracionScreen() {
-  const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const { mascotas, setMascotas } = useMascotas();
-
-  const [form, setForm] = useState({
-    nombre: "",
-    especie: "",
-    raza: "",
-    fechaNacimiento: "",
-    edad: "",
-    sexo: "",
-    ciudad: "",
-    descripcion: "",
-    imagenes: [] as string[],
-  });
-
-  const razasPerros = [
-    "Labrador",
-    "Bulldog",
-    "Poodle",
-    "Chihuahua",
-    "Golden Retriever",
-  ];
-  const razasGatos = ["Siamés", "Persa", "Maine Coon", "Bengalí", "Ragdoll"];
-  const ciudadesColombia = [
-    "Bogotá",
-    "Medellín",
-    "Cali",
-    "Barranquilla",
-    "Cartagena",
-    "Cúcuta",
-    "Bucaramanga",
-    "Pereira",
-  ];
-
-  const calcularEdad = (fecha: string) => {
-    if (!fecha) return "";
-    const nacimiento = new Date(fecha);
-    const hoy = new Date();
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-      edad--;
-    }
-    return `${edad} años`;
-  };
-
-  const handleFechaChange = (fecha: string) => {
-    setForm({ ...form, fechaNacimiento: fecha, edad: calcularEdad(fecha) });
-  };
-
-  const pickImage = async () => {
-    if (form.imagenes.length >= 3) {
-      Alert.alert("Máximo 3 imágenes");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setForm({ ...form, imagenes: [...form.imagenes, result.assets[0].uri] });
-    }
-  };
-
-  const handleSave = () => {
-    // Validar campos
-    if (
-      !form.nombre ||
-      !form.especie ||
-      !form.raza ||
-      !form.fechaNacimiento ||
-      !form.sexo ||
-      !form.ciudad ||
-      form.imagenes.length === 0
-    ) {
-      Alert.alert("Error", "Por favor completa todos los campos obligatorios");
-      return;
-    }
-
-    // aquí tipamos explícitamente como Mascota
-    const newMascota: Mascota = {
-      id: mascotas.length + 1,
-      nombre: form.nombre,
-      especie: form.especie,
-      raza: form.raza,
-      edad: form.edad,
-      imagenes: form.imagenes,
-    };
-
-    setMascotas((prev) => [...prev, newMascota]);
-
-    setForm({
-      nombre: "",
-      especie: "",
-      raza: "",
-      fechaNacimiento: "",
-      edad: "",
-      sexo: "",
-      ciudad: "",
-      descripcion: "",
-      imagenes: [],
-    });
-    setShowAddModal(false);
-  };
-
   const settingsOptions = [
-    {
-      title: "Gestionar Mascotas",
-      description: "Agregar, editar, eliminar y ver mascotas",
-      onPress: () => setShowModal(true),
-    },
     {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
@@ -235,26 +117,6 @@ export default function ConfiguracionScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
-      <GestionarMascotasModal
-        visible={showModal}
-        onClose={() => setShowModal(false)}
-        mascotas={mascotas}
-        onAddPress={() => setShowAddModal(true)}
-      />
-
-      <AgregarMascotaModal
-        visible={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        form={form}
-        setForm={setForm}
-        razasPerros={razasPerros}
-        razasGatos={razasGatos}
-        ciudadesColombia={ciudadesColombia}
-        handleFechaChange={handleFechaChange}
-        pickImage={pickImage}
-        handleSave={handleSave}
-      />
     </ThemedView>
   );
 }
