@@ -42,7 +42,7 @@ const getApiUrl = (): string => {
 
 export const BASE_URL = getApiUrl();
 
-export const API_TIMEOUT = 3000; // 3 segundos - respuesta más rápida
+export const API_TIMEOUT = 15000; // 15 segundos - más tiempo para operaciones con imágenes
 
 // Configuraciones adicionales
 export const APP_CONFIG = {

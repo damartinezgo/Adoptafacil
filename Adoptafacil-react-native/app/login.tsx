@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Alert,
   Image,
@@ -12,8 +12,10 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { authAPI } from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginScreen() {
+  const { signIn } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,18 +26,6 @@ export default function LoginScreen() {
     email: "",
     password: "",
   });
-
-  useEffect(() => {
-    // Verificar si el usuario ya está autenticado al cargar la pantalla
-    const checkAuth = async () => {
-      const isAuth = await authAPI.isAuthenticated();
-      if (isAuth) {
-        // Si está autenticado, redirigir directamente al home (tabs)
-        router.replace("/(tabs)");
-      }
-    };
-    checkAuth();
-  }, []);
 
   const validateForm = () => {
     let isValid = true;
@@ -71,9 +61,10 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await authAPI.login(formData.email, formData.password);
-      // Redirigir inmediatamente al home (tabs) después de login exitoso
-      router.replace("/(tabs)");
+      const response = await authAPI.login(formData.email, formData.password);
+      // Usar el contexto de autenticación para guardar el token y usuario
+      await signIn(response.token, response.user);
+      // El AuthContext se encargará de redirigir automáticamente
     } catch (error) {
       Alert.alert(
         "Error",

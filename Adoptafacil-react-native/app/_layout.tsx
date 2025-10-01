@@ -5,22 +5,32 @@ import {
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { View, ActivityIndicator } from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { MascotasProvider } from "./(tabs)/settings";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 export const unstable_settings = {
-  anchor: "login",
+  initialRouteName: "login",
 };
 
-export default function RootLayout() {
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#02d36bff" />
+      </View>
+    );
+  }
 
   return (
-    <MascotasProvider>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen
           name="register-options"
@@ -29,12 +39,28 @@ export default function RootLayout() {
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
+          name="gestionar-mascotas"
+          options={{
+            headerShown: false,
+            presentation: "card",
+          }}
+        />
+        <Stack.Screen
           name="modal"
           options={{ presentation: "modal", title: "Modal" }}
         />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
-    </MascotasProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <MascotasProvider>
+        <RootLayoutNav />
+      </MascotasProvider>
+    </AuthProvider>
   );
 }

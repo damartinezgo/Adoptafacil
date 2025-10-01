@@ -1,7 +1,9 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useState, createContext, useContext } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { useRouter, Link } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 // se define la estructura de una mascota
 export interface Mascota {
@@ -72,7 +74,34 @@ export function MascotasProvider({ children }: { children: React.ReactNode }) {
 }
 
 export default function ConfiguracionScreen() {
+  const router = useRouter();
+  const { signOut, user } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert("Cerrar Sesión", "¿Estás seguro que deseas cerrar sesión?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Cerrar Sesión",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await signOut();
+          } catch {
+            Alert.alert("Error", "No se pudo cerrar sesión");
+          }
+        },
+      },
+    ]);
+  };
+
   const settingsOptions = [
+    {
+      title: "Gestionar mascotas",
+      description: "Agregar, editar o eliminar mascotas",
+      onPress: () => {
+        router.push("../gestionar-mascotas");
+      },
+    },
     {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
@@ -94,6 +123,12 @@ export default function ConfiguracionScreen() {
         console.log("Navigate to Ayuda y Soporte");
       },
     },
+    {
+      title: "Cerrar Sesión",
+      description: `Usuario: ${user?.email || "Desconocido"}`,
+      onPress: handleLogout,
+      isLogout: true,
+    },
   ];
 
   return (
@@ -102,20 +137,52 @@ export default function ConfiguracionScreen() {
         <ThemedText type="title" style={styles.title}>
           Configuración
         </ThemedText>
-        {settingsOptions.map((option, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.optionContainer}
-            onPress={option.onPress}
-          >
-            <ThemedText type="subtitle" style={styles.optionTitle}>
-              {option.title}
-            </ThemedText>
-            <ThemedText style={styles.optionDescription}>
-              {option.description}
-            </ThemedText>
-          </TouchableOpacity>
-        ))}
+        {settingsOptions.map((option, index) => {
+          // Para "Gestionar mascotas" usamos Link
+          if (option.title === "Gestionar mascotas") {
+            return (
+              <Link key={index} href="/gestionar-mascotas" asChild>
+                <TouchableOpacity style={styles.optionContainer}>
+                  <ThemedText type="subtitle" style={styles.optionTitle}>
+                    {option.title}
+                  </ThemedText>
+                  <ThemedText style={styles.optionDescription}>
+                    {option.description}
+                  </ThemedText>
+                </TouchableOpacity>
+              </Link>
+            );
+          }
+
+          // Para las demás opciones usamos TouchableOpacity normal
+          // Cerrar sesión tendrá un estilo especial
+          const isLogout = "isLogout" in option && option.isLogout;
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.optionContainer,
+                isLogout && styles.logoutContainer,
+              ]}
+              onPress={option.onPress}
+            >
+              <ThemedText
+                type="subtitle"
+                style={[styles.optionTitle, isLogout && styles.logoutTitle]}
+              >
+                {option.title}
+              </ThemedText>
+              <ThemedText
+                style={[
+                  styles.optionDescription,
+                  isLogout && styles.logoutDescription,
+                ]}
+              >
+                {option.description}
+              </ThemedText>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
     </ThemedView>
   );
@@ -156,5 +223,15 @@ const styles = StyleSheet.create({
   optionDescription: {
     fontSize: 14,
     color: "#718096",
+  },
+  logoutContainer: {
+    backgroundColor: "#fee",
+    borderColor: "#f87171",
+  },
+  logoutTitle: {
+    color: "#dc2626",
+  },
+  logoutDescription: {
+    color: "#991b1b",
   },
 });

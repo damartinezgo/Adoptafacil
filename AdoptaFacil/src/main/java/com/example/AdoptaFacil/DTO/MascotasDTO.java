@@ -16,5 +16,5 @@ public class MascotasDTO {
     private String ciudad;
     private String descripcion;
     private String imagen; // imagen principal
-    private List<String> imagenes;
+    private List<MascotaImageDTO> imagenes; // Cambiar a DTO de imágenes
 }

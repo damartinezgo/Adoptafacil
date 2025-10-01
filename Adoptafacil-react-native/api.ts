@@ -157,15 +157,43 @@ export const mascotasAPI = {
   },
 
   // Create new mascota
-  create: async (mascota: any, imagenes?: File[]) => {
+  create: async (
+    mascotaData: {
+      nombre: string;
+      especie: string;
+      raza: string;
+      edad: number;
+      fechaNacimiento: string;
+      sexo: string;
+      ciudad: string;
+      descripcion?: string;
+      idPerson: number;
+    },
+    imagenes?: any[]
+  ) => {
     try {
       const formData = new FormData();
-      formData.append("mascota", JSON.stringify(mascota));
-      if (imagenes) {
-        imagenes.forEach((imagen, index) => {
+
+      // Append all required fields
+      formData.append("nombre", mascotaData.nombre);
+      formData.append("especie", mascotaData.especie);
+      formData.append("raza", mascotaData.raza);
+      formData.append("edad", mascotaData.edad.toString());
+      formData.append("fechaNacimiento", mascotaData.fechaNacimiento);
+      formData.append("sexo", mascotaData.sexo);
+      formData.append("ciudad", mascotaData.ciudad);
+      formData.append("idPerson", mascotaData.idPerson.toString());
+
+      if (mascotaData.descripcion) {
+        formData.append("descripcion", mascotaData.descripcion);
+      }
+
+      if (imagenes && imagenes.length > 0) {
+        imagenes.forEach((imagen) => {
           formData.append("imagenes", imagen);
         });
       }
+
       const response = await api.post("/mascotas", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -174,6 +202,56 @@ export const mascotasAPI = {
       return response.data;
     } catch (error) {
       console.error("Error creating mascota:", error);
+      throw error;
+    }
+  },
+
+  // Update mascota
+  update: async (
+    id: number,
+    mascotaData: {
+      nombre: string;
+      especie: string;
+      raza: string;
+      edad: number;
+      fechaNacimiento: string;
+      sexo: string;
+      ciudad: string;
+      descripcion?: string;
+      idPerson: number;
+    },
+    imagenes?: any[]
+  ) => {
+    try {
+      const formData = new FormData();
+
+      formData.append("nombre", mascotaData.nombre);
+      formData.append("especie", mascotaData.especie);
+      formData.append("raza", mascotaData.raza);
+      formData.append("edad", mascotaData.edad.toString());
+      formData.append("fechaNacimiento", mascotaData.fechaNacimiento);
+      formData.append("sexo", mascotaData.sexo);
+      formData.append("ciudad", mascotaData.ciudad);
+      formData.append("idPerson", mascotaData.idPerson.toString());
+
+      if (mascotaData.descripcion) {
+        formData.append("descripcion", mascotaData.descripcion);
+      }
+
+      if (imagenes && imagenes.length > 0) {
+        imagenes.forEach((imagen) => {
+          formData.append("imagenes", imagen);
+        });
+      }
+
+      const response = await api.put(`/mascotas/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating mascota:", error);
       throw error;
     }
   },

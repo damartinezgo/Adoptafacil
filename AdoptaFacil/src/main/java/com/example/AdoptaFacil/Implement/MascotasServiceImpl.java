@@ -1,11 +1,14 @@
 package com.example.AdoptaFacil.Implement;
 
+import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.MascotaImage;
 import com.example.AdoptaFacil.Entity.Mascotas;
 import com.example.AdoptaFacil.Repository.MascotasRepository;
 import com.example.AdoptaFacil.Service.MascotasService;
+import com.example.AdoptaFacil.Util.MascotaMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -18,23 +21,35 @@ import java.util.UUID;
 public class MascotasServiceImpl implements MascotasService {
 
     private final MascotasRepository mascotasRepository;
+    private final MascotaMapper mascotaMapper;
     private final String UPLOAD_DIR = "uploads/";
 
     @Override
-    public Mascotas crearMascota(Mascotas mascota, List<MultipartFile> imagenes) {
+    @Transactional
+    public MascotasDTO crearMascota(Mascotas mascota, List<MultipartFile> imagenes) {
+        System.out.println("\n=== SERVICE: Creando mascota ===");
+        
         if (imagenes != null && imagenes.size() > 3) {
-            throw new RuntimeException("Máximo 3 imágenes permitidas");
+            throw new IllegalArgumentException("Máximo 3 imágenes permitidas");
         }
 
+        // Guardar la mascota primero para obtener el ID
         Mascotas nuevaMascota = mascotasRepository.save(mascota);
+        System.out.println("✅ Mascota guardada con ID: " + nuevaMascota.getId());
 
-        if (imagenes != null) {
+        // Procesar y guardar imágenes si se proporcionan
+        if (imagenes != null && !imagenes.isEmpty()) {
             int orden = 1;
             for (MultipartFile file : imagenes) {
                 try {
                     String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
                     File destino = new File(UPLOAD_DIR + fileName);
+                    
+                    // Crear el directorio si no existe
+                    destino.getParentFile().mkdirs();
+                    
                     file.transferTo(destino);
+                    System.out.println("✅ Imagen guardada: " + destino.getPath());
 
                     MascotaImage img = new MascotaImage();
                     img.setImagenPath(destino.getPath());
@@ -43,35 +58,209 @@ public class MascotasServiceImpl implements MascotasService {
                     nuevaMascota.getImagenes().add(img);
 
                 } catch (IOException e) {
-                    throw new RuntimeException("Error al guardar imagen: " + e.getMessage());
+                    System.err.println("❌ Error guardando imagen: " + e.getMessage());
+                    throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
+                }
+            }
+            
+            // Guardar nuevamente para persistir las imágenes
+            nuevaMascota = mascotasRepository.save(nuevaMascota);
+            System.out.println("✅ Imágenes asociadas a la mascota");
+        }
+
+        System.out.println("=== SERVICE: Mascota creada exitosamente ===\n");
+        
+        // Convertir a DTO para evitar problemas de lazy loading
+        return mascotaMapper.toDTO(nuevaMascota);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MascotasDTO obtenerMascota(Long id) {
+        System.out.println("\n=== SERVICE: Obteniendo mascota ID " + id + " ===");
+        
+        Mascotas mascota = mascotasRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
+        
+        System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
+        System.out.println("=== SERVICE: FIN obtención ===\n");
+        
+        return mascotaMapper.toDTO(mascota);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MascotasDTO> listarMascotas() {
+        System.out.println("\n=== SERVICE: Listando todas las mascotas ===");
+        
+        List<Mascotas> mascotas = mascotasRepository.findAll();
+        
+        System.out.println("✅ Se encontraron " + mascotas.size() + " mascotas");
+        System.out.println("=== SERVICE: FIN listado ===\n");
+        
+        return mascotaMapper.toDTOList(mascotas);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MascotasDTO> buscarPorNombre(String nombre) {
+        System.out.println("\n=== SERVICE: Buscando mascotas por nombre: " + nombre + " ===");
+        
+        List<Mascotas> mascotas = mascotasRepository.findByNombreContainingIgnoreCase(nombre);
+        
+        System.out.println("✅ Se encontraron " + mascotas.size() + " mascotas");
+        System.out.println("=== SERVICE: FIN búsqueda ===\n");
+        
+        return mascotaMapper.toDTOList(mascotas);
+    }
+
+    @Override
+    @Transactional
+    public MascotasDTO actualizarMascota(Long id, Mascotas mascotaActualizada, List<MultipartFile> imagenes) {
+        System.out.println("\n=== SERVICE: Actualizando mascota ID " + id + " ===");
+        
+        // Buscar la mascota existente
+        Mascotas mascotaExistente = mascotasRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
+
+        System.out.println("✅ Mascota encontrada: " + mascotaExistente.getNombre());
+        
+        // Verificar que el usuario autenticado es el dueño de la mascota
+        if (mascotaActualizada.getALIADO() != null) {
+            Long idUsuarioActual = mascotaActualizada.getALIADO().getIdPerson();
+            Long idDueno = mascotaExistente.getALIADO().getIdPerson();
+            
+            if (!idDueno.equals(idUsuarioActual)) {
+                System.err.println("❌ Usuario " + idUsuarioActual + " no es el dueño de la mascota (dueño: " + idDueno + ")");
+                throw new SecurityException("No tienes permisos para actualizar esta mascota");
+            }
+            System.out.println("✅ Usuario autorizado");
+        }
+        
+        // Validar número máximo de imágenes si se proporcionan nuevas
+        if (imagenes != null && imagenes.size() > 3) {
+            throw new IllegalArgumentException("Máximo 3 imágenes permitidas");
+        }
+
+        // Actualizar campos básicos
+        mascotaExistente.setNombre(mascotaActualizada.getNombre());
+        mascotaExistente.setEspecie(mascotaActualizada.getEspecie());
+        mascotaExistente.setRaza(mascotaActualizada.getRaza());
+        mascotaExistente.setEdad(mascotaActualizada.getEdad());
+        
+        // Actualizar campos opcionales si se proporcionan
+        if (mascotaActualizada.getSexo() != null) {
+            mascotaExistente.setSexo(mascotaActualizada.getSexo());
+        }
+        if (mascotaActualizada.getCiudad() != null) {
+            mascotaExistente.setCiudad(mascotaActualizada.getCiudad());
+        }
+        if (mascotaActualizada.getDescripcion() != null) {
+            mascotaExistente.setDescripcion(mascotaActualizada.getDescripcion());
+        }
+        if (mascotaActualizada.getFechaNacimiento() != null) {
+            mascotaExistente.setFechaNacimiento(mascotaActualizada.getFechaNacimiento());
+        }
+
+        System.out.println("✅ Campos actualizados");
+
+        // Procesar nuevas imágenes si se proporcionan
+        if (imagenes != null && !imagenes.isEmpty()) {
+            int orden = mascotaExistente.getImagenes().size() + 1;
+            
+            for (MultipartFile file : imagenes) {
+                try {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    File destino = new File(UPLOAD_DIR + fileName);
+                    
+                    // Crear el directorio si no existe
+                    destino.getParentFile().mkdirs();
+                    
+                    file.transferTo(destino);
+                    System.out.println("✅ Nueva imagen guardada: " + destino.getPath());
+
+                    MascotaImage img = new MascotaImage();
+                    img.setImagenPath(destino.getPath());
+                    img.setOrden(orden++);
+                    img.setMascota(mascotaExistente);
+                    mascotaExistente.getImagenes().add(img);
+
+                } catch (IOException e) {
+                    System.err.println("❌ Error guardando imagen: " + e.getMessage());
+                    throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
                 }
             }
         }
 
-        return mascotasRepository.save(nuevaMascota);
+        // Guardar y retornar la mascota actualizada
+        Mascotas mascotaGuardada = mascotasRepository.save(mascotaExistente);
+        System.out.println("✅ Mascota actualizada exitosamente");
+        System.out.println("=== SERVICE: FIN actualización ===\n");
+        
+        return mascotaMapper.toDTO(mascotaGuardada);
     }
 
     @Override
-    public Mascotas obtenerMascota(Long id) {
-        return mascotasRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
-    }
-
-    @Override
-    public List<Mascotas> listarMascotas() {
-        return mascotasRepository.findAll();
-    }
-
-    @Override
-    public List<Mascotas> buscarPorNombre(String nombre) {
-        return mascotasRepository.findByNombreContainingIgnoreCase(nombre);
-    }
-
-    @Override
+    @Transactional
     public void eliminarMascota(Long id) {
+        System.out.println("\n=== SERVICE: Eliminando mascota ID " + id + " (SIN validación de usuario) ===");
+        
+        // Buscar la mascota para obtener sus imágenes
+        Mascotas mascota = mascotasRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
+        
+        System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
+        System.out.println("📸 Imágenes asociadas: " + mascota.getImagenes().size());
+        
+        // Eliminar archivos físicos de imágenes
+        for (MascotaImage img : mascota.getImagenes()) {
+            try {
+                File archivo = new File(img.getImagenPath());
+                if (archivo.exists()) {
+                    boolean eliminado = archivo.delete();
+                    if (eliminado) {
+                        System.out.println("✅ Imagen eliminada: " + img.getImagenPath());
+                    } else {
+                        System.err.println("⚠️ No se pudo eliminar: " + img.getImagenPath());
+                    }
+                } else {
+                    System.out.println("ℹ️ Archivo no existe: " + img.getImagenPath());
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error eliminando imagen: " + e.getMessage());
+            }
+        }
+        
+        // Eliminar la mascota de la base de datos (cascade eliminará las referencias de imágenes)
         mascotasRepository.deleteById(id);
+        
+        System.out.println("✅ Mascota eliminada de la BD");
+        System.out.println("=== SERVICE: FIN eliminación ===\n");
     }
 
+    @Override
+    @Transactional
+    public void eliminarMascotaPorUsuario(Long id, Long idUsuario) {
+        System.out.println("\n=== SERVICE: Eliminando mascota ID " + id + " por usuario " + idUsuario + " ===");
+        
+        // Buscar la mascota para validar permisos
+        Mascotas mascota = mascotasRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
+        
+        System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
+        
+        // Verificar que el usuario es el dueño
+        Long idDueno = mascota.getALIADO().getIdPerson();
+        if (!idDueno.equals(idUsuario)) {
+            System.err.println("❌ Usuario " + idUsuario + " no es el dueño de la mascota (dueño: " + idDueno + ")");
+            throw new SecurityException("No tienes permisos para eliminar esta mascota");
+        }
+        
+        System.out.println("✅ Usuario autorizado para eliminar");
+        
+        // Llamar al método principal de eliminación
+        eliminarMascota(id);
+    }
 }
 
 

@@ -1,13 +1,19 @@
 package com.example.AdoptaFacil.Controller;
 
+import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Person;
 import com.example.AdoptaFacil.Service.MascotasService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -17,6 +23,7 @@ import java.util.List;
  * - POST /api/mascotas - Crear nueva mascota con imágenes opcionales
  * - GET /api/mascotas/{id} - Obtener mascota por ID
  * - GET /api/mascotas - Listar todas las mascotas o buscar por nombre
+ * - PUT /api/mascotas/{id} - Actualizar mascota existente con imágenes opcionales
  * - DELETE /api/mascotas/{id} - Eliminar mascota
  */
 @RestController
@@ -30,23 +37,84 @@ public class MascotasController {
      * Crea una nueva mascota en el sistema
      * Permite adjuntar imágenes opcionales
      * 
-     * @param mascota Datos de la mascota a crear
+     * @param nombre Nombre de la mascota
+     * @param especie Especie de la mascota (perro, gato, otro)
+     * @param raza Raza de la mascota
+     * @param edad Edad de la mascota en años
+     * @param fechaNacimiento Fecha de nacimiento de la mascota
+     * @param sexo Sexo de la mascota (Macho, Hembra, Desconocido)
+     * @param ciudad Ciudad donde se encuentra la mascota
+     * @param descripcion Descripción opcional de la mascota
      * @param imagenes Lista opcional de imágenes de la mascota
      * @return Mascota creada con su ID asignado
      */
     @PostMapping
     public ResponseEntity<?> crearMascota(
-            @ModelAttribute Mascotas mascota,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("especie") String especie,
+            @RequestParam("raza") String raza,
+            @RequestParam("edad") Integer edad,
+            @RequestParam("fechaNacimiento") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaNacimiento,
+            @RequestParam("sexo") String sexo,
+            @RequestParam("ciudad") String ciudad,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes) {
         try {
-            Mascotas mascotaCreada = mascotasService.crearMascota(mascota, imagenes);
+            System.out.println("\n=== CREAR MASCOTA - INICIO ===");
+            System.out.println("Nombre: " + nombre);
+            System.out.println("Especie: " + especie);
+            System.out.println("Raza: " + raza);
+            System.out.println("Edad: " + edad);
+            System.out.println("Imágenes: " + (imagenes != null ? imagenes.size() : 0));
+            
+            // Obtener usuario autenticado del SecurityContext
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Authentication: " + authentication);
+            System.out.println("Principal: " + authentication.getPrincipal());
+            
+            if (authentication == null || authentication.getPrincipal() == null) {
+                System.err.println("ERROR: No hay usuario autenticado");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuario no autenticado");
+            }
+            
+            Person person;
+            if (authentication.getPrincipal() instanceof Person) {
+                person = (Person) authentication.getPrincipal();
+                System.out.println("Usuario autenticado: " + person.getEmail() + " (ID: " + person.getIdPerson() + ")");
+            } else {
+                System.err.println("ERROR: Principal no es de tipo Person: " + authentication.getPrincipal().getClass());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error de autenticación");
+            }
+            
+            // Crear objeto Mascotas
+            Mascotas mascota = new Mascotas();
+            mascota.setNombre(nombre);
+            mascota.setEspecie(especie);
+            mascota.setRaza(raza);
+            mascota.setEdad(edad);
+            mascota.setFechaNacimiento(fechaNacimiento);
+            mascota.setSexo(sexo);
+            mascota.setCiudad(ciudad);
+            mascota.setDescripcion(descripcion);
+            mascota.setALIADO(person);
+            
+            System.out.println("Llamando a mascotasService.crearMascota()");
+            MascotasDTO mascotaCreada = mascotasService.crearMascota(mascota, imagenes);
+            System.out.println("Mascota creada con ID: " + mascotaCreada.getId());
+            System.out.println("=== CREAR MASCOTA - FIN EXITOSO ===\n");
+            
             return ResponseEntity.status(HttpStatus.CREATED).body(mascotaCreada);
         } catch (IllegalArgumentException e) {
+            System.err.println("ERROR: Datos inválidos - " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Datos de mascota inválidos: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error creando mascota: " + e.getMessage());
+            System.err.println("ERROR CRÍTICO creando mascota: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error interno del servidor");
+                .body("Error interno del servidor: " + e.getMessage());
         }
     }
 
@@ -59,7 +127,7 @@ public class MascotasController {
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerMascota(@PathVariable Long id) {
         try {
-            Mascotas mascota = mascotasService.obtenerMascota(id);
+            MascotasDTO mascota = mascotasService.obtenerMascota(id);
             if (mascota == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -81,7 +149,7 @@ public class MascotasController {
     @GetMapping
     public ResponseEntity<?> listarMascotas(@RequestParam(required = false) String nombre) {
         try {
-            List<Mascotas> mascotas;
+            List<MascotasDTO> mascotas;
             
             if (nombre != null && !nombre.trim().isEmpty()) {
                 // Buscar mascotas por nombre
@@ -100,8 +168,97 @@ public class MascotasController {
     }
 
     /**
+     * Actualiza una mascota existente en el sistema
+     * Permite actualizar datos y adjuntar nuevas imágenes
+     * Solo el dueño de la mascota puede actualizarla
+     * 
+     * @param id ID de la mascota a actualizar
+     * @param nombre Nombre de la mascota
+     * @param especie Especie de la mascota
+     * @param raza Raza de la mascota
+     * @param edad Edad de la mascota
+     * @param fechaNacimiento Fecha de nacimiento
+     * @param sexo Sexo de la mascota
+     * @param ciudad Ciudad
+     * @param descripcion Descripción
+     * @param imagenes Lista opcional de nuevas imágenes
+     * @return Mascota actualizada
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarMascota(
+            @PathVariable Long id,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("especie") String especie,
+            @RequestParam("raza") String raza,
+            @RequestParam("edad") Integer edad,
+            @RequestParam("fechaNacimiento") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaNacimiento,
+            @RequestParam("sexo") String sexo,
+            @RequestParam("ciudad") String ciudad,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "imagenes", required = false) List<MultipartFile> imagenes) {
+        try {
+            System.out.println("\n=== ACTUALIZAR MASCOTA - INICIO ===");
+            System.out.println("ID Mascota: " + id);
+            System.out.println("Nombre: " + nombre);
+            
+            // Obtener el usuario autenticado del contexto de seguridad
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.err.println("ERROR: Usuario no autenticado");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuario no autenticado");
+            }
+            
+            Person person = (Person) authentication.getPrincipal();
+            System.out.println("Usuario autenticado: " + person.getEmail() + " (ID: " + person.getIdPerson() + ")");
+            
+            System.out.println("✅ Usuario autenticado, procediendo a actualizar");
+            
+            // Crear objeto Mascotas con los datos actualizados
+            Mascotas mascota = new Mascotas();
+            mascota.setId(id);
+            mascota.setNombre(nombre);
+            mascota.setEspecie(especie);
+            mascota.setRaza(raza);
+            mascota.setEdad(edad);
+            mascota.setFechaNacimiento(fechaNacimiento);
+            mascota.setSexo(sexo);
+            mascota.setCiudad(ciudad);
+            mascota.setDescripcion(descripcion);
+            mascota.setALIADO(person);
+            
+            System.out.println("Llamando a mascotasService.actualizarMascota()");
+            // Actualizar la mascota usando el servicio
+            MascotasDTO mascotaActualizada = mascotasService.actualizarMascota(id, mascota, imagenes);
+            
+            if (mascotaActualizada == null) {
+                System.err.println("ERROR: mascotasService devolvió null");
+                return ResponseEntity.notFound().build();
+            }
+            
+            System.out.println("✅ Mascota actualizada con ID: " + mascotaActualizada.getId());
+            System.out.println("=== ACTUALIZAR MASCOTA - FIN EXITOSO ===\n");
+            
+            return ResponseEntity.ok(mascotaActualizada);
+        } catch (IllegalArgumentException e) {
+            System.err.println("ERROR: Datos inválidos - " + e.getMessage());
+            return ResponseEntity.badRequest().body("Datos de mascota inválidos: " + e.getMessage());
+        } catch (SecurityException e) {
+            System.err.println("ERROR: Sin permisos - " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("ERROR CRÍTICO actualizando mascota: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno del servidor: " + e.getMessage());
+        }
+    }
+
+    /**
      * Elimina una mascota del sistema
      * También elimina todas las imágenes asociadas
+     * Solo el dueño de la mascota puede eliminarla
      * 
      * @param id ID único de la mascota a eliminar
      * @return Status 204 (No Content) si la eliminación es exitosa
@@ -109,10 +266,36 @@ public class MascotasController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarMascota(@PathVariable Long id) {
         try {
-            mascotasService.eliminarMascota(id);
+            System.out.println("\n=== ELIMINAR MASCOTA - INICIO ===");
+            System.out.println("ID Mascota: " + id);
+            
+            // Obtener el usuario autenticado del contexto de seguridad
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                System.err.println("ERROR: Usuario no autenticado");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuario no autenticado");
+            }
+            
+            Person person = (Person) authentication.getPrincipal();
+            System.out.println("Usuario autenticado: " + person.getEmail() + " (ID: " + person.getIdPerson() + ")");
+            
+            System.out.println("✅ Usuario autenticado, procediendo a eliminar");
+            System.out.println("Llamando a mascotasService.eliminarMascotaPorUsuario()");
+            
+            mascotasService.eliminarMascotaPorUsuario(id, person.getIdPerson());
+            
+            System.out.println("✅ Mascota eliminada exitosamente");
+            System.out.println("=== ELIMINAR MASCOTA - FIN EXITOSO ===\n");
+            
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {
+            System.err.println("ERROR: " + e.getMessage());
             return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            System.err.println("ERROR: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(e.getMessage());
         } catch (Exception e) {
             System.err.println("Error eliminando mascota: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
