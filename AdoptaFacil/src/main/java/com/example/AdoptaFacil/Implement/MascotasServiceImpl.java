@@ -7,12 +7,16 @@ import com.example.AdoptaFacil.Repository.MascotasRepository;
 import com.example.AdoptaFacil.Service.MascotasService;
 import com.example.AdoptaFacil.Util.MascotaMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,7 +26,9 @@ public class MascotasServiceImpl implements MascotasService {
 
     private final MascotasRepository mascotasRepository;
     private final MascotaMapper mascotaMapper;
-    private final String UPLOAD_DIR = "uploads/";
+    
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @Override
     @Transactional
@@ -39,28 +45,38 @@ public class MascotasServiceImpl implements MascotasService {
 
         // Procesar y guardar imágenes si se proporcionan
         if (imagenes != null && !imagenes.isEmpty()) {
-            int orden = 1;
-            for (MultipartFile file : imagenes) {
-                try {
-                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    File destino = new File(UPLOAD_DIR + fileName);
-                    
-                    // Crear el directorio si no existe
-                    destino.getParentFile().mkdirs();
-                    
-                    file.transferTo(destino);
-                    System.out.println("✅ Imagen guardada: " + destino.getPath());
-
-                    MascotaImage img = new MascotaImage();
-                    img.setImagenPath(destino.getPath());
-                    img.setOrden(orden++);
-                    img.setMascota(nuevaMascota);
-                    nuevaMascota.getImagenes().add(img);
-
-                } catch (IOException e) {
-                    System.err.println("❌ Error guardando imagen: " + e.getMessage());
-                    throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
+            try {
+                // Crear el directorio si no existe
+                Path uploadDir = Paths.get(uploadPath);
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                    System.out.println("✅ Directorio de uploads creado: " + uploadDir.toAbsolutePath());
                 }
+                
+                int orden = 1;
+                for (MultipartFile file : imagenes) {
+                    try {
+                        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                        Path destinoPath = uploadDir.resolve(fileName);
+                        File destino = destinoPath.toFile();
+                        
+                        file.transferTo(destino);
+                        System.out.println("✅ Imagen guardada: " + destino.getAbsolutePath());
+
+                        MascotaImage img = new MascotaImage();
+                        img.setImagenPath(destino.getAbsolutePath());
+                        img.setOrden(orden++);
+                        img.setMascota(nuevaMascota);
+                        nuevaMascota.getImagenes().add(img);
+
+                    } catch (IOException e) {
+                        System.err.println("❌ Error guardando imagen: " + e.getMessage());
+                        throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("❌ Error creando directorio de uploads: " + e.getMessage());
+                throw new IllegalArgumentException("Error al crear directorio de uploads: " + e.getMessage());
             }
             
             // Guardar nuevamente para persistir las imágenes
@@ -166,29 +182,39 @@ public class MascotasServiceImpl implements MascotasService {
 
         // Procesar nuevas imágenes si se proporcionan
         if (imagenes != null && !imagenes.isEmpty()) {
-            int orden = mascotaExistente.getImagenes().size() + 1;
-            
-            for (MultipartFile file : imagenes) {
-                try {
-                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    File destino = new File(UPLOAD_DIR + fileName);
-                    
-                    // Crear el directorio si no existe
-                    destino.getParentFile().mkdirs();
-                    
-                    file.transferTo(destino);
-                    System.out.println("✅ Nueva imagen guardada: " + destino.getPath());
-
-                    MascotaImage img = new MascotaImage();
-                    img.setImagenPath(destino.getPath());
-                    img.setOrden(orden++);
-                    img.setMascota(mascotaExistente);
-                    mascotaExistente.getImagenes().add(img);
-
-                } catch (IOException e) {
-                    System.err.println("❌ Error guardando imagen: " + e.getMessage());
-                    throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
+            try {
+                // Crear el directorio si no existe
+                Path uploadDir = Paths.get(uploadPath);
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                    System.out.println("✅ Directorio de uploads creado: " + uploadDir.toAbsolutePath());
                 }
+                
+                int orden = mascotaExistente.getImagenes().size() + 1;
+                
+                for (MultipartFile file : imagenes) {
+                    try {
+                        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                        Path destinoPath = uploadDir.resolve(fileName);
+                        File destino = destinoPath.toFile();
+                        
+                        file.transferTo(destino);
+                        System.out.println("✅ Nueva imagen guardada: " + destino.getAbsolutePath());
+
+                        MascotaImage img = new MascotaImage();
+                        img.setImagenPath(destino.getAbsolutePath());
+                        img.setOrden(orden++);
+                        img.setMascota(mascotaExistente);
+                        mascotaExistente.getImagenes().add(img);
+
+                    } catch (IOException e) {
+                        System.err.println("❌ Error guardando imagen: " + e.getMessage());
+                        throw new IllegalArgumentException("Error al guardar imagen: " + e.getMessage());
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("❌ Error creando directorio de uploads: " + e.getMessage());
+                throw new IllegalArgumentException("Error al crear directorio de uploads: " + e.getMessage());
             }
         }
 
@@ -261,6 +287,56 @@ public class MascotasServiceImpl implements MascotasService {
         // Llamar al método principal de eliminación
         eliminarMascota(id);
     }
+
+    @Override
+    @Transactional
+    public void eliminarImagen(Long mascotaId, Long imagenId) {
+        System.out.println("\n=== SERVICE: Eliminando imagen ID " + imagenId + " de mascota ID " + mascotaId + " ===");
+        
+        // Buscar la mascota
+        Mascotas mascota = mascotasRepository.findById(mascotaId)
+                .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + mascotaId));
+        
+        System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
+        System.out.println("📸 Total de imágenes: " + mascota.getImagenes().size());
+        
+        // Buscar la imagen específica
+        MascotaImage imagenAEliminar = mascota.getImagenes().stream()
+                .filter(img -> img.getId().equals(imagenId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Imagen no encontrada con ID: " + imagenId));
+        
+        System.out.println("✅ Imagen encontrada: " + imagenAEliminar.getImagenPath());
+        
+        // Eliminar archivo físico
+        try {
+            File archivo = new File(imagenAEliminar.getImagenPath());
+            if (archivo.exists()) {
+                boolean eliminado = archivo.delete();
+                if (eliminado) {
+                    System.out.println("✅ Archivo físico eliminado: " + imagenAEliminar.getImagenPath());
+                } else {
+                    System.err.println("⚠️ No se pudo eliminar el archivo: " + imagenAEliminar.getImagenPath());
+                }
+            } else {
+                System.out.println("ℹ️ Archivo físico no existe: " + imagenAEliminar.getImagenPath());
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error eliminando archivo físico: " + e.getMessage());
+        }
+        
+        // Remover imagen de la lista de la mascota
+        mascota.getImagenes().remove(imagenAEliminar);
+        
+        // Guardar cambios (cascade eliminará el registro de la BD)
+        mascotasRepository.save(mascota);
+        
+        System.out.println("✅ Imagen eliminada de la BD");
+        System.out.println("📸 Imágenes restantes: " + mascota.getImagenes().size());
+        System.out.println("=== SERVICE: FIN eliminación de imagen ===\n");
+    }
 }
+
+
 
 

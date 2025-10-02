@@ -4,8 +4,10 @@ import com.example.AdoptaFacil.DTO.MascotaImageDTO;
 import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.MascotaImage;
 import com.example.AdoptaFacil.Entity.Mascotas;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,29 @@ import java.util.stream.Collectors;
  */
 @Component
 public class MascotaMapper {
+
+    @Value("${server.port:8080}")
+    private String serverPort;
+
+    @Value("${server.host:10.0.2.2}") // 10.0.2.2 para Android Emulator, localhost para web
+    private String serverHost;
+
+    /**
+     * Convierte una ruta absoluta de archivo a una URL accesible desde el frontend
+     * Ejemplo: C:/uploads/imagen.png -> http://10.0.2.2:8080/uploads/imagen.png
+     */
+    private String convertToUrl(String absolutePath) {
+        if (absolutePath == null || absolutePath.isEmpty()) {
+            return null;
+        }
+        
+        // Obtener solo el nombre del archivo
+        File file = new File(absolutePath);
+        String fileName = file.getName();
+        
+        // Construir la URL completa usando el host configurado
+        return "http://" + serverHost + ":" + serverPort + "/uploads/" + fileName;
+    }
 
     /**
      * Convierte una entidad Mascotas a MascotasDTO
@@ -36,7 +61,7 @@ public class MascotaMapper {
         dto.setSexo(mascota.getSexo());
         dto.setCiudad(mascota.getCiudad());
         dto.setDescripcion(mascota.getDescripcion());
-        dto.setImagen(mascota.getImagen());
+        dto.setImagen(convertToUrl(mascota.getImagen())); // Convertir a URL
 
         // Convertir las imágenes a DTOs
         if (mascota.getImagenes() != null && !mascota.getImagenes().isEmpty()) {
@@ -65,8 +90,9 @@ public class MascotaMapper {
 
     /**
      * Convierte una imagen de entidad a DTO
+     * Convierte la ruta absoluta en una URL accesible
      * @param imagen Entidad de imagen
-     * @return DTO de imagen
+     * @return DTO de imagen con URL accesible
      */
     public MascotaImageDTO toImageDTO(MascotaImage imagen) {
         if (imagen == null) {
@@ -74,7 +100,7 @@ public class MascotaMapper {
         }
         return new MascotaImageDTO(
                 imagen.getId(),
-                imagen.getImagenPath(),
+                convertToUrl(imagen.getImagenPath()), // Convertir a URL
                 imagen.getOrden()
         );
     }

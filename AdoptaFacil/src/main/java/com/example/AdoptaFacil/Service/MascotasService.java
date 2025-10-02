@@ -14,4 +14,5 @@ public interface MascotasService {
     MascotasDTO actualizarMascota(Long id, Mascotas mascota, List<MultipartFile> imagenes);
     void eliminarMascota(Long id);
     void eliminarMascotaPorUsuario(Long id, Long idUsuario);
+    void eliminarImagen(Long mascotaId, Long imagenId);
 }

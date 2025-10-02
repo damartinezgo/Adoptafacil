@@ -45,6 +45,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                     // Rutas públicas - accesibles sin autenticación
                     .requestMatchers("/api/auth/**").permitAll()
+                    // Permitir acceso público a las imágenes
+                    .requestMatchers("/uploads/**").permitAll()
                     // Todas las demás rutas requieren autenticación
                     .anyRequest().authenticated()
             )

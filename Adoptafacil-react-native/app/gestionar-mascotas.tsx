@@ -103,6 +103,9 @@ export default function GestionarMascotasScreen() {
   const [ciudad, setCiudad] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [imagenes, setImagenes] = useState<string[]>([]);
+  const [imagenesConId, setImagenesConId] = useState<Map<string, number>>(
+    new Map()
+  );
 
   // Cargar mascotas al montar el componente
   useEffect(() => {
@@ -167,22 +170,33 @@ export default function GestionarMascotasScreen() {
       console.log("Mascotas obtenidas:", response.data);
 
       // Mapear los datos del backend al formato de la interfaz
-      const mascotasFormateadas = response.data.map((m: any) => ({
-        id: m.id,
-        nombre: m.nombre,
-        especie: m.especie,
-        raza: m.raza,
-        edad: `${m.edad} años`, // Convertir number a string
-        imagenes:
-          m.imagenes && m.imagenes.length > 0
-            ? m.imagenes.map(
-                (img: any) =>
-                  `${BASE_URL.replace("/api", "")}/${img.imagenPath}`
-              )
-            : m.imagen
-            ? [`${BASE_URL.replace("/api", "")}/${m.imagen}`]
-            : ["https://via.placeholder.com/300x300.png?text=Sin+Imagen"],
-      }));
+      const mascotasFormateadas = response.data.map((m: any) => {
+        let imagenes: string[] = [];
+
+        if (m.imagenes && Array.isArray(m.imagenes) && m.imagenes.length > 0) {
+          // Extraer solo las URLs de los objetos MascotaImageDTO
+          imagenes = m.imagenes
+            .slice(0, 3)
+            .map((img: any) => img.imagenPath || img);
+        } else if (m.imagen) {
+          imagenes = [m.imagen];
+        } else {
+          imagenes = [
+            "https://via.placeholder.com/300x300.png?text=Sin+Imagen",
+          ];
+        }
+
+        console.log(`Mascota ${m.id} - ${m.nombre}:`, imagenes);
+
+        return {
+          id: m.id,
+          nombre: m.nombre,
+          especie: m.especie,
+          raza: m.raza,
+          edad: `${m.edad} años`,
+          imagenes: imagenes,
+        };
+      });
 
       setMascotas(mascotasFormateadas);
     } catch (error: any) {
@@ -404,21 +418,22 @@ export default function GestionarMascotasScreen() {
       console.log("=== CREATE MASCOTA - FIN EXITOSO ===\n");
 
       // Formatear respuesta del backend
+      const imagenes =
+        response.data.imagenes && response.data.imagenes.length > 0
+          ? response.data.imagenes.map((img: any) => img.imagenPath).slice(0, 3)
+          : response.data.imagen
+          ? [response.data.imagen].slice(0, 3)
+          : nuevaMascota.imagenes.slice(0, 3);
+
+      console.log(`Mascota creada ${response.data.id} - Imágenes:`, imagenes);
+
       const mascotaCreada = {
         id: response.data.id,
         nombre: response.data.nombre,
         especie: response.data.especie,
         raza: response.data.raza,
         edad: `${response.data.edad} años`,
-        imagenes:
-          response.data.imagenes && response.data.imagenes.length > 0
-            ? response.data.imagenes.map(
-                (img: any) =>
-                  `${BASE_URL.replace("/api", "")}/${img.imagenPath}`
-              )
-            : response.data.imagen
-            ? [`${BASE_URL.replace("/api", "")}/${response.data.imagen}`]
-            : nuevaMascota.imagenes,
+        imagenes: imagenes,
       };
 
       // Actualizar contexto global
@@ -595,21 +610,25 @@ export default function GestionarMascotasScreen() {
       console.log("=== UPDATE MASCOTA - FIN EXITOSO ===\n");
 
       // Formatear respuesta del backend
+      const imagenes =
+        response.data.imagenes && response.data.imagenes.length > 0
+          ? response.data.imagenes.map((img: any) => img.imagenPath).slice(0, 3)
+          : response.data.imagen
+          ? [response.data.imagen].slice(0, 3)
+          : mascota.imagenes.slice(0, 3);
+
+      console.log(
+        `Mascota actualizada ${response.data.id} - Imágenes:`,
+        imagenes
+      );
+
       const mascotaActualizada = {
         id: response.data.id,
         nombre: response.data.nombre,
         especie: response.data.especie,
         raza: response.data.raza,
         edad: `${response.data.edad} años`,
-        imagenes:
-          response.data.imagenes && response.data.imagenes.length > 0
-            ? response.data.imagenes.map(
-                (img: any) =>
-                  `${BASE_URL.replace("/api", "")}/${img.imagenPath}`
-              )
-            : response.data.imagen
-            ? [`${BASE_URL.replace("/api", "")}/${response.data.imagen}`]
-            : mascota.imagenes,
+        imagenes: imagenes,
       };
 
       // Actualizar contexto global
@@ -703,7 +722,39 @@ export default function GestionarMascotasScreen() {
   };
 
   // Función para eliminar una imagen específica
-  const eliminarImagen = (index: number) => {
+  const eliminarImagen = async (index: number) => {
+    const urlImagen = imagenes[index];
+    const imagenId = imagenesConId.get(urlImagen);
+
+    // Si la imagen tiene ID, significa que existe en el servidor y debemos eliminarla
+    if (imagenId && mascotaEditando) {
+      try {
+        const token = await tokenStorage.getToken();
+        await axios.delete(
+          `${BASE_URL}/mascotas/${mascotaEditando.id}/imagenes/${imagenId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(`✅ Imagen ${imagenId} eliminada del servidor`);
+
+        // Eliminar del mapa de IDs
+        const nuevoMapa = new Map(imagenesConId);
+        nuevoMapa.delete(urlImagen);
+        setImagenesConId(nuevoMapa);
+      } catch (error) {
+        console.error("Error al eliminar imagen del servidor:", error);
+        Alert.alert(
+          "Error",
+          "No se pudo eliminar la imagen. Por favor, intenta de nuevo."
+        );
+        return; // No eliminar del estado local si falla la eliminación en el servidor
+      }
+    }
+
+    // Eliminar del estado local
     setImagenes(imagenes.filter((_, i) => i !== index));
   };
 
@@ -718,6 +769,7 @@ export default function GestionarMascotasScreen() {
     setCiudad("");
     setDescripcion("");
     setImagenes([]);
+    setImagenesConId(new Map()); // Limpiar el mapa de IDs
     setModoEdicion(false);
     setMascotaEditando(null);
     setMostrarFormulario(false);
@@ -731,7 +783,11 @@ export default function GestionarMascotasScreen() {
     setEspecie(mascota.especie);
     setRaza(mascota.raza);
     setEdad(mascota.edad);
-    setImagenes(mascota.imagenes);
+    // Filtrar solo las imágenes que ya existen en el servidor (máximo 3)
+    const imagenesExistentes = mascota.imagenes
+      .filter((img) => img.startsWith("http"))
+      .slice(0, 3);
+    setImagenes(imagenesExistentes);
 
     // Cargar datos completos del backend
     try {
@@ -747,6 +803,22 @@ export default function GestionarMascotasScreen() {
       setSexo(mascotaCompleta.sexo || "Macho");
       setCiudad(mascotaCompleta.ciudad || "");
       setDescripcion(mascotaCompleta.descripcion || "");
+
+      // Guardar el mapa de URL → ID para las imágenes existentes
+      if (mascotaCompleta.imagenes && Array.isArray(mascotaCompleta.imagenes)) {
+        const nuevoMapa = new Map<string, number>();
+        const urls: string[] = [];
+
+        mascotaCompleta.imagenes.slice(0, 3).forEach((img: any) => {
+          if (img.imagenPath && img.id) {
+            nuevoMapa.set(img.imagenPath, img.id);
+            urls.push(img.imagenPath);
+          }
+        });
+
+        setImagenesConId(nuevoMapa);
+        setImagenes(urls);
+      }
 
       // Formatear la fecha de nacimiento si existe
       if (mascotaCompleta.fechaNacimiento) {
@@ -765,6 +837,7 @@ export default function GestionarMascotasScreen() {
       setCiudad("");
       setDescripcion("");
       setFechaNacimiento("");
+      setImagenesConId(new Map());
     }
 
     setMostrarFormulario(true);
@@ -1038,6 +1111,22 @@ export default function GestionarMascotasScreen() {
                         <Image
                           source={{ uri }}
                           style={styles.imagenMiniatura}
+                          onError={(error) => {
+                            console.error(
+                              `❌ Error cargando imagen ${index}:`,
+                              uri
+                            );
+                            console.error(
+                              "Error details:",
+                              error.nativeEvent.error
+                            );
+                          }}
+                          onLoad={() => {
+                            console.log(
+                              `✅ Imagen ${index} cargada correctamente:`,
+                              uri
+                            );
+                          }}
                         />
                         <TouchableOpacity
                           style={styles.eliminarImagenButton}
@@ -1095,6 +1184,19 @@ export default function GestionarMascotasScreen() {
                   <Image
                     source={{ uri: mascota.imagenes[0] }}
                     style={styles.mascotaImagen}
+                    onError={(error) => {
+                      console.error(
+                        `❌ Error cargando imagen mascota ${mascota.id}:`,
+                        mascota.imagenes[0]
+                      );
+                      console.error("Error details:", error.nativeEvent.error);
+                    }}
+                    onLoad={() => {
+                      console.log(
+                        `✅ Imagen mascota ${mascota.id} cargada:`,
+                        mascota.imagenes[0]
+                      );
+                    }}
                   />
 
                   {/* Información de la mascota */}
