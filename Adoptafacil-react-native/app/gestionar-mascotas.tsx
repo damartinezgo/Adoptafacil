@@ -14,7 +14,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-// FileSystem no es necesario para el procesamiento de imágenes
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import axios, { isAxiosError } from "axios";
@@ -109,33 +108,20 @@ export default function GestionarMascotasScreen() {
 
   // Cargar mascotas al montar el componente
   useEffect(() => {
-    console.log("=== GESTIONAR MASCOTAS: Componente montado ===");
-    console.log("BASE_URL configurada:", BASE_URL);
     fetchMascotas(3);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
-   * Función para obtener mascotas del backend
-   * GET /api/mascotas
-   * Obtiene todas las mascotas asociadas al usuario autenticado
+   * Obtiene todas las mascotas del usuario autenticado
+   * Incluye reintentos automáticos en caso de errores de red
    */
   const fetchMascotas = async (reintentos = 3) => {
     try {
       setCargandoInicial(true);
       setError(null);
 
-      console.log(
-        `\n=== FETCH MASCOTAS (${reintentos} reintentos restantes) ===`
-      );
-      console.log("URL:", `${BASE_URL}/mascotas`);
-
-      // Obtener token de autenticación
       const token = await tokenStorage.getToken();
-      console.log(
-        "Token obtenido:",
-        token ? `${token.substring(0, 20)}...` : "NO HAY TOKEN"
-      );
 
       // Verificar si hay token (usuario autenticado)
       if (!token) {
@@ -154,20 +140,14 @@ export default function GestionarMascotasScreen() {
         return;
       }
 
-      // Realizar petición al backend con timeout más largo
-      console.log("Realizando petición GET...");
+      // Realizar petición al backend
       const response = await axios.get(`${BASE_URL}/mascotas`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        timeout: 15000, // 15 segundos timeout
+        timeout: 15000,
       });
-
-      console.log("✅ Respuesta exitosa del servidor");
-      console.log("Status:", response.status);
-      console.log("Cantidad de mascotas:", response.data?.length || 0);
-      console.log("Mascotas obtenidas:", response.data);
 
       // Mapear los datos del backend al formato de la interfaz
       const mascotasFormateadas = response.data.map((m: any) => {
@@ -186,8 +166,6 @@ export default function GestionarMascotasScreen() {
           ];
         }
 
-        console.log(`Mascota ${m.id} - ${m.nombre}:`, imagenes);
-
         return {
           id: m.id,
           nombre: m.nombre,
@@ -200,10 +178,6 @@ export default function GestionarMascotasScreen() {
 
       setMascotas(mascotasFormateadas);
     } catch (error: any) {
-      console.error("Error al obtener mascotas:", error);
-      console.error("Código de error:", error.code);
-      console.error("Mensaje:", error.message);
-
       // Reintentar si aún quedan intentos y es un error de red
       if (
         reintentos > 0 &&
@@ -213,8 +187,7 @@ export default function GestionarMascotasScreen() {
           error.message?.includes("Network Error") ||
           error.message?.includes("timeout"))
       ) {
-        console.log(`Reintentando... (${reintentos} intentos restantes)`);
-        await new Promise((resolve) => setTimeout(resolve, 1500)); // Esperar 1.5 segundos
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         return fetchMascotas(reintentos - 1);
       }
 
@@ -268,30 +241,22 @@ export default function GestionarMascotasScreen() {
   };
 
   /**
-   * Función para crear una nueva mascota
-   * POST /api/mascotas
+   * Crea una nueva mascota en el backend
    * Envía FormData con multipart/form-data para soportar imágenes
    */
   const createMascota = async (nuevaMascota: Omit<Mascota, "id">) => {
     try {
       setCargando(true);
 
-      console.log("\n=== CREATE MASCOTA - INICIO ===");
-      console.log("Datos a enviar:", nuevaMascota);
-
-      // Obtener token (el backend obtendrá el usuario del token automáticamente)
       const token = await tokenStorage.getToken();
 
       if (!token) {
-        console.error("ERROR: No hay token de autenticación");
         Alert.alert(
           "Error",
           "Usuario no autenticado. Por favor, inicia sesión."
         );
         return null;
       }
-
-      console.log("Token obtenido:", token.substring(0, 20) + "...");
 
       // Preparar FormData para envío multipart
       const formData = new FormData();
@@ -301,9 +266,8 @@ export default function GestionarMascotasScreen() {
       formData.append("especie", nuevaMascota.especie);
       formData.append("raza", nuevaMascota.raza);
 
-      // Convertir edad de string a number (extraer el número)
+      // Convertir edad de string a number
       const edadNumber = parseInt(nuevaMascota.edad);
-      console.log("Edad extraída:", edadNumber, "de:", nuevaMascota.edad);
 
       if (isNaN(edadNumber) || edadNumber < 0) {
         Alert.alert("Error", "La edad no es válida");
@@ -323,11 +287,9 @@ export default function GestionarMascotasScreen() {
       // Fecha de nacimiento (formato YYYY-MM-DD)
       let fechaFinal: string;
       if (fechaNacimiento && fechaNacimiento.trim() !== "") {
-        // Validar y formatear la fecha proporcionada
         const fechaFormateada = formatearFecha(fechaNacimiento);
         if (fechaFormateada) {
           fechaFinal = fechaFormateada;
-          console.log("Usando fecha proporcionada formateada:", fechaFinal);
         } else {
           Alert.alert(
             "Error de formato",
@@ -339,83 +301,46 @@ export default function GestionarMascotasScreen() {
         // Calcular fecha de nacimiento aproximada basada en la edad
         const hoy = new Date();
         const anioNacimiento = hoy.getFullYear() - edadNumber;
-
-        // Asegurar formato YYYY-MM-DD con año completo de 4 dígitos
         fechaFinal = `${anioNacimiento.toString().padStart(4, "0")}-01-01`;
-        console.log(
-          "Fecha calculada:",
-          fechaFinal,
-          "| Año actual:",
-          hoy.getFullYear(),
-          "| Edad:",
-          edadNumber
-        );
       }
 
       formData.append("fechaNacimiento", fechaFinal);
-      console.log("✅ Fecha final enviada:", fechaFinal);
-
-      // YA NO SE ENVÍA idPerson - El backend lo obtiene del token JWT automáticamente
-      console.log(
-        "FormData preparado (sin idPerson - se obtiene del token JWT)"
-      );
 
       // Procesar y agregar imágenes
-      console.log(`📸 Procesando ${nuevaMascota.imagenes.length} imágenes...`);
-      console.log("Imágenes recibidas:", nuevaMascota.imagenes);
-
-      let imagenesAgregadas = 0;
       for (let i = 0; i < nuevaMascota.imagenes.length; i++) {
         const uri = nuevaMascota.imagenes[i];
-        console.log(
-          `Procesando imagen ${i + 1}/${nuevaMascota.imagenes.length}: ${uri}`
-        );
 
         // Si la imagen es una URL remota, no la subimos (ya está en el servidor)
         if (uri.startsWith("http://") || uri.startsWith("https://")) {
-          console.log(`⏭️ Imagen ${i + 1} es URL remota, se omite`);
           continue;
         }
 
         // Si es una imagen local (de la galería), agregarla directamente
         if (uri.startsWith("file://") || uri.startsWith("content://")) {
           try {
-            // Crear objeto de archivo para FormData
             const filename = uri.split("/").pop() || `imagen_${i}.jpg`;
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
-
-            console.log(`✅ Agregando imagen ${i + 1}: ${filename} (${type})`);
 
             formData.append("imagenes", {
               uri: uri,
               name: filename,
               type: type,
             } as any);
-
-            imagenesAgregadas++;
           } catch (fileError) {
             console.error(`Error procesando imagen ${i}:`, fileError);
           }
         }
       }
 
-      console.log(
-        `📊 Total imágenes agregadas al FormData: ${imagenesAgregadas}`
-      );
-
       // Realizar petición POST
-      console.log("Enviando petición POST a:", `${BASE_URL}/mascotas`);
       const response = await axios.post(`${BASE_URL}/mascotas`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-        timeout: 30000, // 30 segundos para upload de imágenes
+        timeout: 30000,
       });
-
-      console.log("✅ Mascota creada exitosamente:", response.data);
-      console.log("=== CREATE MASCOTA - FIN EXITOSO ===\n");
 
       // Formatear respuesta del backend
       const imagenes =
@@ -424,8 +349,6 @@ export default function GestionarMascotasScreen() {
           : response.data.imagen
           ? [response.data.imagen].slice(0, 3)
           : nuevaMascota.imagenes.slice(0, 3);
-
-      console.log(`Mascota creada ${response.data.id} - Imágenes:`, imagenes);
 
       const mascotaCreada = {
         id: response.data.id,
@@ -468,14 +391,12 @@ export default function GestionarMascotasScreen() {
   };
 
   /**
-   * Función para actualizar una mascota existente
-   * PUT /api/mascotas/{id}
+   * Actualiza una mascota existente
+   * Solo procesa imágenes nuevas, las existentes permanecen en el servidor
    */
   const updateMascota = async (mascota: Mascota) => {
     try {
       setCargando(true);
-      console.log("\n=== UPDATE MASCOTA - INICIO ===");
-      console.log("Mascota a actualizar:", mascota);
 
       const token = await tokenStorage.getToken();
 
@@ -490,14 +411,6 @@ export default function GestionarMascotasScreen() {
           "Error",
           "Faltan datos obligatorios. Asegúrate de completar: sexo, ciudad y fecha de nacimiento."
         );
-        console.error(
-          "❌ Faltan datos: sexo=",
-          sexo,
-          "ciudad=",
-          ciudad,
-          "fecha=",
-          fechaNacimiento
-        );
         return null;
       }
 
@@ -508,7 +421,6 @@ export default function GestionarMascotasScreen() {
       formData.append("raza", mascota.raza);
 
       const edadNumber = parseInt(mascota.edad);
-      console.log("UPDATE - Edad extraída:", edadNumber, "de:", mascota.edad);
 
       if (isNaN(edadNumber) || edadNumber < 0) {
         Alert.alert("Error", "La edad no es válida");
@@ -526,14 +438,9 @@ export default function GestionarMascotasScreen() {
       // Fecha de nacimiento
       let fechaFinal: string;
       if (fechaNacimiento && fechaNacimiento.trim() !== "") {
-        // Validar y formatear la fecha proporcionada
         const fechaFormateada = formatearFecha(fechaNacimiento);
         if (fechaFormateada) {
           fechaFinal = fechaFormateada;
-          console.log(
-            "UPDATE - Usando fecha proporcionada formateada:",
-            fechaFinal
-          );
         } else {
           Alert.alert(
             "Error de formato",
@@ -550,18 +457,13 @@ export default function GestionarMascotasScreen() {
       }
 
       formData.append("fechaNacimiento", fechaFinal);
-      console.log("✅ UPDATE - Fecha final enviada:", fechaFinal);
-
-      // YA NO SE ENVÍA idPerson - El backend lo obtiene del token JWT automáticamente
 
       // Procesar imágenes nuevas
-      let imagenesAgregadas = 0;
       for (let i = 0; i < mascota.imagenes.length; i++) {
         const uri = mascota.imagenes[i];
 
         // Si es una URL remota, omitir (ya está en el servidor)
         if (uri.startsWith("http://") || uri.startsWith("https://")) {
-          console.log(`⏭️ Imagen ${i + 1} es URL remota, se omite`);
           continue;
         }
 
@@ -572,26 +474,16 @@ export default function GestionarMascotasScreen() {
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : `image/jpeg`;
 
-            console.log(`✅ Agregando imagen ${i + 1}: ${filename}`);
-
             formData.append("imagenes", {
               uri: uri,
               name: filename,
               type: type,
             } as any);
-
-            imagenesAgregadas++;
           } catch (error) {
             console.error(`Error procesando imagen ${i}:`, error);
           }
         }
       }
-
-      console.log(`📊 Total imágenes nuevas agregadas: ${imagenesAgregadas}`);
-      console.log(
-        "Enviando petición PUT a:",
-        `${BASE_URL}/mascotas/${mascota.id}`
-      );
 
       // Realizar petición PUT al backend
       const response = await axios.put(
@@ -606,9 +498,6 @@ export default function GestionarMascotasScreen() {
         }
       );
 
-      console.log("✅ Mascota actualizada:", response.data);
-      console.log("=== UPDATE MASCOTA - FIN EXITOSO ===\n");
-
       // Formatear respuesta del backend
       const imagenes =
         response.data.imagenes && response.data.imagenes.length > 0
@@ -616,11 +505,6 @@ export default function GestionarMascotasScreen() {
           : response.data.imagen
           ? [response.data.imagen].slice(0, 3)
           : mascota.imagenes.slice(0, 3);
-
-      console.log(
-        `Mascota actualizada ${response.data.id} - Imágenes:`,
-        imagenes
-      );
 
       const mascotaActualizada = {
         id: response.data.id,
@@ -647,8 +531,7 @@ export default function GestionarMascotasScreen() {
   };
 
   /**
-   * Función para eliminar una mascota
-   * DELETE /api/mascotas/{id}
+   * Elimina una mascota del sistema
    */
   const deleteMascota = async (id: number) => {
     try {
@@ -663,8 +546,6 @@ export default function GestionarMascotasScreen() {
         },
         timeout: 10000,
       });
-
-      console.log(`Mascota ${id} eliminada correctamente`);
 
       // Actualizar contexto global
       setMascotas(mascotas.filter((m) => m.id !== id));
@@ -689,7 +570,6 @@ export default function GestionarMascotasScreen() {
     }
   };
 
-  // Función para seleccionar imágenes
   const seleccionarImagenes = async () => {
     if (imagenes.length >= 3) {
       Alert.alert(
@@ -721,7 +601,10 @@ export default function GestionarMascotasScreen() {
     }
   };
 
-  // Función para eliminar una imagen específica
+  /**
+   * Elimina una imagen específica
+   * Si la imagen existe en el servidor, la elimina primero del backend
+   */
   const eliminarImagen = async (index: number) => {
     const urlImagen = imagenes[index];
     const imagenId = imagenesConId.get(urlImagen);
@@ -738,7 +621,6 @@ export default function GestionarMascotasScreen() {
             },
           }
         );
-        console.log(`✅ Imagen ${imagenId} eliminada del servidor`);
 
         // Eliminar del mapa de IDs
         const nuevoMapa = new Map(imagenesConId);
@@ -758,7 +640,6 @@ export default function GestionarMascotasScreen() {
     setImagenes(imagenes.filter((_, i) => i !== index));
   };
 
-  // Función para limpiar el formulario
   const limpiarFormulario = () => {
     setNombre("");
     setEspecie("Perro");
@@ -775,7 +656,10 @@ export default function GestionarMascotasScreen() {
     setMostrarFormulario(false);
   };
 
-  // Función para iniciar la edición de una mascota
+  /**
+   * Inicia el modo de edición de una mascota
+   * Carga todos los datos incluyendo mapa de IDs de imágenes para permitir eliminación
+   */
   const iniciarEdicion = async (mascota: Mascota) => {
     setModoEdicion(true);
     setMascotaEditando(mascota);
@@ -843,7 +727,9 @@ export default function GestionarMascotasScreen() {
     setMostrarFormulario(true);
   };
 
-  // Función para guardar la mascota (crear o actualizar)
+  /**
+   * Guarda la mascota (crea nueva o actualiza existente según el modo)
+   */
   const guardarMascota = async () => {
     // Validaciones básicas
     if (!nombre.trim()) {
@@ -893,14 +779,6 @@ export default function GestionarMascotasScreen() {
           imagenes,
         };
 
-        console.log("\n🚀 GUARDAR MASCOTA - Datos a enviar:");
-        console.log("  Nombre:", nuevaMascota.nombre);
-        console.log("  Especie:", nuevaMascota.especie);
-        console.log("  Raza:", nuevaMascota.raza);
-        console.log("  Edad:", nuevaMascota.edad);
-        console.log("  Imágenes (count):", nuevaMascota.imagenes.length);
-        console.log("  Imágenes (array):", nuevaMascota.imagenes);
-
         await createMascota(nuevaMascota);
         Alert.alert("Éxito", "Mascota agregada correctamente");
       }
@@ -910,7 +788,6 @@ export default function GestionarMascotasScreen() {
     }
   };
 
-  // Función para confirmar eliminación
   const confirmarEliminacion = (mascota: Mascota) => {
     Alert.alert(
       "Confirmar eliminación",
@@ -1111,22 +988,6 @@ export default function GestionarMascotasScreen() {
                         <Image
                           source={{ uri }}
                           style={styles.imagenMiniatura}
-                          onError={(error) => {
-                            console.error(
-                              `❌ Error cargando imagen ${index}:`,
-                              uri
-                            );
-                            console.error(
-                              "Error details:",
-                              error.nativeEvent.error
-                            );
-                          }}
-                          onLoad={() => {
-                            console.log(
-                              `✅ Imagen ${index} cargada correctamente:`,
-                              uri
-                            );
-                          }}
                         />
                         <TouchableOpacity
                           style={styles.eliminarImagenButton}
@@ -1184,19 +1045,6 @@ export default function GestionarMascotasScreen() {
                   <Image
                     source={{ uri: mascota.imagenes[0] }}
                     style={styles.mascotaImagen}
-                    onError={(error) => {
-                      console.error(
-                        `❌ Error cargando imagen mascota ${mascota.id}:`,
-                        mascota.imagenes[0]
-                      );
-                      console.error("Error details:", error.nativeEvent.error);
-                    }}
-                    onLoad={() => {
-                      console.log(
-                        `✅ Imagen mascota ${mascota.id} cargada:`,
-                        mascota.imagenes[0]
-                      );
-                    }}
                   />
 
                   {/* Información de la mascota */}
