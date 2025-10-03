@@ -20,6 +20,11 @@ import axios, { isAxiosError } from "axios";
 import { BASE_URL } from "@/config";
 import { tokenStorage } from "@/api";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  generarReportePDF,
+  compartirPDF,
+  type MascotaReporte,
+} from "@/utils/pdfReport";
 
 /**
  * Valida y formatea una fecha para enviar al backend
@@ -944,6 +949,95 @@ export default function GestionarMascotasScreen() {
     );
   };
 
+  /**
+   * Genera y descarga un reporte PDF de las mascotas
+   * - ALIADO: Reporte de sus propias mascotas
+   * - ADMIN: Reporte de todas las mascotas del sistema
+   */
+  const descargarReportePDF = async () => {
+    try {
+      // Validar que haya mascotas para el reporte
+      if (!mascotas || mascotas.length === 0) {
+        Alert.alert("Sin mascotas", "No hay mascotas para generar el reporte");
+        return;
+      }
+
+      // Mostrar indicador de carga
+      setCargando(true);
+
+      // Preparar datos para el reporte
+      const mascotasReporte: MascotaReporte[] = mascotas.map((mascota) => ({
+        nombre: mascota.nombre,
+        especie: mascota.especie,
+        raza: mascota.raza,
+        edad: mascota.edad,
+      }));
+
+      // Determinar título y subtítulo según el rol
+      const esAdmin = user?.role?.roleType === "ADMIN";
+      const tituloReporte = esAdmin
+        ? "Reporte General de Mascotas"
+        : "Mis Mascotas Registradas";
+      const subtitulo = esAdmin
+        ? "Sistema AdoptaFácil - Vista Administrador"
+        : `Aliado: ${user?.name || "Usuario"}`;
+
+      // Generar timestamp para nombre único del archivo
+      const timestamp = new Date().getTime();
+      const tipoReporte = esAdmin ? "admin" : "aliado";
+      const nombreArchivo = `reporte_${tipoReporte}_${timestamp}.pdf`;
+
+      // Generar el PDF
+      const rutaPDF = await generarReportePDF({
+        mascotas: mascotasReporte,
+        tituloReporte,
+        subtitulo,
+        nombreArchivo,
+      });
+
+      // Mostrar diálogo de éxito con opciones
+      Alert.alert(
+        "✅ Reporte generado",
+        `El reporte PDF se ha generado exitosamente.\n\nUbicación: ${rutaPDF}\n\n¿Deseas compartir el archivo?`,
+        [
+          {
+            text: "Solo guardar",
+            style: "cancel",
+            onPress: () => {
+              Alert.alert("Guardado", `El archivo se guardó en:\n${rutaPDF}`);
+            },
+          },
+          {
+            text: "Compartir",
+            onPress: async () => {
+              try {
+                await compartirPDF(rutaPDF);
+              } catch (error) {
+                console.error("Error al compartir PDF:", error);
+                Alert.alert(
+                  "Error",
+                  "No se pudo compartir el PDF. El archivo está guardado en el dispositivo."
+                );
+              }
+            },
+          },
+        ]
+      );
+
+      console.log("✅ Reporte PDF generado:", rutaPDF);
+    } catch (error) {
+      console.error("❌ Error al generar reporte PDF:", error);
+      Alert.alert(
+        "Error",
+        `No se pudo generar el reporte PDF: ${
+          error instanceof Error ? error.message : "Error desconocido"
+        }`
+      );
+    } finally {
+      setCargando(false);
+    }
+  };
+
   // Si el usuario no tiene permisos, mostrar mensaje de acceso denegado
   if (user && !tienePermisos) {
     return (
@@ -1031,6 +1125,26 @@ export default function GestionarMascotasScreen() {
                   </ThemedText>
                 </TouchableOpacity>
               )}
+
+            {/* Botón para descargar reporte PDF */}
+            <TouchableOpacity
+              style={[
+                styles.pdfButton,
+                (cargando || mascotas.length === 0) && styles.pdfButtonDisabled,
+              ]}
+              onPress={descargarReportePDF}
+              disabled={cargando || mascotas.length === 0}
+            >
+              <ThemedText style={styles.pdfButtonText}>
+                📄 Descargar Reporte PDF
+              </ThemedText>
+              {mascotas.length > 0 && (
+                <ThemedText style={styles.pdfButtonSubtext}>
+                  {mascotas.length}{" "}
+                  {mascotas.length === 1 ? "mascota" : "mascotas"}
+                </ThemedText>
+              )}
+            </TouchableOpacity>
 
             {/* Formulario para agregar/editar mascota */}
             {mostrarFormulario && (
@@ -1671,5 +1785,33 @@ const styles = StyleSheet.create({
     color: "#92400e",
     fontStyle: "italic",
     textAlign: "center",
+  },
+  // Estilos para el botón de descarga de PDF
+  pdfButton: {
+    backgroundColor: "#10b981",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  pdfButtonDisabled: {
+    backgroundColor: "#cbd5e1",
+    opacity: 0.6,
+  },
+  pdfButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  pdfButtonSubtext: {
+    color: "#ffffff",
+    fontSize: 12,
+    marginTop: 4,
+    opacity: 0.9,
   },
 });
