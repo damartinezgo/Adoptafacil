@@ -32,15 +32,15 @@ public class AdoptaFacilApplication {
 				});
 
 				// Definir el email para el usuario de ejemplo de cada rol
-				String email = roleType.name().toLowerCase() + "@example.com";
+				String email = roleType.name().toLowerCase() + "@ejemplo.com";
 				// Verificar si ya existe un usuario con ese email
 				if (personRepository.findByEmail(email).isEmpty()) {
 					// Crear el usuario de ejemplo para el rol
 					Person person = new Person();
-					person.setName(roleType.name() + "Name"); // Nombre de ejemplo
-					person.setLastName("Demo"); // Apellido de ejemplo
+					person.setName("Nombre del: " + roleType.name()); // Nombre de ejemplo
+					person.setLastName(" "); // Apellido de ejemplo
 					person.setEmail(email); // Email único por rol
-					person.setPassword(passwordEncoder.encode("password123")); // Contraseña encriptada
+					person.setPassword(passwordEncoder.encode("contrasena123")); // Contraseña encriptada
 					person.setRole(role); // Asignar el rol correspondiente
 					personRepository.save(person); // Guardar el usuario en la base de datos
 				}
