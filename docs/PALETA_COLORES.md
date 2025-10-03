@@ -55,15 +55,15 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 ### Tarjetas, Formularios y Componentes sobre Gradientes
 
-| Componente                | Fondo (background)           | Borde (border)                  | Texto (text)   | Placeholder         | Descripción |
-| ------------------------- | --------------------------- | ------------------------------- | -------------- | ------------------- | ----------- |
-| **Tarjeta Hero/Búsqueda** | `rgba(255,255,255,0.15)`    | `rgba(255,255,255,0.3)`         | `#2d3748`/`#fff`| `rgba(255,255,255,0.7)` | Tarjeta sobre gradiente (ej. home) |
-| **Input Hero**            | `rgba(255,255,255,0.2)`     | `rgba(255,255,255,0.4)`         | `#fff`         | `rgba(255,255,255,0.7)` | Input sobre gradiente (ej. home) |
-| **Input Login**           | `rgba(255,255,255,0.9)`     | `rgba(255,255,255,0.3)`         | `#2d3748`      | `#718096`             | Input sobre fondo claro (login) |
-| **Error Input**           | `rgba(255,255,255,0.95)`    | `#ff6b6b` (borde)               | `#ff4757`      |                       | Input con error (login) |
-| **Tarjetas**              | `#ffffff`                   | `#e2e8f0`                       | `#2d3748`      |                       | Tarjetas de categorías, información |
-| **Contenedores**          | `#f8f9fa`                   | N/A                             |                |                       | Secciones de contenido |
-| **Campos de entrada**     | `#f8f9fa`                   | `#e2e8f0`                       | `#2d3748`      | `#718096`             | Campos de login, búsqueda |
+| Componente                | Fondo (background)       | Borde (border)          | Texto (text)     | Placeholder             | Descripción                         |
+| ------------------------- | ------------------------ | ----------------------- | ---------------- | ----------------------- | ----------------------------------- |
+| **Tarjeta Hero/Búsqueda** | `rgba(255,255,255,0.15)` | `rgba(255,255,255,0.3)` | `#2d3748`/`#fff` | `rgba(255,255,255,0.7)` | Tarjeta sobre gradiente (ej. home)  |
+| **Input Hero**            | `rgba(255,255,255,0.2)`  | `rgba(255,255,255,0.4)` | `#fff`           | `rgba(255,255,255,0.7)` | Input sobre gradiente (ej. home)    |
+| **Input Login**           | `rgba(255,255,255,0.9)`  | `rgba(255,255,255,0.3)` | `#2d3748`        | `#718096`               | Input sobre fondo claro (login)     |
+| **Error Input**           | `rgba(255,255,255,0.95)` | `#ff6b6b` (borde)       | `#ff4757`        |                         | Input con error (login)             |
+| **Tarjetas**              | `#ffffff`                | `#e2e8f0`               | `#2d3748`        |                         | Tarjetas de categorías, información |
+| **Contenedores**          | `#f8f9fa`                | N/A                     |                  |                         | Secciones de contenido              |
+| **Campos de entrada**     | `#f8f9fa`                | `#e2e8f0`               | `#2d3748`        | `#718096`               | Campos de login, búsqueda           |
 
 ## 🧩 Sombra y Elevación
 
@@ -116,7 +116,6 @@ Usa `shadowColor: "#000"` y `elevation` para dar profundidad a tarjetas y botone
 
 ### CSS/React Native
 
-
 ```javascript
 // Ejemplo de estilos consistentes para login y home
 const styles = StyleSheet.create({
@@ -163,24 +162,24 @@ const styles = StyleSheet.create({
   --color-btn-primary-text: #ffffffff;
   --color-btn-register-text: #68d391;
   --color-btn-forgot-text: #63b3ed;
-  --color-input-bg: rgba(255,255,255,0.9);
-  --color-input-bg-hero: rgba(255,255,255,0.2);
-  --color-input-border: rgba(255,255,255,0.3);
-  --color-input-border-hero: rgba(255,255,255,0.4);
-  --color-input-error-bg: rgba(255,255,255,0.95);
+  --color-input-bg: rgba(255, 255, 255, 0.9);
+  --color-input-bg-hero: rgba(255, 255, 255, 0.2);
+  --color-input-border: rgba(255, 255, 255, 0.3);
+  --color-input-border-hero: rgba(255, 255, 255, 0.4);
+  --color-input-error-bg: rgba(255, 255, 255, 0.95);
   --color-input-error-border: #ff6b6b;
   --color-input-text: #2d3748;
   --color-input-text-hero: #fff;
   --color-input-placeholder: #718096;
-  --color-input-placeholder-hero: rgba(255,255,255,0.7);
+  --color-input-placeholder-hero: rgba(255, 255, 255, 0.7);
   --color-title: #0e0f11ff;
   --color-subtitle: #2a3038ff;
   --color-bg-main: #f7fafc;
   --color-bg-section: #f8f9fa;
   --color-bg-white: #ffffff;
   --color-border-card: #e2e8f0;
-  --color-card-bg-hero: rgba(255,255,255,0.15);
-  --color-card-border-hero: rgba(255,255,255,0.3);
+  --color-card-bg-hero: rgba(255, 255, 255, 0.15);
+  --color-card-border-hero: rgba(255, 255, 255, 0.3);
 }
 ```
 
