@@ -2,7 +2,7 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useState, createContext, useContext } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
 // se define la estructura de una mascota
@@ -94,14 +94,23 @@ export default function ConfiguracionScreen() {
     ]);
   };
 
+  // Verificar si el usuario tiene permisos para gestionar mascotas
+  const tienePermisosGestionMascotas =
+    user?.role?.roleType === "ADMIN" || user?.role?.roleType === "ALIADO";
+
   const settingsOptions = [
-    {
-      title: "Gestionar mascotas",
-      description: "Agregar, editar o eliminar mascotas",
-      onPress: () => {
-        router.push("../gestionar-mascotas");
-      },
-    },
+    // Solo mostrar "Gestionar mascotas" para ADMIN y ALIADO
+    ...(tienePermisosGestionMascotas
+      ? [
+          {
+            title: "Gestionar mascotas",
+            description: "Agregar, editar o eliminar mascotas",
+            onPress: () => {
+              router.push("../gestionar-mascotas");
+            },
+          },
+        ]
+      : []),
     {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
@@ -138,23 +147,6 @@ export default function ConfiguracionScreen() {
           Configuración
         </ThemedText>
         {settingsOptions.map((option, index) => {
-          // Para "Gestionar mascotas" usamos Link
-          if (option.title === "Gestionar mascotas") {
-            return (
-              <Link key={index} href="/gestionar-mascotas" asChild>
-                <TouchableOpacity style={styles.optionContainer}>
-                  <ThemedText type="subtitle" style={styles.optionTitle}>
-                    {option.title}
-                  </ThemedText>
-                  <ThemedText style={styles.optionDescription}>
-                    {option.description}
-                  </ThemedText>
-                </TouchableOpacity>
-              </Link>
-            );
-          }
-
-          // Para las demás opciones usamos TouchableOpacity normal
           // Cerrar sesión tendrá un estilo especial
           const isLogout = "isLogout" in option && option.isLogout;
           return (

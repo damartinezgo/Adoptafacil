@@ -19,6 +19,7 @@ import { useRouter } from "expo-router";
 import axios, { isAxiosError } from "axios";
 import { BASE_URL } from "@/config";
 import { tokenStorage } from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 /**
  * Valida y formatea una fecha para enviar al backend
@@ -81,6 +82,11 @@ const formatearFecha = (fechaStr: string): string | null => {
 export default function GestionarMascotasScreen() {
   const router = useRouter();
   const { mascotas, setMascotas } = useMascotas();
+  const { user } = useAuth();
+
+  // Verificar si el usuario tiene permisos para gestionar mascotas
+  const tienePermisos =
+    user?.role?.roleType === "ADMIN" || user?.role?.roleType === "ALIADO";
 
   // Estado para el formulario
   const [modoEdicion, setModoEdicion] = useState(false);
@@ -106,11 +112,28 @@ export default function GestionarMascotasScreen() {
     new Map()
   );
 
-  // Cargar mascotas al montar el componente
+  // Verificar permisos y cargar mascotas al montar el componente
   useEffect(() => {
-    fetchMascotas(3);
+    // Verificar permisos de acceso
+    if (user && !tienePermisos) {
+      Alert.alert(
+        "Acceso denegado",
+        "No tienes permisos para gestionar mascotas. Esta funcionalidad está disponible solo para administradores y aliados.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ]
+      );
+      return;
+    }
+
+    if (tienePermisos) {
+      fetchMascotas(3);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, tienePermisos]);
 
   /**
    * Obtiene todas las mascotas del usuario autenticado
@@ -805,6 +828,39 @@ export default function GestionarMascotasScreen() {
       ]
     );
   };
+
+  // Si el usuario no tiene permisos, mostrar mensaje de acceso denegado
+  if (user && !tienePermisos) {
+    return (
+      <ThemedView style={styles.container}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <ThemedText style={styles.backButton}>← Volver</ThemedText>
+            </TouchableOpacity>
+            <ThemedText type="title" style={styles.title}>
+              Acceso Denegado
+            </ThemedText>
+          </View>
+          <View style={styles.errorContainer}>
+            <ThemedText style={styles.errorText}>
+              🚫 No tienes permisos para acceder a esta sección
+            </ThemedText>
+            <ThemedText style={styles.emptySubtext}>
+              La gestión de mascotas está disponible solo para administradores y
+              aliados.
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => router.back()}
+            >
+              <ThemedText style={styles.retryButtonText}>Volver</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
