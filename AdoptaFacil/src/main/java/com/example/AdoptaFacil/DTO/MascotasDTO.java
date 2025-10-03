@@ -17,4 +17,7 @@ public class MascotasDTO {
     private String descripcion;
     private String imagen; // imagen principal
     private List<MascotaImageDTO> imagenes; // Cambiar a DTO de imágenes
+    
+    // Información del propietario (para vista de administrador)
+    private PersonDTO person; // Datos del propietario que registró la mascota
 }

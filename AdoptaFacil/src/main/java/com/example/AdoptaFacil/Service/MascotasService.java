@@ -2,6 +2,7 @@ package com.example.AdoptaFacil.Service;
 
 import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Person;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,4 +16,9 @@ public interface MascotasService {
     void eliminarMascota(Long id);
     void eliminarMascotaPorUsuario(Long id, Long idUsuario);
     void eliminarImagen(Long mascotaId, Long imagenId);
+    
+    // Nuevos métodos para filtrado por usuario
+    List<MascotasDTO> listarMascotasPorUsuario(Person usuario);
+    List<MascotasDTO> buscarPorNombreYUsuario(String nombre, Person usuario);
+    List<MascotasDTO> listarTodasLasMascotasConPropietario();
 }

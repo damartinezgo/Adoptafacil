@@ -136,7 +136,10 @@ export default function GestionarMascotasScreen() {
   }, [user, tienePermisos]);
 
   /**
-   * Obtiene todas las mascotas del usuario autenticado
+   * Obtiene las mascotas según el rol del usuario:
+   * - ADMIN: Todas las mascotas de todos los aliados (endpoint: /mascotas/admin/all)
+   * - ALIADO: Solo sus propias mascotas (endpoint: /mascotas)
+   *
    * Incluye reintentos automáticos en caso de errores de red
    */
   const fetchMascotas = async (reintentos = 3) => {
@@ -163,8 +166,31 @@ export default function GestionarMascotasScreen() {
         return;
       }
 
+      // Determinar el endpoint según el rol del usuario
+      let endpoint = `${BASE_URL}/mascotas`;
+
+      if (user?.role?.roleType === "ADMIN") {
+        // ADMIN ve todas las mascotas de todos los aliados con información del propietario
+        endpoint = `${BASE_URL}/mascotas/admin/all`;
+        console.log("Usuario ADMIN: usando endpoint", endpoint);
+      } else {
+        // ALIADO ve solo sus propias mascotas (el backend debe filtrar por usuario autenticado)
+        endpoint = `${BASE_URL}/mascotas`;
+        console.log(
+          "Usuario ALIADO: usando endpoint",
+          endpoint,
+          "para usuario:",
+          user?.idPerson
+        );
+        console.log(
+          "🔍 Debug usuario completo:",
+          JSON.stringify(user, null, 2)
+        );
+        console.log("🔍 Propiedades disponibles:", Object.keys(user || {}));
+      }
+
       // Realizar petición al backend
-      const response = await axios.get(`${BASE_URL}/mascotas`, {
+      const response = await axios.get(endpoint, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -173,6 +199,22 @@ export default function GestionarMascotasScreen() {
       });
 
       // Mapear los datos del backend al formato de la interfaz
+      console.log(`📊 Respuesta del backend (${user?.role?.roleType}):`, {
+        endpoint,
+        totalMascotas: response.data.length,
+        primerasMascotas: response.data.slice(0, 2).map((m: any) => ({
+          id: m.id,
+          nombre: m.nombre,
+          propietarioId:
+            m.person?.idPerson ||
+            m.aliado?.idPerson ||
+            m.owner?.id ||
+            m.userId ||
+            "Sin propietario",
+          estructuraCompleta: m,
+        })),
+      });
+
       const mascotasFormateadas = response.data.map((m: any) => {
         let imagenes: string[] = [];
 
@@ -189,7 +231,8 @@ export default function GestionarMascotasScreen() {
           ];
         }
 
-        return {
+        // Para ADMIN, incluir información del propietario si está disponible
+        const mascotaFormateada: any = {
           id: m.id,
           nombre: m.nombre,
           especie: m.especie,
@@ -197,10 +240,39 @@ export default function GestionarMascotasScreen() {
           edad: `${m.edad} años`,
           imagenes: imagenes,
         };
+
+        // Si es ADMIN, intentar agregar información del propietario
+        if (user?.role?.roleType === "ADMIN") {
+          if (m.person) {
+            // Información del propietario disponible desde el endpoint /admin/all
+            mascotaFormateada.propietario = {
+              nombre:
+                `${m.person.name || ""} ${m.person.lastName || ""}`.trim() ||
+                "Nombre no disponible",
+              email: m.person.email || "Email no disponible",
+            };
+          } else {
+            // Fallback si no hay información del propietario
+            mascotaFormateada.propietario = {
+              nombre: "Información no disponible",
+              email: "No disponible",
+            };
+          }
+        }
+
+        return mascotaFormateada;
       });
 
       setMascotas(mascotasFormateadas);
+      console.log(`✅ Mascotas cargadas para ${user?.role?.roleType}:`, {
+        cantidad: mascotasFormateadas.length,
+        nombres: mascotasFormateadas.map((m: any) => m.nombre),
+      });
     } catch (error: any) {
+      // Obtener variables necesarias para manejo de errores
+      const token = await tokenStorage.getToken();
+      const esEndpointAdmin = user?.role?.roleType === "ADMIN";
+
       // Reintentar si aún quedan intentos y es un error de red
       if (
         reintentos > 0 &&
@@ -230,6 +302,38 @@ export default function GestionarMascotasScreen() {
             "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
             [{ text: "OK", onPress: () => router.back() }]
           );
+        } else if (error.response?.status === 404 && esEndpointAdmin && token) {
+          // Si es ADMIN y el endpoint no existe, hacer fallback al endpoint general
+          console.log(
+            "Endpoint admin no disponible, usando endpoint general como fallback"
+          );
+          console.warn(
+            "⚠️ El backend no tiene implementado el endpoint /mascotas/admin/all"
+          );
+          try {
+            const response = await axios.get(`${BASE_URL}/mascotas`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const mascotasFormateadas = response.data.map((mascota: any) => ({
+              ...mascota,
+              propietario: {
+                nombre: "No disponible - Endpoint faltante",
+                email: "Implementar /mascotas/admin/all",
+              },
+            }));
+
+            setMascotas(mascotasFormateadas);
+            console.log(
+              "✅ Fallback exitoso, cargadas",
+              mascotasFormateadas.length,
+              "mascotas"
+            );
+            return;
+          } catch (fallbackError: any) {
+            console.error("❌ Error en fallback:", fallbackError);
+            setError("Error al cargar mascotas - Backend no disponible");
+          }
         } else if (error.code === "ECONNABORTED") {
           setError("Tiempo de espera agotado. Verifica tu conexión.");
         } else if (error.response) {
@@ -280,6 +384,17 @@ export default function GestionarMascotasScreen() {
         );
         return null;
       }
+
+      console.log(
+        "Creando mascota como usuario:",
+        user?.role?.roleType,
+        "ID:",
+        user?.idPerson
+      );
+      console.log(
+        "🔍 Debug usuario completo al crear:",
+        JSON.stringify(user, null, 2)
+      );
 
       // Preparar FormData para envío multipart
       const formData = new FormData();
@@ -871,7 +986,9 @@ export default function GestionarMascotasScreen() {
             <ThemedText style={styles.backButton}>← Volver</ThemedText>
           </TouchableOpacity>
           <ThemedText type="title" style={styles.title}>
-            Gestionar Mascotas
+            {user?.role?.roleType === "ADMIN"
+              ? "Administrar Todas las Mascotas"
+              : "Gestionar Mis Mascotas"}
           </ThemedText>
         </View>
 
@@ -900,18 +1017,20 @@ export default function GestionarMascotasScreen() {
               </View>
             )}
 
-            {/* Botón para mostrar/ocultar formulario */}
-            {!mostrarFormulario && (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => setMostrarFormulario(true)}
-                disabled={cargando}
-              >
-                <ThemedText style={styles.addButtonText}>
-                  + Agregar Nueva Mascota
-                </ThemedText>
-              </TouchableOpacity>
-            )}
+            {/* Botón para mostrar/ocultar formulario - Para ALIADOs y ADMINs */}
+            {!mostrarFormulario &&
+              (user?.role?.roleType === "ALIADO" ||
+                user?.role?.roleType === "ADMIN") && (
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={() => setMostrarFormulario(true)}
+                  disabled={cargando}
+                >
+                  <ThemedText style={styles.addButtonText}>
+                    + Agregar Nueva Mascota
+                  </ThemedText>
+                </TouchableOpacity>
+              )}
 
             {/* Formulario para agregar/editar mascota */}
             {mostrarFormulario && (
@@ -1082,16 +1201,22 @@ export default function GestionarMascotasScreen() {
 
             {/* Lista de mascotas */}
             <ThemedText type="subtitle" style={styles.listTitle}>
-              Mis Mascotas ({mascotas.length})
+              {user?.role?.roleType === "ADMIN"
+                ? `Todas las Mascotas del Sistema (${mascotas.length})`
+                : `Mis Mascotas (${mascotas.length})`}
             </ThemedText>
 
             {mascotas.length === 0 ? (
               <View style={styles.emptyContainer}>
                 <ThemedText style={styles.emptyText}>
-                  No hay mascotas registradas
+                  {user?.role?.roleType === "ADMIN"
+                    ? "No hay mascotas registradas en el sistema"
+                    : "No hay mascotas registradas"}
                 </ThemedText>
                 <ThemedText style={styles.emptySubtext}>
-                  Agrega tu primera mascota usando el botón de arriba
+                  {user?.role?.roleType === "ADMIN"
+                    ? "No hay mascotas registradas por ningún aliado"
+                    : "Agrega tu primera mascota usando el botón de arriba"}
                 </ThemedText>
               </View>
             ) : (
@@ -1108,6 +1233,23 @@ export default function GestionarMascotasScreen() {
                     <ThemedText type="subtitle" style={styles.mascotaNombre}>
                       {mascota.nombre}
                     </ThemedText>
+
+                    {/* Mostrar información del propietario solo para ADMIN */}
+                    {user?.role?.roleType === "ADMIN" &&
+                      mascota.propietario && (
+                        <View style={styles.propietarioContainer}>
+                          <ThemedText style={styles.propietarioLabel}>
+                            👤 Propietario:
+                          </ThemedText>
+                          <ThemedText style={styles.propietarioNombre}>
+                            {mascota.propietario.nombre}
+                          </ThemedText>
+                          <ThemedText style={styles.propietarioEmail}>
+                            {mascota.propietario.email}
+                          </ThemedText>
+                        </View>
+                      )}
+
                     <ThemedText style={styles.mascotaDetalle}>
                       <ThemedText style={styles.mascotaLabel}>
                         Especie:{" "}
@@ -1134,27 +1276,40 @@ export default function GestionarMascotasScreen() {
                     </ThemedText>
                   </View>
 
-                  {/* Botones de acción */}
-                  <View style={styles.mascotaActions}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.editButton]}
-                      onPress={() => iniciarEdicion(mascota)}
-                      disabled={cargando}
-                    >
-                      <ThemedText style={styles.editButtonText}>
-                        Editar
+                  {/* Botones de acción - ALIADOs pueden editar sus mascotas, ADMINs pueden editar/eliminar todas */}
+                  {(user?.role?.roleType === "ALIADO" ||
+                    user?.role?.roleType === "ADMIN") && (
+                    <View style={styles.mascotaActions}>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.editButton]}
+                        onPress={() => iniciarEdicion(mascota)}
+                        disabled={cargando}
+                      >
+                        <ThemedText style={styles.editButtonText}>
+                          Editar
+                        </ThemedText>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.deleteButton]}
+                        onPress={() => confirmarEliminacion(mascota)}
+                        disabled={cargando}
+                      >
+                        <ThemedText style={styles.deleteButtonText}>
+                          Eliminar
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+
+                  {/* Mensaje informativo para ADMIN */}
+                  {user?.role?.roleType === "ADMIN" && (
+                    <View style={styles.adminInfoContainer}>
+                      <ThemedText style={styles.adminInfoText}>
+                        �️ Modo Administrador - Puedes editar/eliminar todas las
+                        mascotas
                       </ThemedText>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.deleteButton]}
-                      onPress={() => confirmarEliminacion(mascota)}
-                      disabled={cargando}
-                    >
-                      <ThemedText style={styles.deleteButtonText}>
-                        Eliminar
-                      </ThemedText>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  )}
                 </View>
               ))
             )}
@@ -1476,5 +1631,45 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#0e0f11ff",
     fontWeight: "600",
+  },
+  // Estilos para información del propietario (visible para ADMIN)
+  propietarioContainer: {
+    backgroundColor: "#f0f9ff",
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: "#0ea5e9",
+  },
+  propietarioLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#0369a1",
+    marginBottom: 3,
+  },
+  propietarioNombre: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#0c4a6e",
+    marginBottom: 2,
+  },
+  propietarioEmail: {
+    fontSize: 12,
+    color: "#0369a1",
+    fontStyle: "italic",
+  },
+  // Estilo para mensaje informativo de ADMIN
+  adminInfoContainer: {
+    backgroundColor: "#fffbeb",
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#fbbf24",
+    alignItems: "center",
+  },
+  adminInfoText: {
+    fontSize: 12,
+    color: "#92400e",
+    fontStyle: "italic",
+    textAlign: "center",
   },
 });

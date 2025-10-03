@@ -13,6 +13,10 @@ export interface Mascota {
   raza: string;
   edad: string;
   imagenes: string[];
+  propietario?: {
+    nombre: string;
+    email: string;
+  };
 }
 
 // Creamos un contexto para compartir el estado de mascotas en toda la app
@@ -46,22 +50,6 @@ export function MascotasProvider({ children }: { children: React.ReactNode }) {
       raza: "Siamés",
       edad: "1 año",
       imagenes: ["https://cdn2.thecatapi.com/images/9j5.jpg"],
-    },
-    {
-      id: 3,
-      nombre: "Max",
-      especie: "Perro",
-      raza: "Bulldog",
-      edad: "3 años",
-      imagenes: ["https://placedog.net/500/500?id=2"],
-    },
-    {
-      id: 4,
-      nombre: "Luna",
-      especie: "Gato",
-      raza: "Persa",
-      edad: "4 años",
-      imagenes: ["https://cdn2.thecatapi.com/images/MTY3ODIyMQ.jpg"],
     },
   ]);
 

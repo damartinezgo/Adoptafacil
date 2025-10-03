@@ -75,6 +75,35 @@ public class MascotaMapper {
     }
 
     /**
+     * Convierte una entidad Mascotas a MascotasDTO incluyendo información del propietario
+     * Para uso de administradores que necesitan ver quién registró cada mascota
+     * @param mascota Entidad de mascota
+     * @return DTO de mascota con información del propietario
+     */
+    public MascotasDTO toDTOConPropietario(Mascotas mascota) {
+        if (mascota == null) {
+            return null;
+        }
+
+        // Convertir usando el método base
+        MascotasDTO dto = toDTO(mascota);
+
+        // Agregar información del propietario si existe
+        if (mascota.getALIADO() != null) {
+            com.example.AdoptaFacil.DTO.PersonDTO propietario = new com.example.AdoptaFacil.DTO.PersonDTO();
+            propietario.setIdPerson(mascota.getALIADO().getIdPerson());
+            propietario.setName(mascota.getALIADO().getName());
+            propietario.setLastName(mascota.getALIADO().getLastName());
+            propietario.setEmail(mascota.getALIADO().getEmail());
+            propietario.setRole(mascota.getALIADO().getRole());
+
+            dto.setPerson(propietario);
+        }
+
+        return dto;
+    }
+
+    /**
      * Convierte una lista de entidades Mascotas a DTOs
      * @param mascotas Lista de entidades
      * @return Lista de DTOs

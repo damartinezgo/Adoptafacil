@@ -3,6 +3,7 @@ package com.example.AdoptaFacil.Controller;
 import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.Mascotas;
 import com.example.AdoptaFacil.Entity.Person;
+import com.example.AdoptaFacil.Entity.Role;
 import com.example.AdoptaFacil.Service.MascotasService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -140,28 +141,99 @@ public class MascotasController {
     }
 
     /**
-     * Lista todas las mascotas o busca por nombre
+     * Lista las mascotas del usuario autenticado (solo para ALIADOs)
      * Si se proporciona el parámetro 'nombre', filtra los resultados
      * 
      * @param nombre Nombre opcional para filtrar mascotas
-     * @return Lista de mascotas que coinciden con el criterio
+     * @return Lista de mascotas del usuario autenticado
      */
     @GetMapping
-    public ResponseEntity<?> listarMascotas(@RequestParam(required = false) String nombre) {
+    public ResponseEntity<?> listarMascotasDelUsuario(@RequestParam(required = false) String nombre) {
         try {
+            System.out.println("\n=== LISTAR MASCOTAS DEL USUARIO - INICIO ===");
+            
+            // Obtener usuario autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getPrincipal() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuario no autenticado");
+            }
+            
+            Person person;
+            if (authentication.getPrincipal() instanceof Person) {
+                person = (Person) authentication.getPrincipal();
+                System.out.println("Listando mascotas para usuario: " + person.getEmail() + " (ID: " + person.getIdPerson() + ", Rol: " + person.getRole().getRoleType() + ")");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error de autenticación");
+            }
+            
             List<MascotasDTO> mascotas;
             
             if (nombre != null && !nombre.trim().isEmpty()) {
-                // Buscar mascotas por nombre
-                mascotas = mascotasService.buscarPorNombre(nombre.trim());
+                // Buscar mascotas por nombre del usuario autenticado
+                mascotas = mascotasService.buscarPorNombreYUsuario(nombre.trim(), person);
             } else {
-                // Listar todas las mascotas
-                mascotas = mascotasService.listarMascotas();
+                // Listar mascotas del usuario autenticado
+                mascotas = mascotasService.listarMascotasPorUsuario(person);
             }
+            
+            System.out.println("Mascotas encontradas para el usuario: " + mascotas.size());
+            System.out.println("=== LISTAR MASCOTAS DEL USUARIO - FIN ===\n");
             
             return ResponseEntity.ok(mascotas);
         } catch (Exception e) {
-            System.err.println("Error listando mascotas: " + e.getMessage());
+            System.err.println("Error listando mascotas del usuario: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error interno del servidor");
+        }
+    }
+
+    /**
+     * Lista TODAS las mascotas del sistema con información del propietario
+     * Solo para usuarios ADMIN
+     * 
+     * @return Lista de todas las mascotas con información del propietario
+     */
+    @GetMapping("/admin/all")
+    public ResponseEntity<?> listarTodasLasMascotas() {
+        try {
+            System.out.println("\n=== LISTAR TODAS LAS MASCOTAS (ADMIN) - INICIO ===");
+            
+            // Obtener usuario autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getPrincipal() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuario no autenticado");
+            }
+            
+            Person person;
+            if (authentication.getPrincipal() instanceof Person) {
+                person = (Person) authentication.getPrincipal();
+                System.out.println("Usuario autenticado: " + person.getEmail() + " (Rol: " + person.getRole().getRoleType() + ")");
+                
+                // Verificar que sea ADMIN - Comparar con el ENUM, no con String
+                if (person.getRole().getRoleType() != Role.RoleType.ADMIN) {
+                    System.err.println("ERROR: Usuario no es ADMIN: " + person.getRole().getRoleType());
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Acceso denegado. Solo administradores pueden ver todas las mascotas.");
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error de autenticación");
+            }
+            
+            // Listar todas las mascotas con información del propietario
+            List<MascotasDTO> mascotas = mascotasService.listarTodasLasMascotasConPropietario();
+            
+            System.out.println("Total de mascotas en el sistema: " + mascotas.size());
+            System.out.println("=== LISTAR TODAS LAS MASCOTAS (ADMIN) - FIN ===\n");
+            
+            return ResponseEntity.ok(mascotas);
+        } catch (Exception e) {
+            System.err.println("Error listando todas las mascotas: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Error interno del servidor");
         }

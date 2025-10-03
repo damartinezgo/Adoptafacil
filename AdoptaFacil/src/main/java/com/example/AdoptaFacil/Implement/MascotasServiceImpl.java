@@ -95,7 +95,8 @@ public class MascotasServiceImpl implements MascotasService {
     public MascotasDTO obtenerMascota(Long id) {
         System.out.println("\n=== SERVICE: Obteniendo mascota ID " + id + " ===");
         
-        Mascotas mascota = mascotasRepository.findById(id)
+        // Usar consulta con JOIN FETCH para cargar imágenes
+        Mascotas mascota = mascotasRepository.findByIdWithImages(id)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
         
         System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
@@ -334,6 +335,59 @@ public class MascotasServiceImpl implements MascotasService {
         System.out.println("✅ Imagen eliminada de la BD");
         System.out.println("📸 Imágenes restantes: " + mascota.getImagenes().size());
         System.out.println("=== SERVICE: FIN eliminación de imagen ===\n");
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MascotasDTO> listarMascotasPorUsuario(com.example.AdoptaFacil.Entity.Person usuario) {
+        System.out.println("\n=== SERVICE: Listando mascotas por usuario ===");
+        System.out.println("Usuario ID: " + usuario.getIdPerson() + ", Email: " + usuario.getEmail());
+        
+        // Usar consulta con JOIN FETCH para evitar LazyInitializationException
+        List<Mascotas> mascotas = mascotasRepository.findByALIADOWithImages(usuario);
+        System.out.println("Mascotas encontradas: " + mascotas.size());
+        
+        List<MascotasDTO> resultado = mascotas.stream()
+                .map(mascotaMapper::toDTO)
+                .toList();
+                
+        System.out.println("=== SERVICE: FIN listado por usuario ===\n");
+        return resultado;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MascotasDTO> buscarPorNombreYUsuario(String nombre, com.example.AdoptaFacil.Entity.Person usuario) {
+        System.out.println("\n=== SERVICE: Buscando mascotas por nombre y usuario ===");
+        System.out.println("Nombre: " + nombre + ", Usuario ID: " + usuario.getIdPerson());
+        
+        // Usar consulta con JOIN FETCH para evitar LazyInitializationException
+        List<Mascotas> mascotas = mascotasRepository.findByNombreContainingIgnoreCaseAndALIADOWithImages(nombre, usuario);
+        System.out.println("Mascotas encontradas: " + mascotas.size());
+        
+        List<MascotasDTO> resultado = mascotas.stream()
+                .map(mascotaMapper::toDTO)
+                .toList();
+                
+        System.out.println("=== SERVICE: FIN búsqueda por nombre y usuario ===\n");
+        return resultado;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MascotasDTO> listarTodasLasMascotasConPropietario() {
+        System.out.println("\n=== SERVICE: Listando TODAS las mascotas con propietario ===");
+        
+        // Usar consulta con JOIN FETCH para cargar imágenes y propietario de forma anticipada
+        List<Mascotas> mascotas = mascotasRepository.findAllWithImagesAndOwner();
+        System.out.println("Total de mascotas en el sistema: " + mascotas.size());
+        
+        List<MascotasDTO> resultado = mascotas.stream()
+                .map(mascotaMapper::toDTOConPropietario)
+                .toList();
+                
+        System.out.println("=== SERVICE: FIN listado completo ===\n");
+        return resultado;
     }
 }
 
