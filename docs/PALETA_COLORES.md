@@ -34,13 +34,14 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 ## 🏠 Colores de Fondo
 
-| Nombre              | Código HEX | Descripción    | Uso                                       |
-| ------------------- | ---------- | -------------- | ----------------------------------------- |
-| **Fondo Principal** | `#f7fafc`  | Gris muy claro | Fondo general de la app                   |
-| **Fondo Secciones** | `#f8f9fa`  | Gris claro     | Secciones de contenido, campos de entrada |
-| **Fondo Input**     | `#f8f9fa`  | Gris claro     | Fondo de campos de entrada                |
-| **Fondo Blanco**    | `#ffffff`  | Blanco puro    | Tarjetas, elementos destacados            |
-| **Fondo Footer**    | `#f7fafc`  | Gris muy claro | Footer de la aplicación                   |
+| Nombre                      | Código HEX | Descripción     | Uso                                       |
+| --------------------------- | ---------- | --------------- | ----------------------------------------- |
+| **Fondo Principal**         | `#f7fafc`  | Gris muy claro  | Fondo general de la app                   |
+| **Fondo Secciones**         | `#f8f9fa`  | Gris claro      | Secciones de contenido, campos de entrada |
+| **Fondo Input**             | `#f8f9fa`  | Gris claro      | Fondo de campos de entrada                |
+| **Fondo Blanco**            | `#ffffff`  | Blanco puro     | Tarjetas, elementos destacados            |
+| **Fondo Footer**            | `#f7fafc`  | Gris muy claro  | Footer de la aplicación                   |
+| **Fondo Verde Claro Suave** | `#f0fff4`  | Verde muy claro | Sección destacados/mascotas               |
 
 ## 🔘 Colores de Componentes
 
@@ -48,7 +49,7 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 | Componente           | Color de Fondo | Color de Texto | Descripción                         |
 | -------------------- | -------------- | -------------- | ----------------------------------- |
-| **Botón Primario**   | `#00b746bf`    | `#ffffffff`    | Botón de login, llamadas a acción   |
+| **Botón Primario**   | `#00b746bf`    | `#ffffff`      | Botón de login, llamadas a acción   |
 | **Botón Secundario** | `#ffffff`      | `#4a5568`      | Botones secundarios con borde       |
 | **Botón Registro**   | `transparent`  | `#68d391`      | Botón de registro en login          |
 | **Botón Olvidaste**  | `transparent`  | `#63b3ed`      | Botón de recuperación de contraseña |

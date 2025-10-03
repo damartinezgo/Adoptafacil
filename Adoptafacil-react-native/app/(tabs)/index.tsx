@@ -16,38 +16,32 @@ export default function HomeScreen() {
     <ScrollView style={styles.container}>
       {/* Sección de bienvenida */}
       <LinearGradient
-        colors={["#00c161ff", "#0000c5ff"]}
+        colors={["#02d36bff", "#0000c5ff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.welcomeSection}
       >
         <ThemedText style={styles.mainTitle}>
-          Bienvenidx a AdoptaFácil: Encuentra a tu nuevo mejor amigo
+          Bienvenido a AdoptaFácil: Encuentra a tu nuevo mejor amigo
         </ThemedText>
         <ThemedText style={styles.subtitle}>
           Conectamos a mascotas necesitadas con hogares amorosos desde 2025
         </ThemedText>
 
-        {/* Formulario de búsqueda dentro del hero */}
-        <View style={styles.heroSearchContainer}>
-          <View style={styles.heroSearchCard}>
-            <TextInput
-              style={styles.heroInput}
-              placeholder="Buscar por raza (Ej: Perro, Gato)"
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
-            />
-            <TextInput
-              style={styles.heroInput}
-              placeholder="Ciudad"
-              placeholderTextColor="rgba(255, 255, 255, 0.7)"
-            />
-            <TouchableOpacity style={styles.heroSearchButton}>
-              <ThemedText style={styles.heroSearchButtonText}>
-                Buscar
-              </ThemedText>
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Formulario de búsqueda directo en el hero */}
+        <TextInput
+          style={styles.heroInput}
+          placeholder="Buscar por raza (Ej: Perro, Gato)"
+          placeholderTextColor="rgba(255, 255, 255, 0.7)"
+        />
+        <TextInput
+          style={styles.heroInput}
+          placeholder="Ciudad"
+          placeholderTextColor="rgba(255, 255, 255, 0.7)"
+        />
+        <TouchableOpacity style={styles.heroSearchButton}>
+          <ThemedText style={styles.heroSearchButtonText}>Buscar</ThemedText>
+        </TouchableOpacity>
       </LinearGradient>
 
       {/* Sección de categorías */}
@@ -140,31 +134,51 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#ffffff",
     textAlign: "center",
     marginBottom: 10,
+    paddingBottom: 12,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: "#fff",
+    color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
     marginBottom: 30,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  heroSearchContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  heroSearchCard: {
+  heroInput: {
     width: "90%",
     maxWidth: 350,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 20,
-    padding: 20,
+    height: 50,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    marginBottom: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "500",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  heroSearchButton: {
+    width: "90%",
+    maxWidth: 350,
+    height: 50,
+    backgroundColor: "#00b746bf",
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -172,28 +186,24 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 6,
   },
-  heroInput: {
-    width: "100%",
-    height: 45,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    borderRadius: 22.5,
-    paddingHorizontal: 15,
-    marginBottom: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    color: "#fff",
+  heroSearchButtonText: {
+    color: "#ffffff",
+    fontWeight: "bold",
     fontSize: 16,
   },
-  heroSearchButton: {
-    width: "100%",
-    height: 45,
-    backgroundColor: "#ffffff",
-    borderRadius: 22.5,
-    justifyContent: "center",
+  categoriesSection: {
+    backgroundColor: "#f8f9fa",
+    padding: 20,
     alignItems: "center",
-    marginTop: 5,
+  },
+  magicButton: {
+    backgroundColor: "#bee3f8",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -201,41 +211,19 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
-  },
-  heroSearchButtonText: {
-    color: "#4a5568",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  categoriesSection: {
-    backgroundColor: "#daf9dfff",
-    padding: 20,
-    alignItems: "center",
-  },
-  magicButton: {
-    backgroundColor: "#a8e6cf",
-    padding: 15,
-    borderRadius: 25,
-    marginBottom: 20,
-    shadowColor: "#a8e6cf",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     elevation: 3,
   },
   magicButtonText: {
-    color: "#2d5a47",
+    color: "#2b6cb0",
     fontWeight: "bold",
+    fontSize: 14,
   },
   categoriesTitle: {
     fontSize: 24,
-    color: "#4a5568",
+    color: "#2d3748",
     textAlign: "center",
     marginBottom: 10,
+    fontWeight: "600",
   },
   highlightedText: {
     color: "#68d391",
@@ -273,12 +261,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardText: {
-    color: "#4a5568",
+    color: "#2d3748",
     fontWeight: "600",
   },
   // Nuevos estilos para la sección featured
   featuredSection: {
-    backgroundColor: "#f7fafc",
+    backgroundColor: "#f0fff4",
     padding: 20,
     alignItems: "center",
   },

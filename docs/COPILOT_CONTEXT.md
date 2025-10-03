@@ -1,31 +1,45 @@
-Usar SIEMPRE este contexto al iniciar las tareas de UI del proyecto:
+**Contexto UI para AdoptaFácil**
 
-Contexto del proyecto (no modificar lógica, sólo UI):
+1. **Propósito**
 
-App en React Native / Expo.
+   - No modificar lógica, sólo UI.
+   - App desarrollada en React Native / Expo.
 
-Usa exclusivamente la paleta definida en PALETA_COLORES.md para fondos, textos, bordes, sombras, inputs, tarjetas y botones. No inventar colores.
+2. **Paleta de colores**
 
-PALETA_COLORES
+   - Usar exclusivamente la paleta definida en `PALETA_COLORES.md` para fondos, textos, bordes, sombras, inputs, tarjetas y botones.
+   - No inventar colores.
 
-Mantener consistencia visual con login.tsx (espaciados, radios, sombras, gradiente principal).
+3. **Consistencia visual**
 
-login
+   - Mantener consistencia con `login.tsx` (espaciados, radios, sombras, gradiente principal).
+   - Usar el Gradiente Principal `#02d36bff → #0000c5ff` en hero/headers cuando aplique.
+   - Usar el Gradiente Secundario `#68d391 → #63b3ed` para acentos amplios.
 
-Evitar “containers dobles”: no anidar vistas con mismo fondo/sombra/borde; no duplicar gradientes. Un único contenedor visual por sección/componente.
+4. **Estructura y buenas prácticas**
 
-Optimizar para móvil: compacto, moderno, legible, accesible (contraste ≥ 4.5:1).
+   - Evitar “containers dobles”: no anidar vistas con mismo fondo/sombra/borde; no duplicar gradientes.
+   - Un único contenedor visual por sección/componente.
+   - Optimizar para móvil: compacto, moderno, legible, accesible (contraste ≥ 4.5:1).
+   - No cambiar funcionalidad ni datos, sólo estilos y estructura visual (`View`, `StyleSheet`, props de estilo).
 
-No cambiar funcionalidad ni datos, sólo estilos y estructura visual (View, StyleSheet, props de estilo).
+5. **Patrones establecidos en index.tsx**
 
-Usar el Gradiente Principal #02d36bff → #0000c5ff en hero/headers cuando aplique; y el Secundario #68d391 → #63b3ed para acentos amplios.
+   - Hero: Inputs directos sobre gradiente (sin contenedores extra) con `rgba(255,255,255,0.2)` fondo y `rgba(255,255,255,0.4)` borde.
+   - Botón primario: `#00b746bf` con texto `#ffffff`.
+   - Tarjetas: fondo `#ffffff` con borde `#e2e8f0` y texto `#2d3748`.
+   - Secciones: categorías `#f8f9fa`, featured `#f0fff4` (verde claro suave personalizado).
+   - Estadísticas: colores de acento `#68d391`, `#63b3ed`, `#a78bfa`.
 
-PALETA_COLORES
+6. **Consistencia en toda la app**
+   - Reutilizar estos patrones en `settings.tsx` y `gestionar-mascotas.tsx` para mantener consistencia visual.
 
-Reutilizar patrones ya presentes en index.tsx (hero card, inputs sobre gradiente), settings.tsx (tarjetas blancas con borde #e2e8f0), y gestionar-mascotas.tsx (botones y cabeceras).
+**Patrones establecidos en index.tsx:**
 
-index
+- Hero: Inputs directos sobre gradiente (sin contenedores extra) con rgba(255,255,255,0.2) fondo y rgba(255,255,255,0.4) borde
+- Botón primario: #00b746bf con texto #ffffff
+- Tarjetas: fondo #ffffff con borde #e2e8f0 y texto #2d3748
+- Secciones: categorías #f8f9fa, featured #f0fff4 (verde claro suave personalizado)
+- Estadísticas: colores de acento #68d391, #63b3ed, #a78bfa
 
-settings
-
-gestionar-mascotas
+Reutilizar estos patrones en settings.tsx y gestionar-mascotas.tsx para mantener consistencia visual.
