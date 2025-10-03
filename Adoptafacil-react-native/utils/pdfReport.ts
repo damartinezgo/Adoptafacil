@@ -3,6 +3,8 @@
 import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import * as MediaLibrary from "expo-media-library";
+import { Platform } from "react-native";
 
 /**
  * Interfaz que define la estructura de datos de una mascota para el reporte PDF
@@ -329,6 +331,129 @@ export const compartirPDF = async (uri: string): Promise<void> => {
     console.error("❌ Error al compartir el PDF:", error);
     throw new Error(
       `Error al compartir el PDF: ${
+        error instanceof Error ? error.message : "Error desconocido"
+      }`
+    );
+  }
+};
+
+/**
+ * Guarda el archivo PDF directamente en la carpeta de Descargas del dispositivo
+ * Esta función solicita permisos de almacenamiento y guarda el archivo en Descargas
+ * 
+ * @param uri - URI del archivo PDF a guardar
+ * @param nombreArchivo - Nombre del archivo
+ * @returns Mensaje con información sobre la ubicación del archivo
+ */
+export const guardarPDFEnDescargas = async (
+  uri: string,
+  nombreArchivo: string
+): Promise<string> => {
+  try {
+    // Solicitar permisos de almacenamiento
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    
+    if (status !== "granted") {
+      throw new Error(
+        "Se necesitan permisos de almacenamiento para guardar el archivo en Descargas"
+      );
+    }
+
+    // Para Android 10+ (API 29+) y todas las versiones de iOS
+    if (Platform.OS === "android" && Platform.Version >= 29) {
+      // Android 10+ con Scoped Storage
+      // Crear el asset desde el archivo temporal
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      
+      // Intentar obtener o crear el álbum "Download"
+      let album = await MediaLibrary.getAlbumAsync("Download");
+      
+      if (album === null) {
+        // Si no existe, crear el álbum
+        await MediaLibrary.createAlbumAsync("Download", asset, false);
+      } else {
+        // Si existe, agregar el asset al álbum
+        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      }
+      
+      console.log("✅ PDF guardado en Descargas (Android 10+)");
+      return `Archivo guardado exitosamente en:\nDescargas/${nombreArchivo}\n\nPuedes encontrarlo en la carpeta de Descargas de tu dispositivo.`;
+    } else if (Platform.OS === "android") {
+      // Android 9 y anteriores
+      const downloadDir = `${FileSystem.documentDirectory}Download/`;
+      
+      // Verificar si existe el directorio, si no, crearlo
+      const dirInfo = await FileSystem.getInfoAsync(downloadDir);
+      if (!dirInfo.exists) {
+        await FileSystem.makeDirectoryAsync(downloadDir, { intermediates: true });
+      }
+      
+      // Copiar el archivo al directorio de descargas
+      const destino = `${downloadDir}${nombreArchivo}`;
+      await FileSystem.copyAsync({
+        from: uri,
+        to: destino,
+      });
+      
+      // Crear el asset para que aparezca en la galería/gestor de archivos
+      await MediaLibrary.createAssetAsync(destino);
+      
+      console.log("✅ PDF guardado en Descargas (Android <10)");
+      return `Archivo guardado exitosamente en:\nDescargas/${nombreArchivo}\n\nPuedes encontrarlo en la carpeta de Descargas de tu dispositivo.`;
+    } else if (Platform.OS === "ios") {
+      // Para iOS, guardamos en el álbum de la app
+      const asset = await MediaLibrary.createAssetAsync(uri);
+      
+      // Intentar crear/obtener álbum personalizado
+      const albumName = "AdoptaFácil";
+      let album = await MediaLibrary.getAlbumAsync(albumName);
+      
+      if (album === null) {
+        await MediaLibrary.createAlbumAsync(albumName, asset, false);
+      } else {
+        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+      }
+      
+      console.log("✅ PDF guardado en iOS");
+      return `Archivo guardado exitosamente en la app Archivos.\n\nNombre: ${nombreArchivo}\n\nPuedes encontrarlo en la app "Archivos" de iOS, en la carpeta "${albumName}".`;
+    } else {
+      // Web u otra plataforma - usar fallback con compartir
+      const isAvailable = await Sharing.isAvailableAsync();
+      
+      if (!isAvailable) {
+        return `Archivo generado: ${nombreArchivo}\n\nUbicación interna: ${uri}`;
+      }
+      
+      await Sharing.shareAsync(uri, {
+        mimeType: "application/pdf",
+        dialogTitle: "Guardar Reporte PDF",
+        UTI: "com.adobe.pdf",
+      });
+      
+      return "Selecciona dónde deseas guardar el archivo desde el menú de compartir.";
+    }
+  } catch (error) {
+    console.error("❌ Error al guardar PDF en Descargas:", error);
+    
+    // Si falla, intentar con el método de compartir como fallback
+    try {
+      const isAvailable = await Sharing.isAvailableAsync();
+      
+      if (isAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: "Guardar Reporte PDF",
+          UTI: "com.adobe.pdf",
+        });
+        
+        return "No se pudo guardar automáticamente. Por favor, selecciona 'Descargas' o tu gestor de archivos desde el menú.";
+      }
+    } catch (shareError) {
+      console.error("❌ Error en fallback:", shareError);
+    }
+    
+    throw new Error(
+      `Error al guardar el PDF: ${
         error instanceof Error ? error.message : "Error desconocido"
       }`
     );

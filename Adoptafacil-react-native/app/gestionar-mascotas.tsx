@@ -995,31 +995,29 @@ export default function GestionarMascotasScreen() {
         nombreArchivo,
       });
 
-      // Mostrar diálogo de éxito con opciones
+      // Mostrar diálogo de éxito con opción de compartir
       Alert.alert(
         "✅ Reporte generado",
-        `El reporte PDF se ha generado exitosamente.\n\nUbicación: ${rutaPDF}\n\n¿Deseas compartir el archivo?`,
+        `El reporte PDF se ha generado exitosamente.\n\nNombre: ${nombreArchivo}\n\n¿Deseas compartir el archivo?`,
         [
-          {
-            text: "Solo guardar",
-            style: "cancel",
-            onPress: () => {
-              Alert.alert("Guardado", `El archivo se guardó en:\n${rutaPDF}`);
-            },
-          },
           {
             text: "Compartir",
             onPress: async () => {
               try {
                 await compartirPDF(rutaPDF);
+                console.log("✅ PDF compartido exitosamente");
               } catch (error) {
                 console.error("Error al compartir PDF:", error);
                 Alert.alert(
                   "Error",
-                  "No se pudo compartir el PDF. El archivo está guardado en el dispositivo."
+                  "No se pudo compartir el PDF. Intenta de nuevo."
                 );
               }
             },
+          },
+          {
+            text: "Cerrar",
+            style: "cancel",
           },
         ]
       );
