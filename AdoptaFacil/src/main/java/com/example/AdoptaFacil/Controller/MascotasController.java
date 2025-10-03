@@ -351,11 +351,12 @@ public class MascotasController {
             
             Person person = (Person) authentication.getPrincipal();
             System.out.println("Usuario autenticado: " + person.getEmail() + " (ID: " + person.getIdPerson() + ")");
+            System.out.println("Rol: " + (person.getRole() != null ? person.getRole().getRoleType() : "sin rol"));
             
             System.out.println("✅ Usuario autenticado, procediendo a eliminar");
             System.out.println("Llamando a mascotasService.eliminarMascotaPorUsuario()");
             
-            mascotasService.eliminarMascotaPorUsuario(id, person.getIdPerson());
+            mascotasService.eliminarMascotaPorUsuario(id, person);
             
             System.out.println("✅ Mascota eliminada exitosamente");
             System.out.println("=== ELIMINAR MASCOTA - FIN EXITOSO ===\n");

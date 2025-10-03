@@ -3,6 +3,8 @@ package com.example.AdoptaFacil.Implement;
 import com.example.AdoptaFacil.DTO.MascotasDTO;
 import com.example.AdoptaFacil.Entity.MascotaImage;
 import com.example.AdoptaFacil.Entity.Mascotas;
+import com.example.AdoptaFacil.Entity.Person;
+import com.example.AdoptaFacil.Entity.Role;
 import com.example.AdoptaFacil.Repository.MascotasRepository;
 import com.example.AdoptaFacil.Service.MascotasService;
 import com.example.AdoptaFacil.Util.MascotaMapper;
@@ -142,16 +144,20 @@ public class MascotasServiceImpl implements MascotasService {
 
         System.out.println("✅ Mascota encontrada: " + mascotaExistente.getNombre());
         
-        // Verificar que el usuario autenticado es el dueño de la mascota
+        // Verificar permisos: ADMIN puede editar todas, ALIADO solo las suyas
         if (mascotaActualizada.getALIADO() != null) {
             Long idUsuarioActual = mascotaActualizada.getALIADO().getIdPerson();
             Long idDueno = mascotaExistente.getALIADO().getIdPerson();
             
-            if (!idDueno.equals(idUsuarioActual)) {
+            // Verificar si el usuario es ADMIN
+            boolean esAdmin = mascotaActualizada.getALIADO().getRole() != null && 
+                            mascotaActualizada.getALIADO().getRole().getRoleType() == Role.RoleType.ADMIN;
+            
+            if (!esAdmin && !idDueno.equals(idUsuarioActual)) {
                 System.err.println("❌ Usuario " + idUsuarioActual + " no es el dueño de la mascota (dueño: " + idDueno + ")");
                 throw new SecurityException("No tienes permisos para actualizar esta mascota");
             }
-            System.out.println("✅ Usuario autorizado");
+            System.out.println("✅ Usuario autorizado" + (esAdmin ? " (ADMIN)" : " (dueño)"));
         }
         
         // Validar número máximo de imágenes si se proporcionan nuevas
@@ -267,23 +273,30 @@ public class MascotasServiceImpl implements MascotasService {
 
     @Override
     @Transactional
-    public void eliminarMascotaPorUsuario(Long id, Long idUsuario) {
-        System.out.println("\n=== SERVICE: Eliminando mascota ID " + id + " por usuario " + idUsuario + " ===");
+    public void eliminarMascotaPorUsuario(Long id, Person usuario) {
+        System.out.println("\n=== SERVICE: Eliminando mascota ID " + id + " por usuario " + usuario.getIdPerson() + " ===");
         
         // Buscar la mascota para validar permisos
         Mascotas mascota = mascotasRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Mascota no encontrada con ID: " + id));
         
         System.out.println("✅ Mascota encontrada: " + mascota.getNombre());
+        System.out.println("👤 Dueño de la mascota: " + mascota.getALIADO().getEmail());
+        System.out.println("👤 Usuario solicitante: " + usuario.getEmail());
         
-        // Verificar que el usuario es el dueño
+        // Verificar permisos: ADMIN puede eliminar todas, ALIADO solo las suyas
+        boolean esAdmin = usuario.getRole() != null && 
+                        usuario.getRole().getRoleType() == Role.RoleType.ADMIN;
+        
         Long idDueno = mascota.getALIADO().getIdPerson();
-        if (!idDueno.equals(idUsuario)) {
-            System.err.println("❌ Usuario " + idUsuario + " no es el dueño de la mascota (dueño: " + idDueno + ")");
+        Long idUsuarioActual = usuario.getIdPerson();
+        
+        if (!esAdmin && !idDueno.equals(idUsuarioActual)) {
+            System.err.println("❌ Usuario " + idUsuarioActual + " no es el dueño de la mascota (dueño: " + idDueno + ")");
             throw new SecurityException("No tienes permisos para eliminar esta mascota");
         }
         
-        System.out.println("✅ Usuario autorizado para eliminar");
+        System.out.println("✅ Usuario autorizado para eliminar" + (esAdmin ? " (ADMIN)" : " (dueño)"));
         
         // Llamar al método principal de eliminación
         eliminarMascota(id);

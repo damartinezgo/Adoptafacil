@@ -14,7 +14,7 @@ public interface MascotasService {
     List<MascotasDTO> buscarPorNombre(String nombre);
     MascotasDTO actualizarMascota(Long id, Mascotas mascota, List<MultipartFile> imagenes);
     void eliminarMascota(Long id);
-    void eliminarMascotaPorUsuario(Long id, Long idUsuario);
+    void eliminarMascotaPorUsuario(Long id, Person usuario);
     void eliminarImagen(Long mascotaId, Long imagenId);
     
     // Nuevos métodos para filtrado por usuario
