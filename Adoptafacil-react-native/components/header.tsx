@@ -1,15 +1,13 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context"; //Area segura
 
 import { ThemedText } from "@/components/themed-text";
 import { authAPI } from "@/api";
 
 export default function Header() {
-  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const insets = useSafeAreaInsets();
 
@@ -20,18 +18,6 @@ export default function Header() {
     };
     loadUser();
   }, []);
-
-  // Función para cerrar sesión
-  const handleLogout = async () => {
-    try {
-      await authAPI.logout();
-      router.replace("/login");
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-      // En caso de error, aún redirigir al login
-      router.replace("/login");
-    }
-  };
 
   return (
     <LinearGradient
@@ -63,9 +49,12 @@ export default function Header() {
       </View>
 
       <View style={styles.rightSection}>
-        <TouchableOpacity style={styles.loginButton} onPress={handleLogout}>
-          <ThemedText style={styles.loginText}>Salir</ThemedText>
-        </TouchableOpacity>
+        <View style={styles.notificationContainer}>
+          <View style={styles.bellIcon}>
+            <ThemedText style={styles.bellSymbol}>🔔</ThemedText>
+          </View>
+          <View style={styles.notificationDot} />
+        </View>
       </View>
     </LinearGradient>
   );
@@ -76,9 +65,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    minHeight: 80,
+    paddingHorizontal: 16,
+    minHeight: 70,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   leftSection: {
     flex: 0.2,
@@ -89,7 +85,7 @@ const styles = StyleSheet.create({
     flex: 0.6,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
   },
   rightSection: {
     flex: 0.2,
@@ -97,8 +93,8 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
   },
   userInfo: {
     alignItems: "center",
@@ -106,27 +102,50 @@ const styles = StyleSheet.create({
   },
   userText: {
     color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "600",
     textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   roleText: {
-    color: "#b0b0b0",
-    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.8)",
+    fontSize: 12,
     fontWeight: "400",
     textAlign: "center",
+    marginTop: 2,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 1,
   },
-  loginButton: {
-    backgroundColor: "rgba(156, 0, 0, 1)",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    minWidth: 60,
+  notificationContainer: {
+    position: "relative",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  loginText: {
+  bellIcon: {
+    width: 28,
+    height: 28,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bellSymbol: {
+    fontSize: 21,
     color: "#ffffff",
-    fontWeight: "bold",
-    fontSize: 12,
-    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  notificationDot: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ff4757",
+    borderWidth: 1,
+    borderColor: "#ffffff",
   },
 });
