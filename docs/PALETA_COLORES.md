@@ -53,13 +53,21 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 | **Botón Registro**   | `transparent`  | `#68d391`      | Botón de registro en login          |
 | **Botón Olvidaste**  | `transparent`  | `#63b3ed`      | Botón de recuperación de contraseña |
 
-### Tarjetas y Contenedores
+### Tarjetas, Formularios y Componentes sobre Gradientes
 
-| Componente            | Color de Fondo | Color de Borde | Descripción                         |
-| --------------------- | -------------- | -------------- | ----------------------------------- |
-| **Tarjetas**          | `#ffffff`      | `#e2e8f0`      | Tarjetas de categorías, información |
-| **Contenedores**      | `#f8f9fa`      | N/A            | Secciones de contenido              |
-| **Campos de entrada** | `#f8f9fa`      | `#e2e8f0`      | Campos de login, búsqueda           |
+| Componente                | Fondo (background)           | Borde (border)                  | Texto (text)   | Placeholder         | Descripción |
+| ------------------------- | --------------------------- | ------------------------------- | -------------- | ------------------- | ----------- |
+| **Tarjeta Hero/Búsqueda** | `rgba(255,255,255,0.15)`    | `rgba(255,255,255,0.3)`         | `#2d3748`/`#fff`| `rgba(255,255,255,0.7)` | Tarjeta sobre gradiente (ej. home) |
+| **Input Hero**            | `rgba(255,255,255,0.2)`     | `rgba(255,255,255,0.4)`         | `#fff`         | `rgba(255,255,255,0.7)` | Input sobre gradiente (ej. home) |
+| **Input Login**           | `rgba(255,255,255,0.9)`     | `rgba(255,255,255,0.3)`         | `#2d3748`      | `#718096`             | Input sobre fondo claro (login) |
+| **Error Input**           | `rgba(255,255,255,0.95)`    | `#ff6b6b` (borde)               | `#ff4757`      |                       | Input con error (login) |
+| **Tarjetas**              | `#ffffff`                   | `#e2e8f0`                       | `#2d3748`      |                       | Tarjetas de categorías, información |
+| **Contenedores**          | `#f8f9fa`                   | N/A                             |                |                       | Secciones de contenido |
+| **Campos de entrada**     | `#f8f9fa`                   | `#e2e8f0`                       | `#2d3748`      | `#718096`             | Campos de login, búsqueda |
+
+## 🧩 Sombra y Elevación
+
+Usa `shadowColor: "#000"` y `elevation` para dar profundidad a tarjetas y botones, especialmente en formularios y hero cards.
 
 ## 🌈 Combinaciones Recomendadas
 
@@ -108,36 +116,41 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 ### CSS/React Native
 
+
 ```javascript
-// Colores principales actualizados para login
-const colors = {
-  gradient: ["#02d36bff", "#0000c5ff"],
-  button: {
-    primary: { background: "#00b746bf", text: "#ffffffff" },
-    register: { background: "transparent", text: "#68d391" },
-    forgot: { background: "transparent", text: "#63b3ed" },
-  },
+// Ejemplo de estilos consistentes para login y home
+const styles = StyleSheet.create({
+  // Login
   input: {
-    background: "#f8f9fa",
-    border: "#e2e8f0",
-    text: "#2d3748",
-    placeholder: "#718096",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(255,255,255,0.3)",
+    color: "#2d3748",
+    // ...otros estilos
   },
-  text: {
-    title: "#0e0f11ff",
-    subtitle: "#2a3038ff",
-    white: "#ffffffff",
+  inputError: {
+    borderColor: "#ff6b6b",
+    backgroundColor: "rgba(255,255,255,0.95)",
   },
-  background: {
-    main: "#f7fafc",
-    section: "#f8f9fa",
-    white: "#ffffff",
+  // Home Hero
+  heroSearchCard: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderColor: "rgba(255,255,255,0.3)",
+    // ...otros estilos
   },
-  border: {
-    card: "#e2e8f0",
-    input: "#e2e8f0",
+  heroInput: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,255,255,0.4)",
+    color: "#fff",
+    // ...otros estilos
   },
-};
+  // Tarjetas generales
+  card: {
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    color: "#2d3748",
+    // ...otros estilos
+  },
+});
 ```
 
 ### Variables CSS
@@ -150,25 +163,38 @@ const colors = {
   --color-btn-primary-text: #ffffffff;
   --color-btn-register-text: #68d391;
   --color-btn-forgot-text: #63b3ed;
-  --color-input-bg: #f8f9fa;
-  --color-input-border: #e2e8f0;
+  --color-input-bg: rgba(255,255,255,0.9);
+  --color-input-bg-hero: rgba(255,255,255,0.2);
+  --color-input-border: rgba(255,255,255,0.3);
+  --color-input-border-hero: rgba(255,255,255,0.4);
+  --color-input-error-bg: rgba(255,255,255,0.95);
+  --color-input-error-border: #ff6b6b;
   --color-input-text: #2d3748;
+  --color-input-text-hero: #fff;
   --color-input-placeholder: #718096;
+  --color-input-placeholder-hero: rgba(255,255,255,0.7);
   --color-title: #0e0f11ff;
   --color-subtitle: #2a3038ff;
   --color-bg-main: #f7fafc;
   --color-bg-section: #f8f9fa;
   --color-bg-white: #ffffff;
   --color-border-card: #e2e8f0;
+  --color-card-bg-hero: rgba(255,255,255,0.15);
+  --color-card-border-hero: rgba(255,255,255,0.3);
 }
 ```
 
 ## 📝 Notas de Uso
 
 - **Mantener consistencia**: Usar siempre la misma paleta en toda la aplicación
-- **Extensibilidad**: La paleta permite agregar variaciones manteniendo la armonía
-- **Accesibilidad**: Colores probados para cumplir estándares WCAG 2.1
-- **Escalabilidad**: Paleta diseñada para crecer con la aplicación
+
+- **Formularios y tarjetas sobre gradientes**: Usa los estilos de fondo y borde con opacidad para lograr contraste y elegancia.
+- **Inputs**: Diferencia los inputs sobre gradiente (home hero) y sobre fondo claro (login) usando los colores definidos.
+- **Errores**: Aplica los colores de error en borde y fondo para inputs inválidos.
+- **Sombra y elevación**: Úsalos para dar profundidad y resaltar componentes interactivos.
+- **Extensibilidad**: La paleta permite agregar variaciones manteniendo la armonía.
+- **Accesibilidad**: Colores probados para cumplir estándares WCAG 2.1.
+- **Escalabilidad**: Paleta diseñada para crecer con la aplicación.
 
 ---
 
