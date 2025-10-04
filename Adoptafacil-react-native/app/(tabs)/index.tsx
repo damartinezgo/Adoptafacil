@@ -14,43 +14,46 @@ import { ThemedView } from "@/components/themed-view";
 export default function HomeScreen() {
   return (
     <ScrollView style={styles.container}>
-      {/* Sección de bienvenida */}
+      {/* Hero Section con gradiente solo para título y subtítulo */}
       <LinearGradient
         colors={["#02d36bff", "#0000c5ff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.welcomeSection}
+        style={styles.heroSection}
       >
-        <ThemedText style={styles.mainTitle}>
-          Bienvenido a AdoptaFácil: Encuentra a tu nuevo mejor amigo
+        <ThemedText style={styles.heroTitle}>
+          Bienvenido a AdoptaFácil
         </ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Conectamos a mascotas necesitadas con hogares amorosos desde 2025
+        <ThemedText style={styles.heroSubtitle}>
+          Encuentra a tu nuevo mejor amigo. Conectamos mascotas necesitadas con
+          hogares amorosos desde 2025
         </ThemedText>
-
-        {/* Formulario de búsqueda directo en el hero */}
-        <TextInput
-          style={styles.heroInput}
-          placeholder="Buscar por raza (Ej: Perro, Gato)"
-          placeholderTextColor="rgba(255, 255, 255, 0.7)"
-        />
-        <TextInput
-          style={styles.heroInput}
-          placeholder="Ciudad"
-          placeholderTextColor="rgba(255, 255, 255, 0.7)"
-        />
-        <TouchableOpacity style={styles.heroSearchButton}>
-          <ThemedText style={styles.heroSearchButtonText}>Buscar</ThemedText>
-        </TouchableOpacity>
       </LinearGradient>
+
+      {/* Sección de búsqueda con fondo verde */}
+      <ThemedView style={styles.searchSection}>
+        <View style={styles.searchContainer}>
+          <ThemedText style={styles.searchTitle}>
+            ✨ Encuentra tu compañero ideal
+          </ThemedText>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar por raza (Ej: Perro, Gato)"
+            placeholderTextColor="#718096"
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Ciudad"
+            placeholderTextColor="#718096"
+          />
+          <TouchableOpacity style={styles.searchButton}>
+            <ThemedText style={styles.searchButtonText}>Buscar</ThemedText>
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
 
       {/* Sección de categorías */}
       <ThemedView style={styles.categoriesSection}>
-        <TouchableOpacity style={styles.magicButton}>
-          <ThemedText style={styles.magicButtonText}>
-            ✨ Encuentra tu compañero ideal
-          </ThemedText>
-        </TouchableOpacity>
         <ThemedText style={styles.categoriesTitle}>
           Explora por{" "}
           <ThemedText style={styles.highlightedText}>categoría</ThemedText>
@@ -81,7 +84,7 @@ export default function HomeScreen() {
         <ThemedText style={styles.featuredTitle}>
           Mascotas que buscan{"\n"}
           <ThemedText style={styles.featuredTitleGreen}>un hogar </ThemedText>
-          <ThemedText style={styles.featuredTitleBlue}>lleno{"\n"}</ThemedText>
+          <ThemedText style={styles.featuredTitleBlue}>lleno </ThemedText>
           <ThemedText style={styles.featuredTitlePurple}>de amor</ThemedText>
         </ThemedText>
 
@@ -127,96 +130,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f7fafc",
   },
-  welcomeSection: {
+  heroSection: {
     padding: 20,
+    paddingVertical: 30,
     alignItems: "center",
-    minHeight: 400,
-    justifyContent: "center",
   },
-  mainTitle: {
-    fontSize: 26,
-    fontWeight: "bold",
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: "600",
     color: "#ffffff",
     textAlign: "center",
     marginBottom: 10,
-    paddingBottom: 12,
     textShadowColor: "rgba(0, 0, 0, 0.3)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  subtitle: {
+  heroSubtitle: {
     fontSize: 16,
     color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
-    marginBottom: 30,
+    lineHeight: 22,
     textShadowColor: "rgba(0, 0, 0, 0.2)",
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
-  heroInput: {
-    width: "90%",
-    maxWidth: 350,
-    height: 50,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.4)",
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    marginBottom: 15,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "500",
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+  searchSection: {
+    padding: 20,
   },
-  heroSearchButton: {
-    width: "90%",
-    maxWidth: 350,
-    height: 50,
-    backgroundColor: "#00b746bf",
-    borderRadius: 25,
+  searchContainer: {
+    backgroundColor: "#f0fff4",
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#c6f6d5",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    alignItems: "center",
+  },
+  searchTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2d3748",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  searchInput: {
+    width: "100%",
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#68d391",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginBottom: 10,
+    color: "#2d3748",
+    fontSize: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  searchButton: {
+    width: "100%",
+    height: 40,
+    backgroundColor: "#68d391",
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 5,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  heroSearchButtonText: {
+  searchButtonText: {
     color: "#ffffff",
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: "600",
+    fontSize: 15,
   },
   categoriesSection: {
     backgroundColor: "#f8f9fa",
-    padding: 20,
+    padding: 18,
     alignItems: "center",
-  },
-  magicButton: {
-    backgroundColor: "#bee3f8",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  magicButtonText: {
-    color: "#2b6cb0",
-    fontWeight: "bold",
-    fontSize: 14,
   },
   categoriesTitle: {
     fontSize: 24,
@@ -226,6 +227,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   highlightedText: {
+    fontSize: 24,
     color: "#68d391",
   },
   categoriesSubtitle: {
@@ -241,24 +243,24 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#ffffff",
-    padding: 20,
+    padding: 18,
     borderRadius: 15,
     alignItems: "center",
     width: "40%",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
     borderWidth: 1,
     borderColor: "#e2e8f0",
   },
   cardEmoji: {
-    fontSize: 40,
-    marginBottom: 10,
+    fontSize: 36,
+    marginBottom: 8,
   },
   cardText: {
     color: "#2d3748",
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
   // Nuevos estilos para la sección featured
   featuredSection: {
     backgroundColor: "#f0fff4",
-    padding: 20,
+    padding: 18,
     alignItems: "center",
   },
   featuredBadge: {
@@ -291,7 +293,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   featuredTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#2d3748",
     textAlign: "center",
@@ -300,12 +302,15 @@ const styles = StyleSheet.create({
   },
   featuredTitleGreen: {
     color: "#68d391",
+    fontSize: 20,
   },
   featuredTitleBlue: {
     color: "#63b3ed",
+    fontSize: 20,
   },
   featuredTitlePurple: {
     color: "#a78bfa",
+    fontSize: 20,
   },
   featuredSubtitle: {
     fontSize: 16,
