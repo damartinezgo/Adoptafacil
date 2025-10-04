@@ -1,11 +1,8 @@
-// Comunidad.tsx
 import React, { useState } from "react";
 import {
-  SafeAreaView,
+  ScrollView,
   View,
-  Text,
   StyleSheet,
-  FlatList,
   Image,
   TouchableOpacity,
   TextInput,
@@ -13,6 +10,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
 
 // --- Interfaces ---
 interface Post {
@@ -31,7 +30,10 @@ interface Post {
 const samplePosts: Post[] = [
   {
     id: 1,
-    author: { name: "Fundación Huellitas Felices", avatarUrl: "https://i.pravatar.cc/150?u=huellitasfelices" },
+    author: {
+      name: "Fundación Huellitas Felices",
+      avatarUrl: "https://i.pravatar.cc/150?u=huellitasfelices",
+    },
     timestamp: "hace 2 horas",
     content:
       "¡Gran jornada de esterilización este fin de semana! 🐾 Tendremos precios especiales y apoyo de veterinarios expertos.",
@@ -44,7 +46,10 @@ const samplePosts: Post[] = [
   },
   {
     id: 2,
-    author: { name: "AdoptaFácil Admin", avatarUrl: "https://i.pravatar.cc/150?u=adoptafaciladmin" },
+    author: {
+      name: "AdoptaFácil Admin",
+      avatarUrl: "https://i.pravatar.cc/150?u=adoptafaciladmin",
+    },
     timestamp: "hace 1 día",
     content:
       "¡Bienvenidos a nuestra nueva sección de Comunidad! ✨ Este es un espacio para conectar, compartir y colaborar por los animales.",
@@ -56,33 +61,48 @@ const samplePosts: Post[] = [
 ];
 
 // --- PostCard ---
-const PostCard = ({ post, onLike }: { post: Post; onLike: (id: number) => void }) => (
+const PostCard = ({
+  post,
+  onLike,
+}: {
+  post: Post;
+  onLike: (id: number) => void;
+}) => (
   <View style={styles.card}>
     <View style={styles.postHeader}>
       <Image source={{ uri: post.author.avatarUrl }} style={styles.avatar} />
       <View style={{ flex: 1 }}>
-        <Text style={styles.author}>{post.author.name}</Text>
-        <Text style={styles.timestamp}>{post.timestamp}</Text>
+        <ThemedText style={styles.author}>{post.author.name}</ThemedText>
+        <ThemedText style={styles.timestamp}>{post.timestamp}</ThemedText>
       </View>
     </View>
 
-    <Text style={styles.content}>{post.content}</Text>
+    <ThemedText style={styles.content}>{post.content}</ThemedText>
 
-    {post.imageUrl ? <Image source={{ uri: post.imageUrl }} style={styles.postImage} /> : null}
+    {post.imageUrl ? (
+      <Image source={{ uri: post.imageUrl }} style={styles.postImage} />
+    ) : null}
 
     <View style={styles.actions}>
-      <TouchableOpacity onPress={() => onLike(post.id)} style={styles.actionBtn}>
-        <Ionicons name={post.is_liked ? "heart" : "heart-outline"} size={20} color={post.is_liked ? "#ef4444" : "#374151"} />
-        <Text style={styles.actionText}>{post.likes}</Text>
+      <TouchableOpacity
+        onPress={() => onLike(post.id)}
+        style={styles.actionBtn}
+      >
+        <Ionicons
+          name={post.is_liked ? "heart" : "heart-outline"}
+          size={20}
+          color={post.is_liked ? "#68d391" : "#718096"}
+        />
+        <ThemedText style={styles.actionText}>{post.likes}</ThemedText>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.actionBtn}>
-        <Ionicons name="chatbubble-outline" size={20} color="#374151" />
-        <Text style={styles.actionText}>{post.comments}</Text>
+        <Ionicons name="chatbubble-outline" size={20} color="#718096" />
+        <ThemedText style={styles.actionText}>{post.comments}</ThemedText>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.actionBtn}>
-        <Ionicons name="share-social-outline" size={20} color="#374151" />
+        <Ionicons name="share-social-outline" size={20} color="#718096" />
       </TouchableOpacity>
     </View>
   </View>
@@ -91,57 +111,31 @@ const PostCard = ({ post, onLike }: { post: Post; onLike: (id: number) => void }
 // --- Filtros (simple UI) ---
 const PostFilters = () => (
   <View style={styles.filtersCard}>
-    <Text style={styles.filterTitle}>Filtrar Publicaciones</Text>
+    <ThemedText style={styles.filterTitle}>Filtrar Publicaciones</ThemedText>
     <View style={styles.searchBar}>
-      <TextInput placeholder="Buscar por palabra clave..." style={styles.searchInput} placeholderTextColor="#cbd5e1" />
-      <Ionicons name="search" size={20} color="#0dbd8b" />
+      <TextInput
+        placeholder="Buscar por palabra clave..."
+        style={styles.searchInput}
+        placeholderTextColor="#718096"
+      />
+      <Ionicons name="search" size={20} color="#68d391" />
     </View>
-    <Text style={styles.categoriesTitle}>Categorías</Text>
+    <ThemedText style={styles.categoriesTitle}>Categorías</ThemedText>
     {["Campañas", "Noticias", "Consejos", "General"].map((cat, idx) => (
       <View key={idx} style={styles.categoryRow}>
         <View
           style={[
             styles.dot,
-            { backgroundColor: ["#4ade80", "#2563eb", "#facc15", "#9ca3af"][idx] },
+            {
+              backgroundColor: ["#68d391", "#63b3ed", "#a78bfa", "#718096"][
+                idx
+              ],
+            },
           ]}
         />
-        <Text style={{ color: "#fff" }}>{cat}</Text>
+        <ThemedText style={styles.categoryText}>{cat}</ThemedText>
       </View>
     ))}
-  </View>
-);
-
-
-// --- Invitación ---
-const JoinCommunity = () => (
-  <View style={styles.joinCard}>
-
-    <Ionicons name="log-in-outline" size={40} color="#0dbd8b" style={{ marginBottom: 8 }} />
-    <Text style={styles.joinTitle}>¡Únete a nuestra comunidad!</Text>
-    <Text style={styles.joinText}>
-      Comparte experiencias, consejos y ayuda a otros amantes de los animales.
-    </Text>
-    <TouchableOpacity style={styles.createBtn}>
-      <Text style={{ color: "#fff", fontWeight: "bold" }}>Crear Cuenta Gratis</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.loginBtn}>
-      <Text style={{ color: "#0dbd8b" }}>Ya tengo cuenta</Text>
-    </TouchableOpacity>
-
-    <View style={styles.iconsRow}>
-      <View style={styles.iconBox}>
-        <Ionicons name="paw-outline" size={20} color="#f97316" />
-        <Text style={styles.iconText}>Comparte</Text>
-      </View>
-      <View style={styles.iconBox}>
-        <Ionicons name="chatbubble-ellipses-outline" size={20} color="#fff" />
-        <Text style={styles.iconText}>Comenta</Text>
-      </View>
-      <View style={styles.iconBox}>
-        <Ionicons name="heart-outline" size={20} color="#ef4444" />
-        <Text style={styles.iconText}>Conecta</Text>
-      </View>
-    </View>
   </View>
 );
 
@@ -155,7 +149,7 @@ const CreatePost = ({ onPublish }: { onPublish: (text: string) => void }) => {
         placeholder="¿Qué quieres compartir hoy?"
         value={text}
         onChangeText={setText}
-        placeholderTextColor="#ffffffff"
+        placeholderTextColor="#718096"
       />
       <TouchableOpacity
         style={styles.publishBtn}
@@ -166,7 +160,7 @@ const CreatePost = ({ onPublish }: { onPublish: (text: string) => void }) => {
           Keyboard.dismiss();
         }}
       >
-        <Text style={styles.publishText}>Publicar</Text>
+        <ThemedText style={styles.publishText}>Publicar</ThemedText>
       </TouchableOpacity>
     </View>
   );
@@ -175,11 +169,13 @@ const CreatePost = ({ onPublish }: { onPublish: (text: string) => void }) => {
 // --- Pantalla principal ---
 export default function Comunidad() {
   // inicializar posts garantizando is_liked
-  const [posts, setPosts] = useState<Post[]>(() => samplePosts.map(p => ({ ...p })));
+  const [posts, setPosts] = useState<Post[]>(() =>
+    samplePosts.map((p) => ({ ...p }))
+  );
 
   const handleLike = (id: number) => {
-    setPosts(prev =>
-      prev.map(p =>
+    setPosts((prev) =>
+      prev.map((p) =>
         p.id === id
           ? {
               ...p,
@@ -194,7 +190,10 @@ export default function Comunidad() {
   const handlePublish = (text: string) => {
     const newPost: Post = {
       id: Date.now(),
-      author: { name: "Tú", avatarUrl: `https://i.pravatar.cc/150?u=${Date.now()}` },
+      author: {
+        name: "Tú",
+        avatarUrl: `https://i.pravatar.cc/150?u=${Date.now()}`,
+      },
       timestamp: "ahora",
       content: text,
       likes: 0,
@@ -202,164 +201,238 @@ export default function Comunidad() {
       comments: 0,
       category: "General",
     };
-    setPosts(prev => [newPost, ...prev]);
+    setPosts((prev) => [newPost, ...prev]);
   };
 
-  // header que irá dentro del FlatList (para que todo sea scrollable y no se "pierda")
-  const ListHeader = () => (
-    <>
-      {/* Hero */}
-      <LinearGradient colors={["#0dbd8b", "#2563eb"]} style={styles.hero}>
-        <Text style={styles.heroTitle}>Únete a nuestra Comunidad</Text>
-        <Text style={styles.heroText}>
-          Comparte historias, consejos, eventos y conecta con personas que buscan el bienestar animal.
-        </Text>
+  return (
+    <ScrollView style={styles.container}>
+      {/* Hero Section con gradiente */}
+      <LinearGradient
+        colors={["#02d36bff", "#0000c5ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroSection}
+      >
+        <ThemedText style={styles.heroTitle}>
+          Únete a nuestra Comunidad
+        </ThemedText>
+        <ThemedText style={styles.heroSubtitle}>
+          Comparte historias, consejos, eventos y conecta con personas que
+          buscan el bienestar animal
+        </ThemedText>
       </LinearGradient>
 
-      {/* Filtros e Invitación y Crear Post */}
-      <PostFilters />
-      <JoinCommunity />
-      <View style={{ marginHorizontal: 12 }}>
+      {/* Sección de contenido */}
+      <ThemedView style={styles.contentSection}>
+        <PostFilters />
         <CreatePost onPublish={handlePublish} />
-      </View>
-    </>
-  );
 
-  return (
-    <SafeAreaView style={styles.safe}>
-      <FlatList
-        data={posts}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => <PostCard post={item} onLike={handleLike} />}
-        ListHeaderComponent={ListHeader}
-        contentContainerStyle={{ paddingBottom: 60 }}
-        style={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
-    </SafeAreaView>
+        {/* Posts */}
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} onLike={handleLike} />
+        ))}
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 // --- Estilos ---
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#111827" },
-  list: { flex: 1 },
-
-  hero: {
+  container: {
+    flex: 1,
+    backgroundColor: "#f7fafc",
+  },
+  heroSection: {
     padding: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingVertical: 30,
+    alignItems: "center",
   },
   heroTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: "600",
+    color: "#ffffff",
     textAlign: "center",
-  },
-  heroText: { color: "#e5e7eb", textAlign: "center" },
-
-  filtersCard: {
-    backgroundColor: "#1f2937",
-    padding: 15,
-    margin: 12,
-    borderRadius: 12,
-  },
-  filterTitle: {
-    color: "#fff",
-    fontWeight: "bold",
     marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  heroSubtitle: {
     fontSize: 16,
-  },
-  searchBar: {
-    flexDirection: "row",
-    backgroundColor: "#111827",
-    padding: 8,
-    borderRadius: 8,
-    marginBottom: 10,
-    alignItems: "center",
-  },
-  searchInput: { flex: 1, color: "#fff", marginRight: 8 },
-  categoriesTitle: { color: "#fff", fontWeight: "bold", marginBottom: 6 },
-  categoryRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  dot: { width: 10, height: 10, borderRadius: 5, marginRight: 8 },
-
-  joinCard: {
-    backgroundColor: "#1f2937",
-    padding: 20,
-    margin: 12,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  joinTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 6,
+    color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  joinText: { color: "#d1d5db", textAlign: "center", marginBottom: 12 },
-  createBtn: {
-    backgroundColor: "#0dbd8b",
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 8,
-    width: "100%",
-    alignItems: "center",
+  contentSection: {
+    padding: 20,
   },
-  loginBtn: {
+  filtersCard: {
+    backgroundColor: "#f0fff4",
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#0dbd8b",
-    padding: 10,
-    borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  iconsRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-  },
-  iconBox: { alignItems: "center" },
-  iconText: { color: "#fff", marginTop: 4 },
-
-  // 🔹 Create Post (antes estaba blanco)
-  createPost: {
-    flexDirection: "row",
-    marginBottom: 10,
-    backgroundColor: "#1f2937", // gris oscuro
-    padding: 8,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  input: { flex: 1, marginRight: 10, color: "#fff" }, // texto claro
-  publishBtn: {
-    backgroundColor: "#0dbd8b",
-    padding: 8,
-    borderRadius: 6,
-  },
-  publishText: { color: "#fff", fontWeight: "bold" },
-
-  // 🔹 Post Card (igualada al esquema gris)
-  card: {
-    backgroundColor: "#1f2937", // gris oscuro
-    padding: 12,
-    borderRadius: 10,
-    marginHorizontal: 12,
-    marginVertical: 8,
+    borderColor: "#c6f6d5",
     shadowColor: "#000",
-    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  postHeader: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
-  avatar: { width: 44, height: 44, borderRadius: 22, marginRight: 10 },
-  author: { fontWeight: "700", color: "#fff" }, // texto blanco
-  timestamp: { fontSize: 12, color: "#9ca3af" }, // gris claro
-  content: { marginBottom: 8, color: "#e5e7eb" }, // texto gris claro
-  postImage: { width: "100%", height: 200, borderRadius: 8, marginTop: 5 },
-  actions: { flexDirection: "row", marginTop: 8 },
-  actionBtn: { flexDirection: "row", alignItems: "center", marginRight: 18 },
-  actionText: { marginLeft: 6, color: "#d1d5db" }, // gris clarito
+  filterTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#2d3748",
+    marginBottom: 10,
+  },
+  searchBar: {
+    flexDirection: "row",
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#68d391",
+    borderRadius: 20,
+    padding: 10,
+    marginBottom: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#2d3748",
+    marginRight: 8,
+    fontSize: 15,
+  },
+  categoriesTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#2d3748",
+    marginBottom: 8,
+  },
+  categoryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  categoryText: {
+    color: "#2d3748",
+    fontSize: 14,
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 8,
+  },
+  createPost: {
+    flexDirection: "row",
+    marginBottom: 16,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 15,
+    padding: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  input: {
+    flex: 1,
+    marginRight: 10,
+    color: "#2d3748",
+    fontSize: 15,
+  },
+  publishBtn: {
+    backgroundColor: "#68d391",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  publishText: {
+    color: "#ffffff",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 15,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  postHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: "#e2e8f0",
+  },
+  author: {
+    fontWeight: "600",
+    color: "#2d3748",
+    fontSize: 15,
+  },
+  timestamp: {
+    fontSize: 12,
+    color: "#718096",
+    marginTop: 2,
+  },
+  content: {
+    marginBottom: 10,
+    color: "#2d3748",
+    lineHeight: 20,
+    fontSize: 15,
+  },
+  postImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#f1f5f9",
+  },
+  actionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 20,
+  },
+  actionText: {
+    marginLeft: 6,
+    color: "#718096",
+    fontSize: 14,
+    fontWeight: "500",
+  },
 });
