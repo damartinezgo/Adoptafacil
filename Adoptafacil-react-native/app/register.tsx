@@ -13,9 +13,11 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { authAPI } from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function RegisterScreen() {
   const { userType } = useLocalSearchParams();
+  const { signIn } = useAuth();
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -109,10 +111,15 @@ export default function RegisterScreen() {
         role: role as "CLIENTE" | "ALIADO",
       };
 
-      await authAPI.register(userData);
+      const response = await authAPI.register(userData);
 
-      // Redirección automática al home después del registro exitoso
-      router.replace("/(tabs)");
+      // Actualizar el contexto de autenticación inmediatamente
+      if (response.token && response.user) {
+        await signIn(response.token, response.user);
+
+        // Forzar redirección inmediata después del login exitoso
+        router.replace("/(tabs)");
+      }
 
       // Opcional: Mostrar un mensaje de bienvenida más sutil
       setTimeout(() => {

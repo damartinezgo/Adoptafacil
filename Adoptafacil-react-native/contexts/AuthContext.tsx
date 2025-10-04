@@ -40,16 +40,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       segments[0] === "gestionar-mascotas" ||
       segments[0] === "modal";
 
+    const inPublicGroup =
+      segments[0] === "login" ||
+      segments[0] === "register" ||
+      segments[0] === "register-options";
+
     if (!isAuthenticated && inAuthGroup) {
       // Usuario no autenticado intentando acceder a rutas protegidas
       router.replace("/login");
-    } else if (
-      isAuthenticated &&
-      !inAuthGroup &&
-      segments[0] !== "register" &&
-      segments[0] !== "register-options"
-    ) {
-      // Usuario autenticado en pantalla de login
+    } else if (isAuthenticated && inPublicGroup) {
+      // Usuario autenticado en pantallas públicas (login/register)
       router.replace("/(tabs)");
     }
   }, [isAuthenticated, segments, isLoading]);
@@ -81,6 +81,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await userStorage.setUser(userData);
       setIsAuthenticated(true);
       setUser(userData);
+
+      // Forzar redirección después de autenticarse
+      setTimeout(() => {
+        router.replace("/(tabs)");
+      }, 100);
     } catch (error) {
       console.error("Error signing in:", error);
       throw error;
