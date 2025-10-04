@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
     lineHeight: 34,
+    paddingBottom: 5,
   },
   subtitle: {
     fontSize: 18,
