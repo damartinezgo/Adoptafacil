@@ -1072,6 +1072,13 @@ export default function GestionarMascotasScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      {/* Gradiente de fondo sutil */}
+      <LinearGradient
+        colors={["rgba(2, 211, 107, 0.03)", "rgba(0, 0, 197, 0.03)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.backgroundGradient}
+      />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Encabezado */}
         <View style={styles.header}>
@@ -1120,8 +1127,8 @@ export default function GestionarMascotasScreen() {
                   disabled={cargando}
                 >
                   <LinearGradient
-                    colors={["#02f57bff", "#1313f5ff"]}
-                    start={{ x: 0, y: 1 }}
+                    colors={["#02d36b", "#0000c5"]}
+                    start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={styles.addButtonGradient}
                   >
@@ -1397,98 +1404,117 @@ export default function GestionarMascotasScreen() {
                 </ThemedText>
               </View>
             ) : (
-              mascotas.map((mascota) => (
-                <View key={mascota.id} style={styles.mascotaCard}>
-                  {/* Imagen principal */}
-                  <Image
-                    source={{ uri: mascota.imagenes[0] }}
-                    style={styles.mascotaImagen}
-                  />
+              mascotas.map((mascota) => {
+                console.log(
+                  `🏷️ Card ${mascota.nombre} - URL de imagen: ${mascota.imagenes[0]}`
+                );
+                return (
+                  <View key={mascota.id} style={styles.mascotaCard}>
+                    {/* Imagen principal */}
+                    <Image
+                      source={{ uri: mascota.imagenes[0] }}
+                      style={styles.mascotaImagen}
+                      onError={(error) => {
+                        console.error(
+                          `❌ Error cargando imagen en card ${mascota.nombre}:`,
+                          error.nativeEvent
+                        );
+                        console.error(
+                          `❌ URL problemática: ${mascota.imagenes[0]}`
+                        );
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          `✅ Imagen cargada exitosamente en card ${mascota.nombre}: ${mascota.imagenes[0]}`
+                        );
+                      }}
+                    />
 
-                  {/* Información de la mascota */}
-                  <View style={styles.mascotaInfo}>
-                    <ThemedText type="subtitle" style={styles.mascotaNombre}>
-                      {mascota.nombre}
-                    </ThemedText>
+                    {/* Información de la mascota */}
+                    <View style={styles.mascotaInfo}>
+                      <ThemedText type="subtitle" style={styles.mascotaNombre}>
+                        {mascota.nombre}
+                      </ThemedText>
 
-                    {/* Mostrar información del propietario solo para ADMIN */}
-                    {user?.role?.roleType === "ADMIN" &&
-                      mascota.propietario && (
-                        <View style={styles.propietarioContainer}>
-                          <ThemedText style={styles.propietarioLabel}>
-                            👤 Propietario:
-                          </ThemedText>
-                          <ThemedText style={styles.propietarioNombre}>
-                            {mascota.propietario.nombre}
-                          </ThemedText>
-                          <ThemedText style={styles.propietarioEmail}>
-                            {mascota.propietario.email}
-                          </ThemedText>
-                        </View>
-                      )}
+                      {/* Mostrar información del propietario solo para ADMIN */}
+                      {user?.role?.roleType === "ADMIN" &&
+                        mascota.propietario && (
+                          <View style={styles.propietarioContainer}>
+                            <ThemedText style={styles.propietarioLabel}>
+                              👤 Propietario:
+                            </ThemedText>
+                            <ThemedText style={styles.propietarioNombre}>
+                              {mascota.propietario.nombre}
+                            </ThemedText>
+                            <ThemedText style={styles.propietarioEmail}>
+                              {mascota.propietario.email}
+                            </ThemedText>
+                          </View>
+                        )}
 
-                    <ThemedText style={styles.mascotaDetalle}>
-                      <ThemedText style={styles.mascotaLabel}>
-                        Especie:{" "}
+                      <ThemedText style={styles.mascotaDetalle}>
+                        <ThemedText style={styles.mascotaLabel}>
+                          Especie:{" "}
+                        </ThemedText>
+                        {mascota.especie}
                       </ThemedText>
-                      {mascota.especie}
-                    </ThemedText>
-                    <ThemedText style={styles.mascotaDetalle}>
-                      <ThemedText style={styles.mascotaLabel}>
-                        Raza:{" "}
+                      <ThemedText style={styles.mascotaDetalle}>
+                        <ThemedText style={styles.mascotaLabel}>
+                          Raza:{" "}
+                        </ThemedText>
+                        {mascota.raza}
                       </ThemedText>
-                      {mascota.raza}
-                    </ThemedText>
-                    <ThemedText style={styles.mascotaDetalle}>
-                      <ThemedText style={styles.mascotaLabel}>
-                        Edad:{" "}
+                      <ThemedText style={styles.mascotaDetalle}>
+                        <ThemedText style={styles.mascotaLabel}>
+                          Edad:{" "}
+                        </ThemedText>
+                        {mascota.edad}
                       </ThemedText>
-                      {mascota.edad}
-                    </ThemedText>
-                    <ThemedText style={styles.mascotaDetalle}>
-                      <ThemedText style={styles.mascotaLabel}>
-                        Imágenes:{" "}
+                      <ThemedText style={styles.mascotaDetalle}>
+                        <ThemedText style={styles.mascotaLabel}>
+                          Imágenes:{" "}
+                        </ThemedText>
+                        {mascota.imagenes.length}
                       </ThemedText>
-                      {mascota.imagenes.length}
-                    </ThemedText>
+                    </View>
+
+                    {/* Botones de acción - ALIADOs pueden editar sus mascotas, ADMINs pueden editar/eliminar todas */}
+                    {(user?.role?.roleType === "ALIADO" ||
+                      user?.role?.roleType === "ADMIN") && (
+                      <View style={styles.mascotaActions}>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.editButton]}
+                          onPress={() => iniciarEdicion(mascota)}
+                          disabled={cargando}
+                        >
+                          <ThemedText style={styles.editButtonText}>
+                            Editar
+                          </ThemedText>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.deleteButton]}
+                          onPress={() => confirmarEliminacion(mascota)}
+                          disabled={cargando}
+                        >
+                          <ThemedText style={styles.deleteButtonText}>
+                            Eliminar
+                          </ThemedText>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {/* Mensaje informativo para ADMIN */}
+                    {user?.role?.roleType === "ADMIN" && (
+                      <View style={styles.adminInfoContainer}>
+                        <ThemedText style={styles.adminInfoText}>
+                          �️ Modo Administrador - Puedes editar/eliminar todas
+                          las mascotas
+                        </ThemedText>
+                      </View>
+                    )}
                   </View>
-
-                  {/* Botones de acción - ALIADOs pueden editar sus mascotas, ADMINs pueden editar/eliminar todas */}
-                  {(user?.role?.roleType === "ALIADO" ||
-                    user?.role?.roleType === "ADMIN") && (
-                    <View style={styles.mascotaActions}>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.editButton]}
-                        onPress={() => iniciarEdicion(mascota)}
-                        disabled={cargando}
-                      >
-                        <ThemedText style={styles.editButtonText}>
-                          Editar
-                        </ThemedText>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[styles.actionButton, styles.deleteButton]}
-                        onPress={() => confirmarEliminacion(mascota)}
-                        disabled={cargando}
-                      >
-                        <ThemedText style={styles.deleteButtonText}>
-                          Eliminar
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-
-                  {/* Mensaje informativo para ADMIN */}
-                  {user?.role?.roleType === "ADMIN" && (
-                    <View style={styles.adminInfoContainer}>
-                      <ThemedText style={styles.adminInfoText}>
-                        �️ Modo Administrador - Puedes editar/eliminar todas las
-                        mascotas
-                      </ThemedText>
-                    </View>
-                  )}
-                </View>
-              ))
+                );
+              })
             )}
           </>
         )}
@@ -1514,6 +1540,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f7fafc", // bg-main de la paleta
     position: "relative",
+  },
+  backgroundGradient: {
+    position: "absolute",
   },
   scrollContainer: {
     padding: 12,
