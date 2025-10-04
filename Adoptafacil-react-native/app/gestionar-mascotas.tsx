@@ -28,6 +28,73 @@ import {
 } from "@/utils/pdfReport";
 
 /**
+ * Construye una URL completa para acceder a las imágenes del servidor
+ * @param imagePath - Ruta de la imagen que puede ser relativa o absoluta
+ * @returns URL completa para acceder a la imagen
+ */
+const construirURLImagen = (imagePath: string): string => {
+  console.log(`🔍 BASE_URL configurado: ${BASE_URL}`);
+
+  // Si ya es una URL completa (http/https), verificar y corregir la IP si es necesaria
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    console.log(`🌐 URL completa detectada: ${imagePath}`);
+
+    // Corregir IPs problemáticas del backend
+    let urlCorregida = imagePath;
+
+    // Si la URL usa una IP/puerto diferente al BASE_URL configurado, corregir
+    const baseIP = BASE_URL.replace("/api", "");
+
+    // Extraer la parte de la URL después del puerto (ej: /uploads/imagen.jpg)
+    const match = imagePath.match(/^https?:\/\/[^\/]+(\/.+)$/);
+    if (match) {
+      const pathPart = match[1];
+      urlCorregida = `${baseIP}${pathPart}`;
+      console.log(
+        `🔧 URL corregida con IP correcta: ${imagePath} → ${urlCorregida}`
+      );
+    }
+
+    return urlCorregida;
+  }
+
+  // Si es una URL de placeholder, devolverla tal como está
+  if (imagePath.includes("placeholder")) {
+    console.log(`🖼️ Placeholder detectado: ${imagePath}`);
+    return imagePath;
+  }
+
+  // Si empieza con /uploads, construir URL completa
+  if (imagePath.startsWith("/uploads/")) {
+    const urlCompleta = `${BASE_URL.replace("/api", "")}${imagePath}`;
+    console.log(`📁 /uploads/ detectado: ${imagePath} → ${urlCompleta}`);
+    return urlCompleta;
+  }
+
+  // Si empieza con uploads/ (sin barra inicial), agregar la barra
+  if (imagePath.startsWith("uploads/")) {
+    const urlCompleta = `${BASE_URL.replace("/api", "")}/${imagePath}`;
+    console.log(`📁 uploads/ detectado: ${imagePath} → ${urlCompleta}`);
+    return urlCompleta;
+  }
+
+  // Si es solo el nombre del archivo, asumir que está en uploads
+  if (!imagePath.startsWith("/") && !imagePath.includes("/")) {
+    const urlCompleta = `${BASE_URL.replace("/api", "")}/uploads/${imagePath}`;
+    console.log(
+      `📄 Nombre de archivo detectado: ${imagePath} → ${urlCompleta}`
+    );
+    return urlCompleta;
+  }
+
+  // Caso por defecto: construir URL completa
+  const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+  const urlCompleta = `${BASE_URL.replace("/api", "")}${cleanPath}`;
+  console.log(`🔧 Caso por defecto: ${imagePath} → ${urlCompleta}`);
+  return urlCompleta;
+};
+
+/**
  * Valida y formatea una fecha para enviar al backend
  * Acepta formatos: YYYY-MM-DD, YY-MM-DD, YYYY/MM/DD, etc.
  * Retorna formato: YYYY-MM-DD o null si es inválida
@@ -224,13 +291,22 @@ export default function GestionarMascotasScreen() {
       const mascotasFormateadas = response.data.map((m: any) => {
         let imagenes: string[] = [];
 
+        console.log(`🔍 Procesando mascota ${m.nombre}:`, {
+          tieneImagenes: !!m.imagenes,
+          cantidadImagenes: m.imagenes?.length || 0,
+          primeraImagen: m.imagenes?.[0],
+          imagenSimple: m.imagen,
+        });
+
         if (m.imagenes && Array.isArray(m.imagenes) && m.imagenes.length > 0) {
-          // Extraer solo las URLs de los objetos MascotaImageDTO
-          imagenes = m.imagenes
-            .slice(0, 3)
-            .map((img: any) => img.imagenPath || img);
+          // Extraer y construir URLs completas de los objetos MascotaImageDTO
+          imagenes = m.imagenes.slice(0, 3).map((img: any) => {
+            const imagePath = img.imagenPath || img;
+            console.log(`🖼️ Procesando imagen: ${imagePath}`);
+            return construirURLImagen(imagePath);
+          });
         } else if (m.imagen) {
-          imagenes = [m.imagen];
+          imagenes = [construirURLImagen(m.imagen)];
         } else {
           imagenes = [
             "https://via.placeholder.com/300x300.png?text=Sin+Imagen",
@@ -489,9 +565,11 @@ export default function GestionarMascotasScreen() {
       // Formatear respuesta del backend
       const imagenes =
         response.data.imagenes && response.data.imagenes.length > 0
-          ? response.data.imagenes.map((img: any) => img.imagenPath).slice(0, 3)
+          ? response.data.imagenes
+              .map((img: any) => construirURLImagen(img.imagenPath))
+              .slice(0, 3)
           : response.data.imagen
-          ? [response.data.imagen].slice(0, 3)
+          ? [construirURLImagen(response.data.imagen)].slice(0, 3)
           : nuevaMascota.imagenes.slice(0, 3);
 
       const mascotaCreada = {
@@ -645,9 +723,11 @@ export default function GestionarMascotasScreen() {
       // Formatear respuesta del backend
       const imagenes =
         response.data.imagenes && response.data.imagenes.length > 0
-          ? response.data.imagenes.map((img: any) => img.imagenPath).slice(0, 3)
+          ? response.data.imagenes
+              .map((img: any) => construirURLImagen(img.imagenPath))
+              .slice(0, 3)
           : response.data.imagen
-          ? [response.data.imagen].slice(0, 3)
+          ? [construirURLImagen(response.data.imagen)].slice(0, 3)
           : mascota.imagenes.slice(0, 3);
 
       const mascotaActualizada = {
@@ -839,8 +919,9 @@ export default function GestionarMascotasScreen() {
 
         mascotaCompleta.imagenes.slice(0, 3).forEach((img: any) => {
           if (img.imagenPath && img.id) {
-            nuevoMapa.set(img.imagenPath, img.id);
-            urls.push(img.imagenPath);
+            const urlCompleta = construirURLImagen(img.imagenPath);
+            nuevoMapa.set(urlCompleta, img.id);
+            urls.push(urlCompleta);
           }
         });
 
@@ -1332,22 +1413,39 @@ export default function GestionarMascotasScreen() {
                   {/* Miniaturas de imágenes seleccionadas */}
                   {imagenes.length > 0 && (
                     <View style={styles.imagenesContainer}>
-                      {imagenes.map((uri, index) => (
-                        <View key={index} style={styles.imagenWrapper}>
-                          <Image
-                            source={{ uri }}
-                            style={styles.imagenMiniatura}
-                          />
-                          <TouchableOpacity
-                            style={styles.eliminarImagenButton}
-                            onPress={() => eliminarImagen(index)}
-                          >
-                            <ThemedText style={styles.eliminarImagenText}>
-                              ✕
-                            </ThemedText>
-                          </TouchableOpacity>
-                        </View>
-                      ))}
+                      {imagenes.map((uri, index) => {
+                        console.log(`🖼️ Miniatura ${index}: ${uri}`);
+                        return (
+                          <View key={index} style={styles.imagenWrapper}>
+                            <Image
+                              source={{ uri }}
+                              style={styles.imagenMiniatura}
+                              onError={(error) => {
+                                console.error(
+                                  `❌ Error cargando miniatura ${index}:`,
+                                  error.nativeEvent
+                                );
+                                console.error(
+                                  `❌ URL problemática miniatura: ${uri}`
+                                );
+                              }}
+                              onLoad={() => {
+                                console.log(
+                                  `✅ Miniatura ${index} cargada: ${uri}`
+                                );
+                              }}
+                            />
+                            <TouchableOpacity
+                              style={styles.eliminarImagenButton}
+                              onPress={() => eliminarImagen(index)}
+                            >
+                              <ThemedText style={styles.eliminarImagenText}>
+                                ✕
+                              </ThemedText>
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      })}
                     </View>
                   )}
 
