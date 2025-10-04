@@ -2,7 +2,145 @@
 
 ## Descripción
 
-Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, enfocada en transmitir confianza, calidez y profesionalismo para una app de adopción de mascotas.
+Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, enfocada en tr### React Native
+
+````javascript
+// Ejemplo de estilos consistentes para login, home, mascotas y settings
+const styles = StyleSheet.create({
+  // Páginas principales - Contenedores
+  container: {
+    flex: 1,
+    backgroundColor: "#f7fafc", // page-bg
+  },
+  heroSection: {
+    padding: 20,
+    paddingVertical: 30,
+    alignItems: "center",
+  },
+  contentSection: {
+    flex: 1,
+    padding: 20,
+  },
+
+  // Hero titles (mascotas, home)
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: "600",
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    lineHeight: 22,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  // Inputs principales (mascotas, settings)
+  inputMain: {
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 15,
+    color: "#2d3748",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  // Inputs sobre gradiente (login, home hero)
+  inputHero: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 15,
+    color: "#ffffff",
+    fontSize: 16,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+
+  // Pickers redondeados (mascotas)
+  pickerContainer: {
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 25,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  // Cards principales (mascotas, home)
+  cardMain: {
+    backgroundColor: "#ffffff",
+    borderRadius: 15,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    alignItems: "center",
+  },
+
+  // Estados de carga (mascotas)
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 30,
+    backgroundColor: "#ffffff",
+    borderRadius: 15,
+    margin: 20,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  // Estados de error (mascotas)
+  errorContainer: {
+    backgroundColor: "#ffffff",
+    padding: 20,
+    borderRadius: 15,
+    margin: 20,
+    borderWidth: 1,
+    borderColor: "#fed7d7",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  // Login
+  input: {
+    backgroundColor: "rgba(255,255,255,0.9)", confianza, calidez y profesionalismo para una app de adopción de mascotas.
 
 ## 🎯 Colores Principales
 
@@ -219,7 +357,7 @@ const styles = StyleSheet.create({
     color: "#c53030",
   },
 });
-```
+````
 
 ### Variables CSS
 
@@ -230,6 +368,37 @@ const styles = StyleSheet.create({
   --gradient-main-to: #0000c5ff;
   --gradient-secondary-from: #68d391;
   --gradient-secondary-to: #63b3ed;
+
+  /* Páginas principales - Hero sections */
+  --hero-title-color: #ffffff;
+  --hero-subtitle-color: rgba(255, 255, 255, 0.8);
+  --hero-text-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Páginas principales - Inputs y formularios */
+  --input-bg-main: #f8f9fa;
+  --input-bg-hero: rgba(255, 255, 255, 0.2);
+  --input-border-main: #e2e8f0;
+  --input-border-hero: rgba(255, 255, 255, 0.4);
+  --input-text-main: #2d3748;
+  --input-text-hero: #ffffff;
+  --input-placeholder-main: #718096;
+  --input-placeholder-hero: rgba(255, 255, 255, 0.7);
+
+  /* Páginas principales - Cards y contenedores */
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --page-bg: #f7fafc;
+  --section-bg: #f8f9fa;
+  --featured-bg: #f0fff4;
+
+  /* Estados de carga y error */
+  --loading-bg: #ffffff;
+  --loading-text: #2d3748;
+  --loading-indicator: #68d391;
+  --error-bg: #ffffff;
+  --error-border: #fed7d7;
+  --error-text: #e53e3e;
 
   /* Botones */
   --color-btn-primary-bg: #00b746bf;
@@ -306,6 +475,27 @@ const styles = StyleSheet.create({
 - **Escalabilidad**: Paleta diseñada para crecer con la aplicación.
 
 ## 🎯 Patrones de Implementación
+
+### Páginas Principales - Estructura de Diseño
+
+#### Home Screen (index.tsx)
+
+- **Hero section**: Gradiente principal con inputs transparentes
+- **Categorías**: Fondo (`#f8f9fa`) con tarjetas blancas
+- **Featured**: Fondo verde claro (`#f0fff4`) con estadísticas coloridas
+
+#### Login Screen (login.tsx)
+
+- **Inputs**: Fondo semi-transparente sobre gradiente
+- **Errores**: Bordes rojos (`#ff6b6b`) con textos de error (`#ff4757`)
+- **Botones**: Primario verde (`#00b746bf`), secundarios transparentes
+
+#### Mascotas Screen (mascotas.tsx)
+
+- **Hero section**: Solo título y subtítulo con gradiente principal
+- **Filtros**: Fondo claro (`#f8f9fa`) con bordes (`#e2e8f0`), selects redondeados
+- **Cards**: Fondo blanco con sombra, fotos 100x100 con borde blanco
+- **Loading/Error**: Cards blancos con bordes apropiados para cada estado
 
 ### Settings Screen
 

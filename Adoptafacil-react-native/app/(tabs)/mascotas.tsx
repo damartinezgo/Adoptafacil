@@ -11,6 +11,7 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
 import { useMascotas } from "./settings";
 import { Mascota } from "@/types";
 import axios, { isAxiosError } from "axios";
@@ -423,23 +424,24 @@ export default function MascotasScreen() {
   }, [filters, mascotas, ageToMonths]);
 
   return (
-    <LinearGradient
-      colors={["#00c161ff", "#0000c5ff"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
-      <ThemedText type="title" style={styles.title}>
-        Mascotas Disponibles
-      </ThemedText>
-      <ThemedText style={styles.subtitle}>
-        Estos son nuestros animales en busca de un hogar, amor y mucho cariño!
-      </ThemedText>
+    <ThemedView style={styles.container}>
+      {/* Hero Section con gradiente solo para título y subtítulo */}
+      <LinearGradient
+        colors={["#02d36bff", "#0000c5ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroSection}
+      >
+        <ThemedText style={styles.title}>Mascotas Disponibles</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Estos son nuestros animales en busca de un hogar, amor y mucho cariño!
+        </ThemedText>
+      </LinearGradient>
 
       {/* Mostrar estado de carga */}
       {cargando && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#ffffff" />
+          <ActivityIndicator size="large" color="#68d391" />
           <Text style={styles.loadingText}>Cargando mascotas...</Text>
         </View>
       )}
@@ -456,42 +458,46 @@ export default function MascotasScreen() {
 
       {/* Mostrar contenido solo si no está cargando */}
       {!cargando && (
-        <>
+        <View style={styles.contentSection}>
           {/* Filtros */}
           <View style={styles.filtros}>
             <TextInput
               style={styles.input}
               placeholder="Buscar por nombre, raza o descripción..."
-              placeholderTextColor="#666"
+              placeholderTextColor="#718096"
               value={filters.searchTerm}
               onChangeText={(t) => setFilters((p) => ({ ...p, searchTerm: t }))}
             />
 
-            <Picker
-              selectedValue={filters.selectedEspecie}
-              style={styles.picker}
-              onValueChange={(v) =>
-                setFilters((p) => ({ ...p, selectedEspecie: v }))
-              }
-            >
-              <Picker.Item label="Todas las especies" value="all" />
-              {availableEspecies.map((e) => (
-                <Picker.Item key={e} label={e} value={e} />
-              ))}
-            </Picker>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={filters.selectedEspecie}
+                style={styles.picker}
+                onValueChange={(v) =>
+                  setFilters((p) => ({ ...p, selectedEspecie: v }))
+                }
+              >
+                <Picker.Item label="Todas las especies" value="all" />
+                {availableEspecies.map((e) => (
+                  <Picker.Item key={e} label={e} value={e} />
+                ))}
+              </Picker>
+            </View>
 
-            <Picker
-              selectedValue={filters.selectedEdad}
-              style={styles.picker}
-              onValueChange={(v) =>
-                setFilters((p) => ({ ...p, selectedEdad: v }))
-              }
-            >
-              <Picker.Item label="Todas las edades" value="all" />
-              <Picker.Item label="Joven (0-2 años)" value="joven" />
-              <Picker.Item label="Adulto (2-7 años)" value="adulto" />
-              <Picker.Item label="Senior (7+ años)" value="senior" />
-            </Picker>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={filters.selectedEdad}
+                style={styles.picker}
+                onValueChange={(v) =>
+                  setFilters((p) => ({ ...p, selectedEdad: v }))
+                }
+              >
+                <Picker.Item label="Todas las edades" value="all" />
+                <Picker.Item label="Joven (0-2 años)" value="joven" />
+                <Picker.Item label="Adulto (2-7 años)" value="adulto" />
+                <Picker.Item label="Senior (7+ años)" value="senior" />
+              </Picker>
+            </View>
           </View>
 
           {/* Lista */}
@@ -501,10 +507,10 @@ export default function MascotasScreen() {
             numColumns={2}
             contentContainerStyle={styles.cardsContainer}
             ListEmptyComponent={
-              <View style={{ padding: 30 }}>
-                <Text style={{ color: "#fff", textAlign: "center" }}>
-                  No se encontraron mascotas con esos filtros.
-                </Text>
+              <View style={styles.emptyContainer}>
+                <ThemedText style={styles.emptyText}>
+                  No se encontraron mascotas con esos criterios
+                </ThemedText>
               </View>
             }
             renderItem={({ item: mascota }) => (
@@ -518,11 +524,10 @@ export default function MascotasScreen() {
                     {mascota.nombre}
                   </ThemedText>
                   <ThemedText style={styles.detalle}>
-                    {mascota.especie} - {mascota.raza}
-                  </ThemedText>
-                  <ThemedText style={styles.detalle}>
+                    {mascota.especie} •{" "}
                     {edadToFriendlyString(ageToMonths(mascota.edad))}
                   </ThemedText>
+                  <ThemedText style={styles.detalle}>{mascota.raza}</ThemedText>
                   {mascota.ciudad && (
                     <ThemedText style={styles.detalle}>
                       📍 {mascota.ciudad}
@@ -532,9 +537,9 @@ export default function MascotasScreen() {
               </View>
             )}
           />
-        </>
+        </View>
       )}
-    </LinearGradient>
+    </ThemedView>
   );
 }
 
@@ -548,114 +553,169 @@ function edadToFriendlyString(meses: number) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f7fafc",
+  },
+  heroSection: {
     padding: 20,
+    paddingVertical: 30,
+    alignItems: "center",
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 10,
+    fontWeight: "600",
+    color: "#ffffff",
     textAlign: "center",
-    color: "#fff",
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: "white",
-    marginBottom: 20,
+    color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
     lineHeight: 22,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  contentSection: {
+    flex: 1,
+    padding: 20,
   },
   filtros: {
-    width: "100%",
     marginBottom: 20,
   },
   input: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 10,
-    color: "#000",
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginBottom: 15,
+    color: "#2d3748",
+    fontSize: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  pickerContainer: {
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 25,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   picker: {
-    backgroundColor: "rgba(255,255,255,0.9)",
-    borderRadius: 10,
-    marginBottom: 10,
+    color: "#2d3748",
   },
   cardsContainer: {
     paddingBottom: 30,
-    paddingHorizontal: 2,
   },
   card: {
     flex: 1,
     margin: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    borderRadius: 24,
-    paddingVertical: 18,
-    paddingHorizontal: 12,
+    backgroundColor: "#ffffff",
+    borderRadius: 15,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.25)",
+    borderColor: "#e2e8f0",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
     alignItems: "center",
     minWidth: 140,
     maxWidth: 220,
   },
   foto: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 12,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 15,
     backgroundColor: "#eee",
+    borderWidth: 2,
+    borderColor: "#ffffff",
   },
   info: {
     alignItems: "center",
   },
   nombre: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2d3748",
     marginBottom: 6,
     textAlign: "center",
   },
   detalle: {
-    fontSize: 15,
-    color: "#eee",
+    fontSize: 14,
+    color: "#718096",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 40,
+  },
+  emptyText: {
+    color: "#718096",
+    fontSize: 16,
     textAlign: "center",
   },
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
     padding: 30,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "#ffffff",
     borderRadius: 15,
     margin: 20,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   loadingText: {
-    color: "#ffffff",
+    color: "#2d3748",
     fontSize: 16,
     marginTop: 10,
     fontWeight: "500",
   },
   errorContainer: {
-    backgroundColor: "rgba(255, 59, 48, 0.2)",
+    backgroundColor: "#ffffff",
     padding: 20,
     borderRadius: 15,
     margin: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 59, 48, 0.3)",
+    borderColor: "#fed7d7",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   errorText: {
-    color: "#ffffff",
+    color: "#e53e3e",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 10,
     fontWeight: "500",
   },
   retryText: {
-    color: "#ffffff",
+    color: "#e53e3e",
     fontSize: 14,
     textAlign: "center",
     textDecorationLine: "underline",
