@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useState, createContext, useContext } from "react";
+import { Mascota } from "@/types";
 import {
   ScrollView,
   StyleSheet,
@@ -10,20 +11,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
-
-// se define la estructura de una mascota
-export interface Mascota {
-  id: number;
-  nombre: string;
-  especie: string;
-  raza: string;
-  edad: string;
-  imagenes: string[];
-  propietario?: {
-    nombre: string;
-    email: string;
-  };
-}
 
 // Creamos un contexto para compartir el estado de mascotas en toda la app
 const MascotasContext = createContext<{

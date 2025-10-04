@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useMascotas, Mascota } from "./(tabs)/settings";
+import { useMascotas } from "./(tabs)/settings";
+import { Mascota } from "@/types";
 import { useState, useEffect } from "react";
 import {
   ScrollView,
