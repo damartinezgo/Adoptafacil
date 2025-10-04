@@ -13,6 +13,7 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
@@ -1118,9 +1119,16 @@ export default function GestionarMascotasScreen() {
                   onPress={() => setMostrarFormulario(true)}
                   disabled={cargando}
                 >
-                  <ThemedText style={styles.addButtonText}>
-                    + Agregar Nueva Mascota
-                  </ThemedText>
+                  <LinearGradient
+                    colors={["#02f57bff", "#1313f5ff"]}
+                    start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.addButtonGradient}
+                  >
+                    <ThemedText style={styles.addButtonText}>
+                      🐾 Agregar Nueva Mascota
+                    </ThemedText>
+                  </LinearGradient>
                 </TouchableOpacity>
               )}
 
@@ -1133,180 +1141,237 @@ export default function GestionarMascotasScreen() {
               onPress={descargarReportePDF}
               disabled={cargando || mascotas.length === 0}
             >
-              <ThemedText style={styles.pdfButtonText}>
-                📄 Descargar Reporte PDF
-              </ThemedText>
-              {mascotas.length > 0 && (
-                <ThemedText style={styles.pdfButtonSubtext}>
-                  {mascotas.length}{" "}
-                  {mascotas.length === 1 ? "mascota" : "mascotas"}
-                </ThemedText>
+              {!(cargando || mascotas.length === 0) ? (
+                <LinearGradient
+                  colors={["#a78bfa", "#63b3ed"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.pdfButtonGradient}
+                >
+                  <ThemedText style={styles.pdfButtonText}>
+                    � Descargar Reporte PDF
+                  </ThemedText>
+                  {mascotas.length > 0 && (
+                    <ThemedText style={styles.pdfButtonSubtext}>
+                      {mascotas.length}{" "}
+                      {mascotas.length === 1 ? "mascota" : "mascotas"}
+                    </ThemedText>
+                  )}
+                </LinearGradient>
+              ) : (
+                <View
+                  style={[styles.pdfButtonGradient, styles.pdfButtonDisabled]}
+                >
+                  <ThemedText style={styles.pdfButtonText}>
+                    📊 Descargar Reporte PDF
+                  </ThemedText>
+                </View>
               )}
             </TouchableOpacity>
 
             {/* Formulario para agregar/editar mascota */}
             {mostrarFormulario && (
               <View style={styles.formContainer}>
-                <ThemedText type="subtitle" style={styles.formTitle}>
-                  {modoEdicion ? "Editar Mascota" : "Nueva Mascota"}
-                </ThemedText>
-
-                {/* Campo Nombre */}
-                <ThemedText style={styles.label}>Nombre *</ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ej: Firulais"
-                  placeholderTextColor="#999"
-                  value={nombre}
-                  onChangeText={setNombre}
-                />
-
-                {/* Campo Especie */}
-                <ThemedText style={styles.label}>Especie *</ThemedText>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={especie}
-                    onValueChange={(value) => setEspecie(value)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Perro" value="Perro" />
-                    <Picker.Item label="Gato" value="Gato" />
-                    <Picker.Item label="Conejo" value="Conejo" />
-                    <Picker.Item label="Ave" value="Ave" />
-                    <Picker.Item label="Otro" value="Otro" />
-                  </Picker>
-                </View>
-
-                {/* Campo Raza */}
-                <ThemedText style={styles.label}>Raza *</ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ej: Labrador"
-                  placeholderTextColor="#999"
-                  value={raza}
-                  onChangeText={setRaza}
-                />
-
-                {/* Campo Edad */}
-                <ThemedText style={styles.label}>Edad (años) *</ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ej: 2"
-                  placeholderTextColor="#999"
-                  value={edad}
-                  onChangeText={setEdad}
-                  keyboardType="numeric"
-                />
-
-                {/* Campo Sexo */}
-                <ThemedText style={styles.label}>Sexo *</ThemedText>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={sexo}
-                    onValueChange={(value) => setSexo(value)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Macho" value="Macho" />
-                    <Picker.Item label="Hembra" value="Hembra" />
-                    <Picker.Item label="Desconocido" value="Desconocido" />
-                  </Picker>
-                </View>
-
-                {/* Campo Ciudad */}
-                <ThemedText style={styles.label}>Ciudad *</ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ej: Bogotá"
-                  placeholderTextColor="#999"
-                  value={ciudad}
-                  onChangeText={setCiudad}
-                />
-
-                {/* Campo Fecha de Nacimiento */}
-                <ThemedText style={styles.label}>
-                  Fecha de Nacimiento (opcional)
-                </ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="YYYY-MM-DD (Ej: 2020-01-15)"
-                  placeholderTextColor="#999"
-                  value={fechaNacimiento}
-                  onChangeText={setFechaNacimiento}
-                />
-
-                {/* Campo Descripción */}
-                <ThemedText style={styles.label}>
-                  Descripción (opcional)
-                </ThemedText>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  placeholder="Descripción de la mascota..."
-                  placeholderTextColor="#999"
-                  value={descripcion}
-                  onChangeText={setDescripcion}
-                  multiline
-                  numberOfLines={4}
-                />
-
-                {/* Selector de Imágenes */}
-                <ThemedText style={styles.label}>
-                  Imágenes * (máximo 3)
-                </ThemedText>
-                <TouchableOpacity
-                  style={[
-                    styles.imageButton,
-                    imagenes.length >= 3 && styles.imageButtonDisabled,
-                  ]}
-                  onPress={seleccionarImagenes}
-                  disabled={imagenes.length >= 3}
+                {/* Header del formulario con gradiente */}
+                <LinearGradient
+                  colors={["#68d391", "#63b3ed"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.formHeader}
                 >
-                  <ThemedText style={styles.imageButtonText}>
-                    {imagenes.length >= 3
-                      ? "Límite de imágenes alcanzado"
-                      : `Seleccionar Imágenes (${imagenes.length}/3)`}
+                  <ThemedText style={styles.formTitle}>
+                    {modoEdicion ? "✏️ Editar Mascota" : "🐾 Nueva Mascota"}
                   </ThemedText>
-                </TouchableOpacity>
+                </LinearGradient>
 
-                {/* Miniaturas de imágenes seleccionadas */}
-                {imagenes.length > 0 && (
-                  <View style={styles.imagenesContainer}>
-                    {imagenes.map((uri, index) => (
-                      <View key={index} style={styles.imagenWrapper}>
-                        <Image
-                          source={{ uri }}
-                          style={styles.imagenMiniatura}
-                        />
-                        <TouchableOpacity
-                          style={styles.eliminarImagenButton}
-                          onPress={() => eliminarImagen(index)}
-                        >
-                          <ThemedText style={styles.eliminarImagenText}>
-                            ✕
-                          </ThemedText>
-                        </TouchableOpacity>
-                      </View>
-                    ))}
+                {/* Contenido del formulario */}
+                <View style={styles.formContent}>
+                  {/* Campo Nombre */}
+                  <ThemedText style={styles.label}>Nombre *</ThemedText>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: Firulais"
+                    placeholderTextColor="#999"
+                    value={nombre}
+                    onChangeText={setNombre}
+                  />
+
+                  {/* Campo Especie */}
+                  <ThemedText style={styles.label}>Especie *</ThemedText>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={especie}
+                      onValueChange={(value) => setEspecie(value)}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Perro" value="Perro" />
+                      <Picker.Item label="Gato" value="Gato" />
+                      <Picker.Item label="Conejo" value="Conejo" />
+                      <Picker.Item label="Ave" value="Ave" />
+                      <Picker.Item label="Otro" value="Otro" />
+                    </Picker>
                   </View>
-                )}
 
-                {/* Botones de acción */}
-                <View style={styles.formActions}>
+                  {/* Campo Raza */}
+                  <ThemedText style={styles.label}>Raza *</ThemedText>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: Labrador"
+                    placeholderTextColor="#999"
+                    value={raza}
+                    onChangeText={setRaza}
+                  />
+
+                  {/* Campo Edad */}
+                  <ThemedText style={styles.label}>Edad (años) *</ThemedText>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: 2"
+                    placeholderTextColor="#999"
+                    value={edad}
+                    onChangeText={setEdad}
+                    keyboardType="numeric"
+                  />
+
+                  {/* Campo Sexo */}
+                  <ThemedText style={styles.label}>Sexo *</ThemedText>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={sexo}
+                      onValueChange={(value) => setSexo(value)}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Macho" value="Macho" />
+                      <Picker.Item label="Hembra" value="Hembra" />
+                      <Picker.Item label="Desconocido" value="Desconocido" />
+                    </Picker>
+                  </View>
+
+                  {/* Campo Ciudad */}
+                  <ThemedText style={styles.label}>Ciudad *</ThemedText>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ej: Bogotá"
+                    placeholderTextColor="#999"
+                    value={ciudad}
+                    onChangeText={setCiudad}
+                  />
+
+                  {/* Campo Fecha de Nacimiento */}
+                  <ThemedText style={styles.label}>
+                    Fecha de Nacimiento (opcional)
+                  </ThemedText>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD (Ej: 2020-01-15)"
+                    placeholderTextColor="#999"
+                    value={fechaNacimiento}
+                    onChangeText={setFechaNacimiento}
+                  />
+
+                  {/* Campo Descripción */}
+                  <ThemedText style={styles.label}>
+                    Descripción (opcional)
+                  </ThemedText>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Descripción de la mascota..."
+                    placeholderTextColor="#999"
+                    value={descripcion}
+                    onChangeText={setDescripcion}
+                    multiline
+                    numberOfLines={4}
+                  />
+
+                  {/* Selector de Imágenes */}
+                  <ThemedText style={styles.label}>
+                    Imágenes * (máximo 3)
+                  </ThemedText>
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.cancelButton]}
-                    onPress={limpiarFormulario}
+                    style={[
+                      styles.imageButton,
+                      imagenes.length >= 3 && styles.imageButtonDisabled,
+                    ]}
+                    onPress={seleccionarImagenes}
+                    disabled={imagenes.length >= 3}
                   >
-                    <ThemedText style={styles.cancelButtonText}>
-                      Cancelar
-                    </ThemedText>
+                    {imagenes.length < 3 ? (
+                      <LinearGradient
+                        colors={["#63b3ed", "#68d391"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.imageButtonGradient}
+                      >
+                        <ThemedText style={styles.imageButtonText}>
+                          {imagenes.length === 0
+                            ? "📷 Seleccionar Imágenes (0/3)"
+                            : `📷 Añadir más (${imagenes.length}/3)`}
+                        </ThemedText>
+                      </LinearGradient>
+                    ) : (
+                      <View
+                        style={[
+                          styles.imageButtonGradient,
+                          styles.imageButtonDisabled,
+                        ]}
+                      >
+                        <ThemedText style={styles.imageButtonText}>
+                          🚫 Límite de imágenes alcanzado
+                        </ThemedText>
+                      </View>
+                    )}
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.saveButton]}
-                    onPress={guardarMascota}
-                  >
-                    <ThemedText style={styles.saveButtonText}>
-                      {modoEdicion ? "Actualizar" : "Guardar"}
-                    </ThemedText>
-                  </TouchableOpacity>
+
+                  {/* Miniaturas de imágenes seleccionadas */}
+                  {imagenes.length > 0 && (
+                    <View style={styles.imagenesContainer}>
+                      {imagenes.map((uri, index) => (
+                        <View key={index} style={styles.imagenWrapper}>
+                          <Image
+                            source={{ uri }}
+                            style={styles.imagenMiniatura}
+                          />
+                          <TouchableOpacity
+                            style={styles.eliminarImagenButton}
+                            onPress={() => eliminarImagen(index)}
+                          >
+                            <ThemedText style={styles.eliminarImagenText}>
+                              ✕
+                            </ThemedText>
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* Botones de acción */}
+                  <View style={styles.formActions}>
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.cancelButton]}
+                      onPress={limpiarFormulario}
+                    >
+                      <View style={styles.actionButtonContent}>
+                        <ThemedText style={styles.cancelButtonText}>
+                          ❌ Cancelar
+                        </ThemedText>
+                      </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={guardarMascota}
+                    >
+                      <LinearGradient
+                        colors={["#02d36b", "#0000c5"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.actionButtonContent}
+                      >
+                        <ThemedText style={styles.saveButtonText}>
+                          {modoEdicion ? "⚙️ Actualizar" : "✓ Guardar"}
+                        </ThemedText>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             )}
@@ -1447,94 +1512,156 @@ export default function GestionarMascotasScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#f7fafc", // bg-main de la paleta
+    position: "relative",
   },
   scrollContainer: {
-    padding: 20,
-    paddingTop: Platform.OS === "ios" ? 60 : 20,
+    padding: 12,
+    paddingTop: Platform.OS === "ios" ? 50 : 12,
+    zIndex: 1,
   },
   header: {
-    marginBottom: 20,
-  },
-  backButton: {
-    fontSize: 16,
-    color: "#4f7c8a",
-    marginBottom: 10,
-  },
-  title: {
-    textAlign: "center",
-    color: "#0e0f11ff",
-    marginBottom: 10,
-  },
-  addButton: {
-    backgroundColor: "#4f7c8a",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  addButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  formContainer: {
     backgroundColor: "#ffffff",
-    padding: 20,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    marginHorizontal: -12,
+    marginTop: -12,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingTop: Platform.OS === "ios" ? 50 : 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
+  backButton: {
+    fontSize: 16,
+    color: "#63b3ed", // azul principal de la paleta
+    marginBottom: 8,
+    fontWeight: "500",
+  },
+  title: {
+    textAlign: "center",
+    color: "#2d3748", // textPrimary
+    marginBottom: 0,
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  addButton: {
+    backgroundColor: "transparent",
+    padding: 0,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  addButtonGradient: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "700",
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  formContainer: {
+    backgroundColor: "rgba(255,255,255,0.95)",
+    marginHorizontal: 4,
+    marginBottom: 16,
+    borderRadius: 16,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  formHeader: {
+    padding: 16,
+    paddingBottom: 12,
+  },
+  formContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
   formTitle: {
-    marginBottom: 15,
-    color: "#0e0f11ff",
+    marginBottom: 0,
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "700",
+    textAlign: "center",
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   label: {
     fontSize: 14,
     fontWeight: "600",
-    marginTop: 10,
-    marginBottom: 5,
-    color: "#334155",
+    marginTop: 12,
+    marginBottom: 6,
+    color: "#2d3748",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderColor: "#e2e8f0",
+    borderRadius: 10,
     padding: 12,
-    fontSize: 16,
+    fontSize: 15,
     backgroundColor: "#ffffff",
-    color: "#0e0f11ff",
+    color: "#2d3748",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   textArea: {
-    height: 100,
+    height: 80,
     textAlignVertical: "top",
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderColor: "#e2e8f0",
+    borderRadius: 10,
     backgroundColor: "#ffffff",
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   picker: {
     height: 50,
-    color: "#0e0f11ff",
+    color: "#2d3748",
   },
   imageButton: {
-    backgroundColor: "#6b9aaa",
+    backgroundColor: "transparent",
+    borderRadius: 10,
+    marginTop: 8,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  imageButtonGradient: {
     padding: 12,
-    borderRadius: 6,
     alignItems: "center",
-    marginTop: 5,
   },
   imageButtonDisabled: {
-    backgroundColor: "#cbd5e1",
+    backgroundColor: "#a0aec0",
+    opacity: 0.6,
   },
   imageButtonText: {
     color: "#ffffff",
@@ -1544,31 +1671,37 @@ const styles = StyleSheet.create({
   imagenesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: 10,
-    gap: 10,
+    marginTop: 12,
+    gap: 12,
   },
   imagenWrapper: {
     position: "relative",
-    width: 90,
-    height: 90,
+    width: 100,
+    height: 100,
   },
   imagenMiniatura: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
+    width: 100,
+    height: 100,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#e2e8f0", // borderCard
+    backgroundColor: "#f8f9fa",
   },
   eliminarImagenButton: {
     position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "#ef4444",
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+    top: -6,
+    right: -6,
+    backgroundColor: "#ff4757", // rojo error texto
+    borderRadius: 14,
+    width: 28,
+    height: 28,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   eliminarImagenText: {
     color: "#ffffff",
@@ -1583,133 +1716,183 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    padding: 12,
-    borderRadius: 6,
+    borderRadius: 10,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  actionButtonContent: {
+    padding: 14,
     alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
   cancelButtonText: {
-    color: "#475569",
+    color: "#718096",
     fontWeight: "600",
   },
   saveButton: {
-    backgroundColor: "#4f7c8a",
+    backgroundColor: "transparent",
   },
   saveButtonText: {
     color: "#ffffff",
     fontWeight: "600",
   },
   listTitle: {
-    marginBottom: 15,
-    color: "#0e0f11ff",
+    marginBottom: 16,
+    color: "#2d3748", // textPrimary
+    fontSize: 18,
+    fontWeight: "600",
   },
   emptyContainer: {
     alignItems: "center",
-    padding: 40,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
+    padding: 32,
+    backgroundColor: "#ffffff", // bg-white
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#e2e8f0", // borderCard
+    marginTop: 16,
   },
   emptyText: {
     fontSize: 16,
-    color: "#64748b",
-    marginBottom: 5,
+    color: "#2d3748", // textPrimary
+    marginBottom: 6,
+    fontWeight: "500",
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: "#718096", // placeholder
     textAlign: "center",
+    lineHeight: 20,
   },
   mascotaCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    marginBottom: 15,
+    backgroundColor: "#ffffff", // bg-white
+    borderRadius: 12,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#e2e8f0", // borderCard
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
     overflow: "hidden",
   },
   mascotaImagen: {
     width: "100%",
-    height: 200,
+    height: 180,
     resizeMode: "cover",
+    backgroundColor: "#f8f9fa", // bgSection como fallback
   },
   mascotaInfo: {
-    padding: 15,
+    padding: 16,
   },
   mascotaNombre: {
     marginBottom: 8,
-    color: "#0e0f11ff",
+    color: "#2d3748", // textPrimary
+    fontSize: 18,
+    fontWeight: "600",
   },
   mascotaDetalle: {
     fontSize: 14,
-    color: "#475569",
+    color: "#718096", // placeholder
     marginBottom: 4,
+    lineHeight: 18,
   },
   mascotaLabel: {
     fontWeight: "600",
-    color: "#334155",
+    color: "#2d3748", // textPrimary
   },
   mascotaActions: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-    padding: 10,
+    borderTopColor: "#e2e8f0", // borderCard
+    padding: 12,
     gap: 10,
   },
   editButton: {
-    backgroundColor: "#6b9aaa",
+    backgroundColor: "#63b3ed", // azul principal
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   editButtonText: {
     color: "#ffffff",
     fontWeight: "600",
+    fontSize: 14,
   },
   deleteButton: {
-    backgroundColor: "#ef4444",
+    backgroundColor: "#ff4757", // rojo error texto
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flex: 1,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   deleteButtonText: {
     color: "#ffffff",
     fontWeight: "600",
+    fontSize: 14,
   },
   // Estilos para indicadores de carga y errores
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 40,
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: "#4f7c8a",
-  },
-  errorContainer: {
-    backgroundColor: "#fee2e2",
-    padding: 15,
-    borderRadius: 8,
+    padding: 32,
+    backgroundColor: "#ffffff", // bg-white
+    borderRadius: 12,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: "#fecaca",
+    borderColor: "#e2e8f0", // borderCard
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#63b3ed", // azul principal
+    fontWeight: "500",
+  },
+  errorContainer: {
+    backgroundColor: "#fed7d7", // rosa peligro suave
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#fed7d7", // rosa peligro suave
   },
   errorText: {
-    color: "#dc2626",
+    color: "#e53e3e", // rojo peligro
     fontSize: 14,
-    marginBottom: 10,
+    marginBottom: 12,
+    fontWeight: "500",
   },
   retryButton: {
-    backgroundColor: "#ef4444",
-    padding: 10,
-    borderRadius: 6,
+    backgroundColor: "#e53e3e", // rojo peligro
+    padding: 12,
+    borderRadius: 8,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   retryButtonText: {
     color: "#ffffff",
@@ -1728,88 +1911,96 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   overlayLoadingContent: {
-    backgroundColor: "#ffffff",
-    padding: 30,
-    borderRadius: 12,
+    backgroundColor: "#ffffff", // bg-white
+    padding: 32,
+    borderRadius: 16,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    minWidth: 200,
   },
   overlayLoadingText: {
-    marginTop: 15,
+    marginTop: 16,
     fontSize: 16,
-    color: "#0e0f11ff",
+    color: "#2d3748", // textPrimary
     fontWeight: "600",
+    textAlign: "center",
   },
   // Estilos para información del propietario (visible para ADMIN)
   propietarioContainer: {
-    backgroundColor: "#f0f9ff",
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: 10,
+    backgroundColor: "#f0fff4", // fondo verde claro suave personalizado
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
     borderLeftWidth: 3,
-    borderLeftColor: "#0ea5e9",
+    borderLeftColor: "#68d391", // verde principal
   },
   propietarioLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#0369a1",
-    marginBottom: 3,
+    color: "#2d3748", // textPrimary
+    marginBottom: 4,
   },
   propietarioNombre: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#0c4a6e",
+    color: "#2d3748", // textPrimary
     marginBottom: 2,
   },
   propietarioEmail: {
     fontSize: 12,
-    color: "#0369a1",
+    color: "#718096", // placeholder
     fontStyle: "italic",
   },
   // Estilo para mensaje informativo de ADMIN
   adminInfoContainer: {
-    backgroundColor: "#fffbeb",
-    padding: 10,
+    backgroundColor: "#f0fff4", // fondo verde claro suave
+    padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "#fbbf24",
+    borderTopColor: "#68d391", // verde principal
     alignItems: "center",
   },
   adminInfoText: {
     fontSize: 12,
-    color: "#92400e",
+    color: "#2d3748", // textPrimary
     fontStyle: "italic",
     textAlign: "center",
   },
   // Estilos para el botón de descarga de PDF
   pdfButton: {
-    backgroundColor: "#10b981",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginBottom: 20,
+    backgroundColor: "transparent",
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  pdfButtonGradient: {
+    padding: 16,
+    alignItems: "center",
   },
   pdfButtonDisabled: {
-    backgroundColor: "#cbd5e1",
+    backgroundColor: "#a0aec0",
     opacity: 0.6,
   },
   pdfButtonText: {
     color: "#ffffff",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   pdfButtonSubtext: {
-    color: "#ffffff",
+    color: "rgba(255,255,255,0.9)",
     fontSize: 12,
     marginTop: 4,
-    opacity: 0.9,
+    fontWeight: "500",
   },
 });

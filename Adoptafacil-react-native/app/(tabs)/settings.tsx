@@ -100,7 +100,7 @@ export default function ConfiguracionScreen() {
             title: "Gestionar mascotas",
             description: "Agregar, editar o eliminar mascotas",
             icon: "🐾",
-            iconBg: "#68d391",
+            iconBg: "#a7ddadff",
             onPress: () => {
               router.push("../gestionar-mascotas");
             },
@@ -111,7 +111,7 @@ export default function ConfiguracionScreen() {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
       icon: "⚙️",
-      iconBg: "#63b3ed",
+      iconBg: "#ddd8a7ff",
       onPress: () => {
         console.log("Navigate to Configuración de Cuenta");
       },
@@ -120,7 +120,7 @@ export default function ConfiguracionScreen() {
       title: "Notificaciones",
       description: "Configurar preferencias de notificaciones",
       icon: "🔔",
-      iconBg: "#a78bfa",
+      iconBg: "#a7caddff",
       onPress: () => {
         console.log("Navigate to Notificaciones");
       },
@@ -129,7 +129,7 @@ export default function ConfiguracionScreen() {
       title: "Ayuda y Soporte",
       description: "Centro de ayuda y contacto",
       icon: "❓",
-      iconBg: "#68d391",
+      iconBg: "#d0a7ddff",
       onPress: () => {
         console.log("Navigate to Ayuda y Soporte");
       },
@@ -138,7 +138,7 @@ export default function ConfiguracionScreen() {
       title: "Cerrar Sesión",
       description: `Usuario: ${user?.email || "Desconocido"}`,
       icon: "🚪",
-      iconBg: "#fed7d7",
+      iconBg: "#dda7a7ff",
       onPress: handleLogout,
       isLogout: true,
     },
