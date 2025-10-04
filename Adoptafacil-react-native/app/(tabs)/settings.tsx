@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Creamos un contexto para compartir el estado de mascotas en toda la app
 const MascotasContext = createContext<{
@@ -87,7 +88,7 @@ export default function ConfiguracionScreen() {
             title: "Gestionar mascotas",
             description: "Agregar, editar o eliminar mascotas",
             icon: "🐾",
-            iconBg: "#a7ddadff",
+            iconBg: "#68d391",
             onPress: () => {
               router.push("../gestionar-mascotas");
             },
@@ -98,7 +99,7 @@ export default function ConfiguracionScreen() {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
       icon: "⚙️",
-      iconBg: "#ddd8a7ff",
+      iconBg: "#63b3ed",
       onPress: () => {
         console.log("Navigate to Configuración de Cuenta");
       },
@@ -107,7 +108,7 @@ export default function ConfiguracionScreen() {
       title: "Notificaciones",
       description: "Configurar preferencias de notificaciones",
       icon: "🔔",
-      iconBg: "#a7caddff",
+      iconBg: "#a78bfa",
       onPress: () => {
         console.log("Navigate to Notificaciones");
       },
@@ -116,7 +117,7 @@ export default function ConfiguracionScreen() {
       title: "Ayuda y Soporte",
       description: "Centro de ayuda y contacto",
       icon: "❓",
-      iconBg: "#d0a7ddff",
+      iconBg: "#68d391",
       onPress: () => {
         console.log("Navigate to Ayuda y Soporte");
       },
@@ -125,18 +126,29 @@ export default function ConfiguracionScreen() {
       title: "Cerrar Sesión",
       description: `Usuario: ${user?.email || "Desconocido"}`,
       icon: "🚪",
-      iconBg: "#dda7a7ff",
+      iconBg: "#fed7d7",
       onPress: handleLogout,
       isLogout: true,
     },
   ];
 
   return (
-    <ThemedView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <ThemedText type="title" style={styles.title}>
-          Configuración
+    <ScrollView style={styles.container}>
+      {/* Hero Section con gradiente */}
+      <LinearGradient
+        colors={["#02d36bff", "#0000c5ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.heroSection}
+      >
+        <ThemedText style={styles.heroTitle}>Personalizar cuenta</ThemedText>
+        <ThemedText style={styles.heroSubtitle}>
+          Personaliza tu experiencia y gestiona tu cuenta de AdoptaFácil
         </ThemedText>
+      </LinearGradient>
+
+      {/* Sección de contenido */}
+      <ThemedView style={styles.contentSection}>
         {settingsOptions.map((option, index) => {
           // Cerrar sesión tendrá un estilo especial
           const isLogout = "isLogout" in option && option.isLogout;
@@ -185,8 +197,8 @@ export default function ConfiguracionScreen() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
-    </ThemedView>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
@@ -195,17 +207,33 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f7fafc",
   },
-  scrollContainer: {
+  heroSection: {
     padding: 20,
-    paddingBottom: 40,
+    paddingVertical: 30,
+    alignItems: "center",
   },
-  title: {
+  heroTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 10,
-    paddingBottom: 10,
+    fontWeight: "600",
+    color: "#ffffff",
     textAlign: "center",
-    color: "#2d3748",
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  contentSection: {
+    padding: 20,
   },
   optionContainer: {
     backgroundColor: "#ffffff",
