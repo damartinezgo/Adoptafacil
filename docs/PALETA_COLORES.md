@@ -27,10 +27,21 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 | Nombre                | Código HEX | Descripción           | Uso                                |
 | --------------------- | ---------- | --------------------- | ---------------------------------- |
-| **Verde Principal**   | `#68d391`  | Verde esmeralda suave | Estadísticas, elementos destacados |
-| **Azul Principal**    | `#63b3ed`  | Azul cielo claro      | Acentos secundarios                |
-| **Púrpura Principal** | `#a78bfa`  | Lavanda suave         | Acentos terciarios                 |
+| **Verde Principal**   | `#68d391`  | Verde esmeralda suave | Estadísticas, elementos destacados, iconos gestión/ayuda |
+| **Azul Principal**    | `#63b3ed`  | Azul cielo claro      | Acentos secundarios, iconos configuración |
+| **Púrpura Principal** | `#a78bfa`  | Lavanda suave         | Acentos terciarios, iconos notificaciones |
 | **Azul Botón**        | `#bee3f8`  | Azul pastel           | Botones secundarios, badges        |
+| **Gris Flecha**       | `#a0aec0`  | Gris claro navegación | Flechas de navegación, elementos secundarios |
+
+## 🚨 Colores de Estado
+
+| Nombre                | Código HEX | Descripción           | Uso                                |
+| --------------------- | ---------- | --------------------- | ---------------------------------- |
+| **Rosa Peligro Suave**| `#fed7d7`  | Rosa muy claro        | Fondos y bordes de estado peligro  |
+| **Rojo Peligro**      | `#e53e3e`  | Rojo vibrante         | Textos principales de peligro      |
+| **Rojo Peligro Oscuro**| `#c53030` | Rojo oscuro           | Textos secundarios de peligro      |
+| **Rojo Error Input**  | `#ff6b6b`  | Rojo coral            | Bordes de inputs con error         |
+| **Rojo Error Texto**  | `#ff4757`  | Rojo brillante        | Texto de error en inputs           |
 
 ## 🏠 Colores de Fondo
 
@@ -65,6 +76,27 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 | **Tarjetas**              | `#ffffff`                | `#e2e8f0`               | `#2d3748`        |                         | Tarjetas de categorías, información |
 | **Contenedores**          | `#f8f9fa`                | N/A                     |                  |                         | Secciones de contenido              |
 | **Campos de entrada**     | `#f8f9fa`                | `#e2e8f0`               | `#2d3748`        | `#718096`               | Campos de login, búsqueda           |
+
+### Configuración y Settings
+
+| Componente                | Fondo (background) | Borde (border) | Texto (text) | Icono (icon) | Descripción                             |
+| ------------------------- | ------------------ | -------------- | ------------ | ------------ | --------------------------------------- |
+| **Opción Settings**       | `#ffffff`          | `#e2e8f0`      | `#2d3748`    | N/A          | Opciones de configuración normales      |
+| **Icono Gestionar**       | `#68d391`          | N/A            | `#ffffff`    | 🐾           | Fondo icono para gestión de mascotas    |
+| **Icono Configuración**   | `#63b3ed`          | N/A            | `#ffffff`    | ⚙️           | Fondo icono para configuración cuenta   |
+| **Icono Notificaciones**  | `#a78bfa`          | N/A            | `#ffffff`    | 🔔           | Fondo icono para notificaciones         |
+| **Icono Ayuda**           | `#68d391`          | N/A            | `#ffffff`    | ❓           | Fondo icono para ayuda y soporte        |
+| **Opción Logout**         | `#ffffff`          | `#fed7d7`      | `#e53e3e`    | 🚪           | Opción cerrar sesión (estado peligro)  |
+| **Flecha Navegación**     | N/A                | N/A            | `#a0aec0`    | ▶️           | Indicador de navegación                 |
+| **Flecha Logout**         | N/A                | N/A            | `#e53e3e`    | 🚪           | Indicador para cerrar sesión            |
+
+### Estados de Peligro
+
+| Componente              | Color de Fondo | Color de Borde | Color de Texto Principal | Color de Texto Secundario | Descripción                    |
+| ----------------------- | -------------- | -------------- | ------------------------ | ------------------------- | ------------------------------ |
+| **Logout Container**    | `#ffffff`      | `#fed7d7`      | `#e53e3e`                | `#c53030`                 | Contenedor de cerrar sesión    |
+| **Logout Icon Bg**      | `#fed7d7`      | N/A            | N/A                      | N/A                       | Fondo icono cerrar sesión      |
+| **Error Input Border**  | N/A            | `#ff6b6b`      | `#ff4757`                | N/A                       | Borde de input con error       |
 
 ## 🧩 Sombra y Elevación
 
@@ -118,7 +150,7 @@ Usa `shadowColor: "#000"` y `elevation` para dar profundidad a tarjetas y botone
 ### CSS/React Native
 
 ```javascript
-// Ejemplo de estilos consistentes para login y home
+// Ejemplo de estilos consistentes para login, home y settings
 const styles = StyleSheet.create({
   // Login
   input: {
@@ -150,6 +182,42 @@ const styles = StyleSheet.create({
     color: "#2d3748",
     // ...otros estilos
   },
+  // Settings - Iconos circulares
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  // Settings - Opciones de configuración
+  optionContainer: {
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    borderRadius: 15,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  // Settings - Estado de peligro (logout)
+  logoutContainer: {
+    backgroundColor: "#ffffff",
+    borderColor: "#fed7d7",
+  },
+  logoutTitle: {
+    color: "#e53e3e",
+  },
+  logoutDescription: {
+    color: "#c53030",
+  },
 });
 ```
 
@@ -157,12 +225,19 @@ const styles = StyleSheet.create({
 
 ```css
 :root {
+  /* Gradientes */
   --gradient-main-from: #02d36bff;
   --gradient-main-to: #0000c5ff;
+  --gradient-secondary-from: #68d391;
+  --gradient-secondary-to: #63b3ed;
+  
+  /* Botones */
   --color-btn-primary-bg: #00b746bf;
   --color-btn-primary-text: #ffffffff;
   --color-btn-register-text: #68d391;
   --color-btn-forgot-text: #63b3ed;
+  
+  /* Inputs */
   --color-input-bg: rgba(255, 255, 255, 0.9);
   --color-input-bg-hero: rgba(255, 255, 255, 0.2);
   --color-input-border: rgba(255, 255, 255, 0.3);
@@ -173,14 +248,45 @@ const styles = StyleSheet.create({
   --color-input-text-hero: #fff;
   --color-input-placeholder: #718096;
   --color-input-placeholder-hero: rgba(255, 255, 255, 0.7);
+  
+  /* Textos */
   --color-title: #0e0f11ff;
   --color-subtitle: #2a3038ff;
+  --color-text-primary: #2d3748;
+  --color-text-placeholder: #718096;
+  --color-text-white: #ffffff;
+  
+  /* Fondos */
   --color-bg-main: #f7fafc;
   --color-bg-section: #f8f9fa;
   --color-bg-white: #ffffff;
+  --color-bg-featured: #f0fff4;
+  
+  /* Bordes y tarjetas */
   --color-border-card: #e2e8f0;
   --color-card-bg-hero: rgba(255, 255, 255, 0.15);
   --color-card-border-hero: rgba(255, 255, 255, 0.3);
+  
+  /* Acentos */
+  --color-accent-green: #68d391;
+  --color-accent-blue: #63b3ed;
+  --color-accent-purple: #a78bfa;
+  --color-accent-blue-light: #bee3f8;
+  --color-navigation-arrow: #a0aec0;
+  
+  /* Estados de peligro */
+  --color-danger-bg: #fed7d7;
+  --color-danger-text: #e53e3e;
+  --color-danger-text-dark: #c53030;
+  --color-error-border: #ff6b6b;
+  --color-error-text: #ff4757;
+  
+  /* Settings - Iconos */
+  --color-icon-management: #68d391;
+  --color-icon-settings: #63b3ed;
+  --color-icon-notifications: #a78bfa;
+  --color-icon-help: #68d391;
+  --color-icon-logout: #fed7d7;
 }
 ```
 
@@ -192,9 +298,31 @@ const styles = StyleSheet.create({
 - **Inputs**: Diferencia los inputs sobre gradiente (home hero) y sobre fondo claro (login) usando los colores definidos.
 - **Errores**: Aplica los colores de error en borde y fondo para inputs inválidos.
 - **Sombra y elevación**: Úsalos para dar profundidad y resaltar componentes interactivos.
+- **Iconos circulares**: En settings usar fondos de acento con sombra sutil para elementos interactivos.
+- **Estados de peligro**: Para logout y elementos críticos, usa colores de peligro pero mantén elegancia.
+- **Navegación visual**: Usa flechas y elementos direccionales para guiar al usuario.
 - **Extensibilidad**: La paleta permite agregar variaciones manteniendo la armonía.
 - **Accesibilidad**: Colores probados para cumplir estándares WCAG 2.1.
 - **Escalabilidad**: Paleta diseñada para crecer con la aplicación.
+
+## 🎯 Patrones de Implementación
+
+### Settings Screen
+- **Contenedor principal**: `#f7fafc` (bg-main)
+- **Opciones normales**: Fondo blanco (`#ffffff`) con borde (`#e2e8f0`)
+- **Iconos circulares**: Fondos de acento (`#68d391`, `#63b3ed`, `#a78bfa`) con sombra
+- **Logout**: Fondo blanco con borde rosa (`#fed7d7`) y textos rojos
+- **Navegación**: Flechas grises (`#a0aec0`) para indicar acción
+
+### Home Screen  
+- **Hero section**: Gradiente principal con inputs transparentes
+- **Categorías**: Fondo (`#f8f9fa`) con tarjetas blancas
+- **Featured**: Fondo verde claro (`#f0fff4`) con estadísticas coloridas
+
+### Login Screen
+- **Inputs**: Fondo semi-transparente sobre gradiente
+- **Errores**: Bordes rojos (`#ff6b6b`) con textos de error (`#ff4757`)
+- **Botones**: Primario verde (`#00b746bf`), secundarios transparentes
 
 ---
 

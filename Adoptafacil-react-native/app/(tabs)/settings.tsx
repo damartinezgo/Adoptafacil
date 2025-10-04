@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useState, createContext, useContext } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, Alert, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -93,6 +93,8 @@ export default function ConfiguracionScreen() {
           {
             title: "Gestionar mascotas",
             description: "Agregar, editar o eliminar mascotas",
+            icon: "🐾",
+            iconBg: "#68d391",
             onPress: () => {
               router.push("../gestionar-mascotas");
             },
@@ -102,6 +104,8 @@ export default function ConfiguracionScreen() {
     {
       title: "Configuración de Cuenta",
       description: "Cambiar contraseña, email, etc.",
+      icon: "⚙️",
+      iconBg: "#63b3ed",
       onPress: () => {
         console.log("Navigate to Configuración de Cuenta");
       },
@@ -109,6 +113,8 @@ export default function ConfiguracionScreen() {
     {
       title: "Notificaciones",
       description: "Configurar preferencias de notificaciones",
+      icon: "🔔",
+      iconBg: "#a78bfa",
       onPress: () => {
         console.log("Navigate to Notificaciones");
       },
@@ -116,6 +122,8 @@ export default function ConfiguracionScreen() {
     {
       title: "Ayuda y Soporte",
       description: "Centro de ayuda y contacto",
+      icon: "❓",
+      iconBg: "#68d391",
       onPress: () => {
         console.log("Navigate to Ayuda y Soporte");
       },
@@ -123,6 +131,8 @@ export default function ConfiguracionScreen() {
     {
       title: "Cerrar Sesión",
       description: `Usuario: ${user?.email || "Desconocido"}`,
+      icon: "🚪",
+      iconBg: "#fed7d7",
       onPress: handleLogout,
       isLogout: true,
     },
@@ -146,20 +156,32 @@ export default function ConfiguracionScreen() {
               ]}
               onPress={option.onPress}
             >
-              <ThemedText
-                type="subtitle"
-                style={[styles.optionTitle, isLogout && styles.logoutTitle]}
-              >
-                {option.title}
-              </ThemedText>
-              <ThemedText
-                style={[
-                  styles.optionDescription,
-                  isLogout && styles.logoutDescription,
-                ]}
-              >
-                {option.description}
-              </ThemedText>
+              <View style={styles.optionContent}>
+                <View style={[styles.iconContainer, { backgroundColor: option.iconBg }]}>
+                  <ThemedText style={styles.iconText}>{option.icon}</ThemedText>
+                </View>
+                <View style={styles.textContainer}>
+                  <ThemedText
+                    type="subtitle"
+                    style={[styles.optionTitle, isLogout && styles.logoutTitle]}
+                  >
+                    {option.title}
+                  </ThemedText>
+                  <ThemedText
+                    style={[
+                      styles.optionDescription,
+                      isLogout && styles.logoutDescription,
+                    ]}
+                  >
+                    {option.description}
+                  </ThemedText>
+                </View>
+                <View style={styles.arrowContainer}>
+                  <ThemedText style={[styles.arrow, isLogout && styles.logoutArrow]}>
+                    {isLogout ? "🚪" : "▶️"}
+                  </ThemedText>
+                </View>
+              </View>
             </TouchableOpacity>
           );
         })}
@@ -171,47 +193,92 @@ export default function ConfiguracionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#f7fafc",
   },
   scrollContainer: {
     padding: 20,
+    paddingBottom: 40,
   },
   title: {
-    marginBottom: 20,
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 10,
+    paddingBottom: 10,
     textAlign: "center",
-    color: "#0e0f11ff",
+    color: "#2d3748",
   },
   optionContainer: {
     backgroundColor: "#ffffff",
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 8,
+    padding: 20,
+    marginBottom: 12,
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    elevation: 3,
+  },
+  optionContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
     elevation: 2,
   },
+  iconText: {
+    fontSize: 22,
+  },
+  textContainer: {
+    flex: 1,
+  },
   optionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "#2a3038ff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 6,
+    color: "#2d3748",
   },
   optionDescription: {
     fontSize: 14,
     color: "#718096",
+    lineHeight: 20,
+  },
+  arrowContainer: {
+    marginLeft: 10,
+  },
+  arrow: {
+    fontSize: 16,
+    color: "#a0aec0",
   },
   logoutContainer: {
-    backgroundColor: "#fee",
-    borderColor: "#f87171",
+    backgroundColor: "#ffffff",
+    borderColor: "#fed7d7",
+    marginTop: 10,
   },
   logoutTitle: {
-    color: "#dc2626",
+    color: "#e53e3e",
   },
   logoutDescription: {
-    color: "#991b1b",
+    color: "#c53030",
+  },
+  logoutArrow: {
+    color: "#e53e3e",
   },
 });
