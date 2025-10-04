@@ -27,6 +27,79 @@ import {
   type MascotaReporte,
 } from "@/utils/pdfReport";
 
+// Datos de razas por especie
+const RAZAS_PERROS = [
+  "Labrador Retriever", "Golden Retriever", "Pastor Alemán", "Bulldog Francés", 
+  "Beagle", "Poodle", "Rottweiler", "Yorkshire Terrier", "Boxer", "Dachshund",
+  "Siberian Husky", "Border Collie", "Chihuahua", "Shih Tzu", "Boston Terrier",
+  "Pomeranian", "Cocker Spaniel", "Mastín", "Doberman", "Schnauzer", "Pitbull",
+  "Jack Russell Terrier", "Maltes", "Bichón Frisé", "Akita", "San Bernardo",
+  "Terranova", "Weimaraner", "Basset Hound", "Mestizo", "Criollo", "Otra"
+];
+
+const RAZAS_GATOS = [
+  "Persa", "Maine Coon", "Siamés", "Ragdoll", "British Shorthair", "Abisinio",
+  "Bengala", "Russian Blue", "Scottish Fold", "Sphynx", "Norwegian Forest",
+  "Birman", "Oriental", "Burmese", "Tonkinese", "Manx", "Devon Rex", "Cornish Rex",
+  "Angora Turco", "Chartreux", "Bombay", "Savannah", "Europeo", "Criollo", 
+  "Mestizo", "Callejero", "Otra"
+];
+
+// Ciudades principales de Colombia
+const CIUDADES_COLOMBIA = [
+  "Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena", "Cúcuta", "Soledad",
+  "Ibagué", "Bucaramanga", "Soacha", "Santa Marta", "Villavicencio", "Valledupar",
+  "Pereira", "Montería", "Pasto", "Manizales", "Neiva", "Palmira", "Popayán",
+  "Buenaventura", "Floridablanca", "Sincelejo", "Tunja", "Armenia", "Girardot",
+  "Riohacha", "Itagüí", "Envigado", "Cartago", "Bello", "Tuluá", "Facatativá",
+  "Maicao", "Apartadó", "Zipaquirá", "Fusagasugá", "Chía", "Mosquera", "Duitama",
+  "Sogamoso", "Girón", "Piedecuesta", "Magangué", "Quibdó", "Arauca", "Yopal",
+  "Florencia", "Mocoa", "San Andrés", "Leticia", "Puerto Carreño", "Mitú",
+  "Inírida"
+].sort();
+
+/**
+ * Calcula la edad exacta desde una fecha de nacimiento
+ * @param fechaNacimiento - Fecha de nacimiento en formato Date o string
+ * @returns Texto formateado con años, meses y días
+ */
+const calcularEdadCompleta = (fechaNacimiento: Date | string): string => {
+  if (!fechaNacimiento) return "";
+  
+  const fechaNac = typeof fechaNacimiento === 'string' ? new Date(fechaNacimiento) : fechaNacimiento;
+  const hoy = new Date();
+  
+  // Validar que la fecha no sea futura
+  if (fechaNac > hoy) {
+    return "Fecha inválida";
+  }
+  
+  let años = hoy.getFullYear() - fechaNac.getFullYear();
+  let meses = hoy.getMonth() - fechaNac.getMonth();
+  let días = hoy.getDate() - fechaNac.getDate();
+  
+  // Ajustar si los días son negativos
+  if (días < 0) {
+    meses--;
+    const diasEnMesAnterior = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+    días += diasEnMesAnterior;
+  }
+  
+  // Ajustar si los meses son negativos
+  if (meses < 0) {
+    años--;
+    meses += 12;
+  }
+  
+  // Formatear el resultado
+  const partes = [];
+  if (años > 0) partes.push(`${años} año${años !== 1 ? 's' : ''}`);
+  if (meses > 0) partes.push(`${meses} mes${meses !== 1 ? 'es' : ''}`);
+  if (días > 0) partes.push(`${días} día${días !== 1 ? 's' : ''}`);
+  
+  return partes.length > 0 ? partes.join(', ') : 'Recién nacido';
+};
+
 /**
  * Construye una URL completa para acceder a las imágenes del servidor
  * @param imagePath - Ruta de la imagen que puede ser relativa o absoluta
@@ -184,6 +257,36 @@ export default function GestionarMascotasScreen() {
   const [imagenesConId, setImagenesConId] = useState<Map<string, number>>(
     new Map()
   );
+
+  // Estado para las razas dinámicas según la especie
+  const [razasDisponibles, setRazasDisponibles] = useState<string[]>(RAZAS_PERROS);
+
+  // Efecto para actualizar razas cuando cambia la especie
+  useEffect(() => {
+    const nuevasRazas = especie === "Perro" ? RAZAS_PERROS : RAZAS_GATOS;
+    setRazasDisponibles(nuevasRazas);
+    setRaza(""); // Limpiar raza al cambiar especie
+  }, [especie]);
+
+  // Efecto para calcular edad automáticamente cuando cambia la fecha de nacimiento
+  useEffect(() => {
+    if (fechaNacimiento && fechaNacimiento.trim() !== "") {
+      try {
+        const fechaFormateada = formatearFecha(fechaNacimiento);
+        if (fechaFormateada) {
+          const edadCalculada = calcularEdadCompleta(fechaFormateada);
+          setEdad(edadCalculada);
+        } else {
+          setEdad("");
+        }
+      } catch (error) {
+        console.error("Error calculando edad:", error);
+        setEdad("");
+      }
+    } else {
+      setEdad("");
+    }
+  }, [fechaNacimiento]);
 
   // Verificar permisos y cargar mascotas al montar el componente
   useEffect(() => {
@@ -875,6 +978,7 @@ export default function GestionarMascotasScreen() {
     setDescripcion("");
     setImagenes([]);
     setImagenesConId(new Map()); // Limpiar el mapa de IDs
+    setRazasDisponibles(RAZAS_PERROS); // Resetear a razas de perro por defecto
     setModoEdicion(false);
     setMascotaEditando(null);
     setMostrarFormulario(false);
@@ -889,6 +993,11 @@ export default function GestionarMascotasScreen() {
     setMascotaEditando(mascota);
     setNombre(mascota.nombre);
     setEspecie(mascota.especie);
+    
+    // Actualizar razas disponibles según la especie
+    const nuevasRazas = mascota.especie === "Perro" ? RAZAS_PERROS : RAZAS_GATOS;
+    setRazasDisponibles(nuevasRazas);
+    
     setRaza(mascota.raza);
     setEdad(mascota.edad);
     // Filtrar solo las imágenes que ya existen en el servidor (máximo 3)
@@ -961,18 +1070,30 @@ export default function GestionarMascotasScreen() {
       Alert.alert("Error", "El nombre es obligatorio");
       return;
     }
+    if (!especie.trim()) {
+      Alert.alert("Error", "La especie es obligatoria");
+      return;
+    }
     if (!raza.trim()) {
       Alert.alert("Error", "La raza es obligatoria");
       return;
     }
-    if (!edad.trim()) {
-      Alert.alert("Error", "La edad es obligatoria");
+    if (!fechaNacimiento.trim()) {
+      Alert.alert("Error", "La fecha de nacimiento es obligatoria");
+      return;
+    }
+    if (!sexo.trim()) {
+      Alert.alert("Error", "El sexo es obligatorio");
+      return;
+    }
+    if (!ciudad.trim()) {
+      Alert.alert("Error", "La ciudad es obligatoria");
       return;
     }
 
-    // La ciudad solo es obligatoria al crear una nueva mascota
-    if (!modoEdicion && !ciudad.trim()) {
-      Alert.alert("Error", "La ciudad es obligatoria");
+    // Validar que la edad haya sido calculada correctamente
+    if (!edad.trim() || edad === "Fecha inválida") {
+      Alert.alert("Error", "La fecha de nacimiento no es válida o la edad no se pudo calcular");
       return;
     }
 
@@ -1294,31 +1415,43 @@ export default function GestionarMascotasScreen() {
                     >
                       <Picker.Item label="Perro" value="Perro" />
                       <Picker.Item label="Gato" value="Gato" />
-                      <Picker.Item label="Conejo" value="Conejo" />
-                      <Picker.Item label="Ave" value="Ave" />
-                      <Picker.Item label="Otro" value="Otro" />
                     </Picker>
                   </View>
 
                   {/* Campo Raza */}
                   <ThemedText style={styles.label}>Raza *</ThemedText>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={raza}
+                      onValueChange={(value) => setRaza(value)}
+                      style={styles.picker}
+                      enabled={especie !== ""}
+                    >
+                      <Picker.Item label={`Selecciona una raza de ${especie.toLowerCase()}`} value="" />
+                      {razasDisponibles.map((razaItem) => (
+                        <Picker.Item key={razaItem} label={razaItem} value={razaItem} />
+                      ))}
+                    </Picker>
+                  </View>
+
+                  {/* Campo Fecha de Nacimiento */}
+                  <ThemedText style={styles.label}>Fecha de Nacimiento *</ThemedText>
                   <TextInput
                     style={styles.input}
-                    placeholder="Ej: Labrador"
+                    placeholder="YYYY-MM-DD (Ej: 2020-01-15)"
                     placeholderTextColor="#999"
-                    value={raza}
-                    onChangeText={setRaza}
+                    value={fechaNacimiento}
+                    onChangeText={setFechaNacimiento}
                   />
 
-                  {/* Campo Edad */}
-                  <ThemedText style={styles.label}>Edad (años) *</ThemedText>
+                  {/* Campo Edad (calculado automáticamente) */}
+                  <ThemedText style={styles.label}>Edad (calculada automáticamente)</ThemedText>
                   <TextInput
-                    style={styles.input}
-                    placeholder="Ej: 2"
+                    style={[styles.input, styles.inputDisabled]}
+                    placeholder="Se calcula automáticamente desde la fecha de nacimiento"
                     placeholderTextColor="#999"
                     value={edad}
-                    onChangeText={setEdad}
-                    keyboardType="numeric"
+                    editable={false}
                   />
 
                   {/* Campo Sexo */}
@@ -1337,25 +1470,18 @@ export default function GestionarMascotasScreen() {
 
                   {/* Campo Ciudad */}
                   <ThemedText style={styles.label}>Ciudad *</ThemedText>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Ej: Bogotá"
-                    placeholderTextColor="#999"
-                    value={ciudad}
-                    onChangeText={setCiudad}
-                  />
-
-                  {/* Campo Fecha de Nacimiento */}
-                  <ThemedText style={styles.label}>
-                    Fecha de Nacimiento (opcional)
-                  </ThemedText>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="YYYY-MM-DD (Ej: 2020-01-15)"
-                    placeholderTextColor="#999"
-                    value={fechaNacimiento}
-                    onChangeText={setFechaNacimiento}
-                  />
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={ciudad}
+                      onValueChange={(value) => setCiudad(value)}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Selecciona una ciudad" value="" />
+                      {CIUDADES_COLOMBIA.map((ciudadItem) => (
+                        <Picker.Item key={ciudadItem} label={ciudadItem} value={ciudadItem} />
+                      ))}
+                    </Picker>
+                  </View>
 
                   {/* Campo Descripción */}
                   <ThemedText style={styles.label}>
@@ -1750,6 +1876,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
+  },
+  inputDisabled: {
+    backgroundColor: "#f7fafc",
+    color: "#718096",
+    borderColor: "#e2e8f0",
   },
   textArea: {
     height: 80,
