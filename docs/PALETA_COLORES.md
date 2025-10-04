@@ -25,23 +25,23 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 ## 🎨 Colores de Acento
 
-| Nombre                | Código HEX | Descripción           | Uso                                |
-| --------------------- | ---------- | --------------------- | ---------------------------------- |
+| Nombre                | Código HEX | Descripción           | Uso                                                      |
+| --------------------- | ---------- | --------------------- | -------------------------------------------------------- |
 | **Verde Principal**   | `#68d391`  | Verde esmeralda suave | Estadísticas, elementos destacados, iconos gestión/ayuda |
-| **Azul Principal**    | `#63b3ed`  | Azul cielo claro      | Acentos secundarios, iconos configuración |
-| **Púrpura Principal** | `#a78bfa`  | Lavanda suave         | Acentos terciarios, iconos notificaciones |
-| **Azul Botón**        | `#bee3f8`  | Azul pastel           | Botones secundarios, badges        |
-| **Gris Flecha**       | `#a0aec0`  | Gris claro navegación | Flechas de navegación, elementos secundarios |
+| **Azul Principal**    | `#63b3ed`  | Azul cielo claro      | Acentos secundarios, iconos configuración                |
+| **Púrpura Principal** | `#a78bfa`  | Lavanda suave         | Acentos terciarios, iconos notificaciones                |
+| **Azul Botón**        | `#bee3f8`  | Azul pastel           | Botones secundarios, badges                              |
+| **Gris Flecha**       | `#a0aec0`  | Gris claro navegación | Flechas de navegación, elementos secundarios             |
 
 ## 🚨 Colores de Estado
 
-| Nombre                | Código HEX | Descripción           | Uso                                |
-| --------------------- | ---------- | --------------------- | ---------------------------------- |
-| **Rosa Peligro Suave**| `#fed7d7`  | Rosa muy claro        | Fondos y bordes de estado peligro  |
-| **Rojo Peligro**      | `#e53e3e`  | Rojo vibrante         | Textos principales de peligro      |
-| **Rojo Peligro Oscuro**| `#c53030` | Rojo oscuro           | Textos secundarios de peligro      |
-| **Rojo Error Input**  | `#ff6b6b`  | Rojo coral            | Bordes de inputs con error         |
-| **Rojo Error Texto**  | `#ff4757`  | Rojo brillante        | Texto de error en inputs           |
+| Nombre                  | Código HEX | Descripción    | Uso                               |
+| ----------------------- | ---------- | -------------- | --------------------------------- |
+| **Rosa Peligro Suave**  | `#fed7d7`  | Rosa muy claro | Fondos y bordes de estado peligro |
+| **Rojo Peligro**        | `#e53e3e`  | Rojo vibrante  | Textos principales de peligro     |
+| **Rojo Peligro Oscuro** | `#c53030`  | Rojo oscuro    | Textos secundarios de peligro     |
+| **Rojo Error Input**    | `#ff6b6b`  | Rojo coral     | Bordes de inputs con error        |
+| **Rojo Error Texto**    | `#ff4757`  | Rojo brillante | Texto de error en inputs          |
 
 ## 🏠 Colores de Fondo
 
@@ -79,24 +79,24 @@ Paleta de colores suaves y elegantes utilizada en la aplicación AdoptaFácil, e
 
 ### Configuración y Settings
 
-| Componente                | Fondo (background) | Borde (border) | Texto (text) | Icono (icon) | Descripción                             |
-| ------------------------- | ------------------ | -------------- | ------------ | ------------ | --------------------------------------- |
-| **Opción Settings**       | `#ffffff`          | `#e2e8f0`      | `#2d3748`    | N/A          | Opciones de configuración normales      |
-| **Icono Gestionar**       | `#68d391`          | N/A            | `#ffffff`    | 🐾           | Fondo icono para gestión de mascotas    |
-| **Icono Configuración**   | `#63b3ed`          | N/A            | `#ffffff`    | ⚙️           | Fondo icono para configuración cuenta   |
-| **Icono Notificaciones**  | `#a78bfa`          | N/A            | `#ffffff`    | 🔔           | Fondo icono para notificaciones         |
-| **Icono Ayuda**           | `#68d391`          | N/A            | `#ffffff`    | ❓           | Fondo icono para ayuda y soporte        |
-| **Opción Logout**         | `#ffffff`          | `#fed7d7`      | `#e53e3e`    | 🚪           | Opción cerrar sesión (estado peligro)  |
-| **Flecha Navegación**     | N/A                | N/A            | `#a0aec0`    | ▶️           | Indicador de navegación                 |
-| **Flecha Logout**         | N/A                | N/A            | `#e53e3e`    | 🚪           | Indicador para cerrar sesión            |
+| Componente               | Fondo (background) | Borde (border) | Texto (text) | Icono (icon) | Descripción                           |
+| ------------------------ | ------------------ | -------------- | ------------ | ------------ | ------------------------------------- |
+| **Opción Settings**      | `#ffffff`          | `#e2e8f0`      | `#2d3748`    | N/A          | Opciones de configuración normales    |
+| **Icono Gestionar**      | `#68d391`          | N/A            | `#ffffff`    | 🐾           | Fondo icono para gestión de mascotas  |
+| **Icono Configuración**  | `#63b3ed`          | N/A            | `#ffffff`    | ⚙️           | Fondo icono para configuración cuenta |
+| **Icono Notificaciones** | `#a78bfa`          | N/A            | `#ffffff`    | 🔔           | Fondo icono para notificaciones       |
+| **Icono Ayuda**          | `#68d391`          | N/A            | `#ffffff`    | ❓           | Fondo icono para ayuda y soporte      |
+| **Opción Logout**        | `#ffffff`          | `#fed7d7`      | `#e53e3e`    | 🚪           | Opción cerrar sesión (estado peligro) |
+| **Flecha Navegación**    | N/A                | N/A            | `#a0aec0`    | ▶️           | Indicador de navegación               |
+| **Flecha Logout**        | N/A                | N/A            | `#e53e3e`    | 🚪           | Indicador para cerrar sesión          |
 
 ### Estados de Peligro
 
-| Componente              | Color de Fondo | Color de Borde | Color de Texto Principal | Color de Texto Secundario | Descripción                    |
-| ----------------------- | -------------- | -------------- | ------------------------ | ------------------------- | ------------------------------ |
-| **Logout Container**    | `#ffffff`      | `#fed7d7`      | `#e53e3e`                | `#c53030`                 | Contenedor de cerrar sesión    |
-| **Logout Icon Bg**      | `#fed7d7`      | N/A            | N/A                      | N/A                       | Fondo icono cerrar sesión      |
-| **Error Input Border**  | N/A            | `#ff6b6b`      | `#ff4757`                | N/A                       | Borde de input con error       |
+| Componente             | Color de Fondo | Color de Borde | Color de Texto Principal | Color de Texto Secundario | Descripción                 |
+| ---------------------- | -------------- | -------------- | ------------------------ | ------------------------- | --------------------------- |
+| **Logout Container**   | `#ffffff`      | `#fed7d7`      | `#e53e3e`                | `#c53030`                 | Contenedor de cerrar sesión |
+| **Logout Icon Bg**     | `#fed7d7`      | N/A            | N/A                      | N/A                       | Fondo icono cerrar sesión   |
+| **Error Input Border** | N/A            | `#ff6b6b`      | `#ff4757`                | N/A                       | Borde de input con error    |
 
 ## 🧩 Sombra y Elevación
 
@@ -230,13 +230,13 @@ const styles = StyleSheet.create({
   --gradient-main-to: #0000c5ff;
   --gradient-secondary-from: #68d391;
   --gradient-secondary-to: #63b3ed;
-  
+
   /* Botones */
   --color-btn-primary-bg: #00b746bf;
   --color-btn-primary-text: #ffffffff;
   --color-btn-register-text: #68d391;
   --color-btn-forgot-text: #63b3ed;
-  
+
   /* Inputs */
   --color-input-bg: rgba(255, 255, 255, 0.9);
   --color-input-bg-hero: rgba(255, 255, 255, 0.2);
@@ -248,39 +248,39 @@ const styles = StyleSheet.create({
   --color-input-text-hero: #fff;
   --color-input-placeholder: #718096;
   --color-input-placeholder-hero: rgba(255, 255, 255, 0.7);
-  
+
   /* Textos */
   --color-title: #0e0f11ff;
   --color-subtitle: #2a3038ff;
   --color-text-primary: #2d3748;
   --color-text-placeholder: #718096;
   --color-text-white: #ffffff;
-  
+
   /* Fondos */
   --color-bg-main: #f7fafc;
   --color-bg-section: #f8f9fa;
   --color-bg-white: #ffffff;
   --color-bg-featured: #f0fff4;
-  
+
   /* Bordes y tarjetas */
   --color-border-card: #e2e8f0;
   --color-card-bg-hero: rgba(255, 255, 255, 0.15);
   --color-card-border-hero: rgba(255, 255, 255, 0.3);
-  
+
   /* Acentos */
   --color-accent-green: #68d391;
   --color-accent-blue: #63b3ed;
   --color-accent-purple: #a78bfa;
   --color-accent-blue-light: #bee3f8;
   --color-navigation-arrow: #a0aec0;
-  
+
   /* Estados de peligro */
   --color-danger-bg: #fed7d7;
   --color-danger-text: #e53e3e;
   --color-danger-text-dark: #c53030;
   --color-error-border: #ff6b6b;
   --color-error-text: #ff4757;
-  
+
   /* Settings - Iconos */
   --color-icon-management: #68d391;
   --color-icon-settings: #63b3ed;
@@ -308,18 +308,21 @@ const styles = StyleSheet.create({
 ## 🎯 Patrones de Implementación
 
 ### Settings Screen
+
 - **Contenedor principal**: `#f7fafc` (bg-main)
 - **Opciones normales**: Fondo blanco (`#ffffff`) con borde (`#e2e8f0`)
 - **Iconos circulares**: Fondos de acento (`#68d391`, `#63b3ed`, `#a78bfa`) con sombra
 - **Logout**: Fondo blanco con borde rosa (`#fed7d7`) y textos rojos
 - **Navegación**: Flechas grises (`#a0aec0`) para indicar acción
 
-### Home Screen  
+### Home Screen
+
 - **Hero section**: Gradiente principal con inputs transparentes
 - **Categorías**: Fondo (`#f8f9fa`) con tarjetas blancas
 - **Featured**: Fondo verde claro (`#f0fff4`) con estadísticas coloridas
 
 ### Login Screen
+
 - **Inputs**: Fondo semi-transparente sobre gradiente
 - **Errores**: Bordes rojos (`#ff6b6b`) con textos de error (`#ff4757`)
 - **Botones**: Primario verde (`#00b746bf`), secundarios transparentes

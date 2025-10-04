@@ -1,7 +1,13 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useState, createContext, useContext } from "react";
-import { ScrollView, StyleSheet, TouchableOpacity, Alert, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -157,7 +163,12 @@ export default function ConfiguracionScreen() {
               onPress={option.onPress}
             >
               <View style={styles.optionContent}>
-                <View style={[styles.iconContainer, { backgroundColor: option.iconBg }]}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { backgroundColor: option.iconBg },
+                  ]}
+                >
                   <ThemedText style={styles.iconText}>{option.icon}</ThemedText>
                 </View>
                 <View style={styles.textContainer}>
@@ -177,7 +188,9 @@ export default function ConfiguracionScreen() {
                   </ThemedText>
                 </View>
                 <View style={styles.arrowContainer}>
-                  <ThemedText style={[styles.arrow, isLogout && styles.logoutArrow]}>
+                  <ThemedText
+                    style={[styles.arrow, isLogout && styles.logoutArrow]}
+                  >
                     {isLogout ? "🚪" : "▶️"}
                   </ThemedText>
                 </View>
